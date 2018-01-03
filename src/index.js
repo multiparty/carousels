@@ -1,11 +1,10 @@
 const babel = require('babel-core');
-
-const analysis = require('./src/analysis');
+const polynomium = require('polynomium');
+const analysis = require('./analysis');
 
 function analyzeCode(code) {
     var analyzed = babel.transform(code, {plugins: [analysis]});
-    console.log('cost: ', analyzed.ast.program.costObject)
-    return analyzed;
+    return analyzed.ast.program.costObject;
 }
 
 module.exports = analyzeCode;

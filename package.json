@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "mocha --reporter spec",
+    "compile": "./node_modules/.bin/babel src -d dist",
     "start": "node server.js"
   },
   "repository": {
@@ -18,8 +19,13 @@
   },
   "homepage": "https://github.com/multiparty/untitled#readme",
   "dependencies": {
-    "babel": "^6.23.0",
     "babel-core": "^6.26.0",
-    "express": "^4.16.2"
+    "chai": "^4.1.2",
+    "express": "^4.16.2",
+    "mocha": "^4.1.0",
+    "polynomium": "^0.1.3"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.26.0"
   }
 }
