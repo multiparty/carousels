@@ -1,0 +1,25 @@
+{
+  "name": "untitled",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/multiparty/untitled.git"
+  },
+  "author": "Lucy Qin <lucyzqin@gmail.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/multiparty/untitled/issues"
+  },
+  "homepage": "https://github.com/multiparty/untitled#readme",
+  "dependencies": {
+    "babel": "^6.23.0",
+    "babel-core": "^6.26.0",
+    "express": "^4.16.2"
+  }
+}
