@@ -2,11 +2,9 @@
   "name": "carousels",
   "version": "0.1.0",
   "description": "Babel parser to analyze performance of JavaScript code",
-  "main": "index.js",
+  "main": "src/carousels.js",
   "scripts": {
-    "test": "mocha --reporter spec",
-    "compile": "./node_modules/.bin/babel src -d dist",
-    "start": "node server.js"
+    "test": "mocha --reporter spec"
   },
   "repository": {
     "type": "git",
