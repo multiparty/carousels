@@ -1,5 +1,6 @@
 const imparse = require('imparse');
 const polynomium = require('polynomium');
+const uuidv4 = require('uuid/v4');
 
 module.exports = function (babel) {
   const t = babel.types;
@@ -12,9 +13,16 @@ module.exports = function (babel) {
     return getCostDefinition(path.parentPath);
   }
 
+  /**
+   * 
+   * @param {} path 
+   * @param {} operationCosts 
+   * @param {*} type 
+   */
   function calculateCost(path, operationCosts, type) {
     var operationName;
     var cost = null;
+
     try {
       operationName = path.node.callee.property.name;
     } catch(TypeError) {
@@ -54,24 +62,38 @@ module.exports = function (babel) {
     return parsePoly(parsed);
   }
 
-  function updateGlobalCost(path, cost, functionName) {
-    if (path.parentPath === null) {
+  /**
+   * 
+   * @param {path object} path 
+   * @param {number} cost 
+   * @param {string} uuid 
+   * @param {string} functionName 
+   */
+  function updateGlobalCost(path, cost, uuid, functionName) {
+    if (t.isProgram(path.node)) {
       var costObject = path.node.costObject;
-      if (functionName in costObject) {
-        var prevCost = costObject[functionName];
+
+      if (uuid in costObject) {
+        
+        var prevCost = costObject[uuid].cost;
         var newCost = prevCost.add(cost);
-        costObject[functionName] = newCost;
+        costObject[uuid].cost = newCost;
       } else {
-        costObject[functionName] = cost;
+        costObject[uuid] = {cost: cost, name: functionName};
       }
       return;
     }
     
     if (path.node.type === 'FunctionDeclaration') {
       functionName = path.node.id.name;
+
+      if (path.node.uuid === undefined) {
+        path.node.uuid = uuidv4(); 
+      }
+      uuid = path.node.uuid;
     }
     // Propagate back up to Program level
-    updateGlobalCost(path.parentPath, cost, functionName);
+    updateGlobalCost(path.parentPath, cost, uuid, functionName);
   }
 
   return {
@@ -87,7 +109,7 @@ module.exports = function (babel) {
         cost = calculateCost(path, costDef, type);
   
         if (cost !== null) {
-          updateGlobalCost(path, cost, null);          
+          updateGlobalCost(path, cost, null, null);          
         }
         // TODO: this should probably be an error
       }

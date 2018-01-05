@@ -43,17 +43,22 @@ var costObject = {
     }
   }
 
+function printCostObject(costObj) {
+  for (var i = 0; i < costObj.length; i++) {
+    // console.log(costObj[i], Object.keys(result[i]))
+  }
+}
+
 describe("#success", function() {
+
+  it('Mult', function() {
     var code = 'function f(a,b) {return a.mult(b).mult(b);}';
     var result = carousels(code, costObject);
-    console.log(result);
 
-    // var code = 'function f(a) {return a.lt(b).gt(b);}';
-    // var result = carousels(code);
-    // console.log(result);
+    var cost = result[Object.keys(result)[0]].cost;
+    expect(cost).to.equal('4n + 6');
+  });
 
-    // var code = 'function f(a) {return a.lt(b).mult(b);}';
-    // var result = carousels(code);
-    // console.log(result);
+  
 
 });
