@@ -1,7 +1,7 @@
 {
-  "name": "untitled",
-  "version": "1.0.0",
-  "description": "",
+  "name": "carousels",
+  "version": "0.1.0",
+  "description": "Babel parser to analyze performance of JavaScript code",
   "main": "index.js",
   "scripts": {
     "test": "mocha --reporter spec",
@@ -10,14 +10,19 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/multiparty/untitled.git"
+    "url": "git+https://github.com/multiparty/carousels.git"
   },
-  "author": "Lucy Qin <lucyzqin@gmail.com>",
-  "license": "ISC",
+  "author": "Boston University Software & Application Innovation Lab",
+  "license": "MIT",
   "bugs": {
-    "url": "https://github.com/multiparty/untitled/issues"
+    "url": "https://github.com/multiparty/carousels/issues"
   },
-  "homepage": "https://github.com/multiparty/untitled#readme",
+  "keywords": [
+    "javascript",
+    "performance",
+    "analysis"
+  ],
+  "homepage": "https://github.com/multiparty/carousels#readme",
   "dependencies": {
     "babel-core": "^6.26.0",
     "chai": "^4.1.2",

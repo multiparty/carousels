@@ -1,28 +1,16 @@
 const imparse = require('imparse');
 const polynomium = require('polynomium');
 
-var costObject = {
-  'add': function(type) {
-    return '0';
-  },
-  'mult': function(type) {
-    if (type === 'NumericLiteral') {
-      return 0;
-    }
-    return '2*n+3';
-  }, 
-  'gt': function(type) {
-    return '2*l*n+4*l+2*n+2';
-  },
-  'lt': function(type) {
-    return '2*l*n+4*l+2*n+2';
-  }
-}
-  
-  
 module.exports = function (babel) {
   const t = babel.types;
 
+  function getCostDefinition(path) {
+
+    if (t.isProgram(path.node)) {
+      return path.node.costDefinition;
+    }
+    return getCostDefinition(path.parentPath);
+  }
 
   function calculateCost(path, operationCosts, type) {
     var operationName;
@@ -94,7 +82,9 @@ module.exports = function (babel) {
       CallExpression(path, parent){
         var type = path.node.arguments[0].type;
         var cost = 0;
-        cost = calculateCost(path, costObject, type);
+        var costDef = getCostDefinition(path.parentPath);
+        
+        cost = calculateCost(path, costDef, type);
   
         if (cost !== null) {
           updateGlobalCost(path, cost, null);          
