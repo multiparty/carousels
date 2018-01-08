@@ -58,7 +58,6 @@ module.exports = function (babel) {
     const GRAMMAR_DEF = [{"Term": [{"Add": [["Factor"], "+", ["Term"]]},{"": [["Factor"]]}]},{"Factor": [{"Mul": [["Atom"], "*", ["Factor"]]},{"": [["Atom"]]}]},{"Atom": [{"Num": [{"RegExp":"[0-9]+"}]},{"Var": [{"RegExp":"([a-zA-Z])([a-zA-Z0-9]*)"}]}]}]
 
     parsed = imparse.parse(GRAMMAR_DEF, polyString);
-
     return parsePoly(parsed);
   }
 
@@ -84,6 +83,15 @@ module.exports = function (babel) {
       return;
     }
     
+    if (path.node.type === 'VariableDeclarator') {
+      functionName = path.node.id.name;
+
+      if (path.node.uuid === undefined) {
+        path.node.uuid = uuidv4(); 
+      }
+      uuid = path.node.uuid;
+    }
+
     if (path.node.type === 'FunctionDeclaration') {
       functionName = path.node.id.name;
 
@@ -96,10 +104,25 @@ module.exports = function (babel) {
     updateGlobalCost(path.parentPath, cost, uuid, functionName);
   }
 
+  function getCosts(path) {
+    if (t.isProgram(path)) {
+      return path.node.costObject;
+    }
+    return getCosts(path);
+  }
+
   return {
     visitor: {
       Program(path) {
         path.node.costObject = {};
+      },
+      FunctionDeclaration(path) {
+        var costs = getCosts(path.parentPath);
+        var uuid = uuidv4();
+        var name = path.node.id.name;
+        path.node.uuid = uuid;
+        updateGlobalCost(path, polynomium.c(0), uuid, name);
+        // updateGlobalCost(path, cost, uuidv4()
       },
       CallExpression(path, parent){
         var type = path.node.arguments[0].type;
