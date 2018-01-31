@@ -124,8 +124,4 @@ describe("#success", function() {
     expect(cost).to.equal('2n + 3');
     expect(name).to.equal('a');
   });
-
-
-  
-
 });

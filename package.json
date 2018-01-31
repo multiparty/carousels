@@ -1,6 +1,6 @@
 {
   "name": "carousels",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Babel parser to analyze performance of JavaScript code",
   "main": "src/carousels.js",
   "scripts": {
