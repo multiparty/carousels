@@ -83,7 +83,7 @@
             },
             VariableDeclarator: {
               "exit": function (p) {
-                p.node.metric = p.node.id.metric;
+                p.node.metric = p.node.init.metric;
               }
             },
             ReturnStatement: {
@@ -91,9 +91,20 @@
                 p.node.metric = p.node.argument.metric;
               }
             },
+            BinaryExpression: {
+              "exit": function (p) {
+                var start = p.node.loc.start;
+                if (p.node.operator == "+") {
+                  p.node.metric = [p.node.left, p.node.right].reduce(plus, one);
+                } else {
+                  throw Error("Node type BinaryExpression with operator " + p.node.operator +
+                              " is not handled at line " + start.line + ", column " + start.column + ".");
+                }
+              }
+            },
             NumericLiteral: {
               "exit": function (p) {
-                p.node.metric = one;
+                p.node.metric = zero;
               }
             }
           }
@@ -147,18 +158,18 @@
                 Input definitions:<br/>
                 <textarea id="inp" rows="18" onkeyup="demo('spec', 'inp', 'out');">
 function f(x) {
-  var x = 0;
-  return 1;
+  var x = 1+2+3+4+5+6+7;
+  return x;
 }
 
 function g(x) {
-  var x = 0;
-  return 1;
+  var x = 1+2;
+  var y = 3+4;
+  return x+y;
 }
 
 function h(x) {
-  var x = 0;
-  return 1;
+  return 0;
 }
                 </textarea>
               </td>
