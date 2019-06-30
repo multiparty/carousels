@@ -123,7 +123,7 @@ function demo(specText, inpText, outDiv) {
 
       var bbl = Babel.transform(str, {plugins: ['metric']});
       document.getElementById(outDiv).innerHTML = stringify(bbl.ast.program.results, {maxLength:120}).trim();
-      ;
+
       var ran = range(25);
       window.graph_config.data.datasets = [];
       window.graph_config.data.labels = ran;
@@ -141,6 +141,7 @@ function demo(specText, inpText, outDiv) {
           fill:false
         });
       }
+      document.getElementById('spec').value = JSON.stringify(onlineRounds, null, " ");
 
       window.myLine.update();
     } catch (err) {
