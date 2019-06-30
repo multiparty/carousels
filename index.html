@@ -83,21 +83,10 @@
                 Input definitions:<br/>
                 <textarea id="inp" rows="18" onkeyup="demo('spec', 'inp', 'out');">
                   function f(x) {
-                    var x = 1+2;
-                    share(x);
-                    return x;
-                  }
-                  function g(x) {
-                    var x = 1;
-                    var y = 2
-                    share(x);
-                    share(y);
-                    var z = x > y;
+                    var x = share(1);
+                    var y = share(2).sadd(3);
+                    var z = y.sadd(x);
                     return z;
-                  }
-
-                  function h(x) {
-                    return 0;
                   }
                 </textarea>
               </td>

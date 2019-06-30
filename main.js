@@ -30,9 +30,11 @@ window.spec = {};
 
 function createMetric(spec) {
   return function () {
-    var zero = polynomium.c(0).toObject(),
-        one = polynomium.c(1).toObject(),
-        plus = function (sum, node) { return polynomium.add(sum, node.metric).toObject(); };
+    var zero = polynomium.c(0).toObject(), //create constant polynomium = 0
+        one = polynomium.c(1).toObject(), //create constant polynomium = 1
+        plus = function (sum, node) { return polynomium.add(sum, node.metric).toObject(); }, // add two polynomials
+        dot = function (mult, node) { return polynomium.mul(mult, node.metric).toObject(); } // multiply two polynomials
+        ;
 
     return carousels.babelVisitorDefaults({
       visitor: {
@@ -56,18 +58,33 @@ function createMetric(spec) {
         CallExpression: {
           "exit": function (p) {
             console.log("CallExpression");
+            console.log(p);
 
+            // checks if CallExpression was invoked by MemberExpression or not
+            var op_name = (p.node.callee.name != undefined) ? p.node.callee.name : p.node.callee.property.name;
             var start = p.node.loc.start;
-            var op_name = p.node.callee.name;
             var arguments = p.node.arguments;
+            arguments.unshift(caller_object);
 
+            console.log(arguments)
             if (op_name in spec) {
               p.node.metric = arguments.reduce(plus, spec[op_name]);
             } else {
-              throw Error("Node type CallExpression with operator " + op +
+              throw Error("Node type CallExpression with operator " + op_name +
                           " is not handled at line " + start.line + ", column " + start.column + ".");
             }
           }
+        },
+        MemberExpression:{
+          "exit": function (p) {
+            console.log("MemberExpression");
+
+            //TODO: Check that this is not a shallow copy 
+            caller_object = p.node.object;
+            arguments = p.container.arguments;
+            arguments.unshift(caller_object);
+
+      }
         },
         FunctionDeclaration: {
           "exit": function (p) {
