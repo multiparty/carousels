@@ -83,13 +83,17 @@
                 Input definitions:<br/>
                 <textarea id="inp" rows="18" onkeyup="demo('spec', 'inp', 'out');">
                   function f(x) {
-                    var x = (1+7)/3;
+                    var x = 1+2;
+                    share(x);
                     return x;
                   }
-
                   function g(x) {
-                    var x = 1*2;
-                    return x;
+                    var x = 1;
+                    var y = 2
+                    share(x);
+                    share(y);
+                    var z = x > y;
+                    return z;
                   }
 
                   function h(x) {
