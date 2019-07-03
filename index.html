@@ -14,11 +14,13 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/6.26.0/babel.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/randomcolor/0.5.2/randomColor.min.js"></script>
+    <script src="https://d3js.org/d3.v5.min.js"></script>
     <script src="https://lapets.github.io/polynomium/lib/polynomium.js"></script>
     <script src="lib/imparse.js"></script>
     <script src="lib/carousels.js"></script>
-    <script src="costs.js"></script>
-    <script src="main.js"></script>
+    <script src="lib/costs.js"></script>
+    <script src="lib/metric.js"></script>
+    <script src="lib/plot.js"></script>
     <style>
       html, body { height:100%; margin:0; color:#000000; font-family:'Open Sans',sans-serif; }
       body #content { z-index:100; min-height:100%; width:900px; margin:0 auto -90px; }
@@ -73,6 +75,14 @@
           <h3>Basic Example</h3>
           <table>
             <tr>
+                <select id="selected_cost"  onChange="start(this)">
+                <option value="nothing" selected="selected">Select a Cost</option>
+                <option value="onlineRounds">onlineRounds</option>
+                <option value="offlineRounds">offlineRounds</option>
+                <option value="onlineMsg">onlineMsg</option>
+                <option value="offlineMsg">offlineMsg</option>
+                </select>
+              </form>
               <td>
                 Cost specification:<br/>
                 <textarea id="spec" rows="18" onkeyup="demo('spec', 'inp', 'out');">
@@ -83,10 +93,8 @@
                 Input definitions:<br/>
                 <textarea id="inp" rows="18" onkeyup="demo('spec', 'inp', 'out');">
                   function f(x) {
-                    var x = share(1);
-                    var y = share(2).sadd(3);
-                    var z = y.sadd(x);
-                    return z;
+                    var y = 4;
+                    return y.cdiv(3);
                   }
                 </textarea>
               </td>
@@ -100,7 +108,7 @@
             <tr>
               <td colspan="2">
                 Performance:<br/>
-                <div><canvas style="width:900px;" id="canvas"></canvas></div>
+                <div id="myDiv" style="width:100%;height:100%"></div>
               </td>
             </tr>
           </table>
