@@ -75,7 +75,8 @@
           <h3>Basic Example</h3>
           <table>
             <tr>
-                <select id="selected_cost"  onChange="start(this)">
+              <form>
+                <select id="selected_cost">
                 <option value="nothing" selected="selected">Select a Cost</option>
                 <option value="onlineRounds">onlineRounds</option>
                 <option value="offlineRounds">offlineRounds</option>
@@ -85,19 +86,20 @@
               </form>
               <td>
                 Cost specification:<br/>
-                <textarea id="spec" rows="18" onkeyup="demo('spec', 'inp', 'out');">
+                <textarea id="spec" rows="18">
 
                 </textarea>
               </td>
               <td>
                 Input definitions:<br/>
-                <textarea id="inp" rows="18" onkeyup="demo('spec', 'inp', 'out');">
+                <textarea id="inp" rows="18">
                   function f(x) {
                     var y = 4;
                     return y.cdiv(3);
                   }
                 </textarea>
               </td>
+             <button onclick="demo('selected_cost','inp','out');">Start</button>
             </tr>
             <tr>
               <td colspan="2">
