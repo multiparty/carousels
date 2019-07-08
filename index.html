@@ -94,8 +94,13 @@
                 Input definitions:<br/>
                 <textarea id="inp" rows="18">
                   function f(x) {
+
+                    return x.cdiv(3);
+                  }
+                  function g(){
+                    var x = 4;
                     var y = 4;
-                    return y.cdiv(3);
+                    return [x,y].map(f);
                   }
                 </textarea>
               </td>
