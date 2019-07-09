@@ -10,7 +10,7 @@
     <!--script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.1.0/highlight.min.js"></script-->
     <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Open+Sans">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.5/lodash.core.min.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+    <script src="https://code.jquery.com/jquery-2.1.1.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/6.26.0/babel.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/randomcolor/0.5.2/randomColor.min.js"></script>
@@ -22,6 +22,7 @@
     <script src="lib/metric.js"></script>
     <script src="lib/plot.js"></script>
     <script src="lib/setup.js"></script>
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.10.4/themes/flick/jquery-ui.css">
     <style>
       html, body { height:100%; margin:0; color:#000000; font-family:'Open Sans',sans-serif; }
       body #content { z-index:100; min-height:100%; width:900px; margin:0 auto -90px; }
@@ -77,12 +78,17 @@
           <table>
             <tr>
               <form>
-                <select id="selected_cost">
+                <select id="selected_cost" onchange="demo('selected_cost', 'selected_param', 'inp','out');">
                 <option value="nothing" selected="selected">Select a Cost</option>
                 <option value="onlineRounds">onlineRounds</option>
                 <option value="offlineRounds">offlineRounds</option>
                 <option value="onlineMsg">onlineMsg</option>
                 <option value="offlineMsg">offlineMsg</option>
+                </select>
+                <select id="selected_param" onchange="demo('selected_cost', 'selected_param', 'inp','out');">
+                <option value="nothing" selected="selected">Fix a Parameter</option>
+                <option value="numbits">numbits</option>
+                <option value="numparties">numparties</option>
                 </select>
               </form>
               <td>
@@ -95,17 +101,14 @@
                 Input definitions:<br/>
                 <textarea id="inp" rows="18">
                   function f(x) {
-
-                    return x.cdiv(3);
+                    return x.sdiv(3);
                   }
-                  function g(z){
-                    var x = 4;
+                  function g(x){
                     var y = 4;
-                    return [x,y].map(f);
+                    [x,y].map(f);
                   }
                 </textarea>
               </td>
-             <button onclick="demo('selected_cost','inp','out');">Start</button>
             </tr>
             <tr>
               <td colspan="2">
@@ -116,7 +119,6 @@
             <table>
               Performance:<br/>
               <div id="myPlot" style="width:100%; height:100%"></div>
-            </table>
           </table>
         </div>
       </div><!-- /#sheet -->
