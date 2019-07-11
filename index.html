@@ -100,12 +100,13 @@
               <td>
                 Input definitions:<br/>
                 <textarea id="inp" rows="18">
-                  function f(x) {
-                    return x.sdiv(3);
-                  }
-                  function g(x){
-                    var y = 4;
-                    [x,y].map(f);
+                  function bubblesort(arr, len){
+                    var arr = [1,2,3,4];
+
+                    var arr_bool = arr.map((curr,i) => arr[i].lt(arr[i+1]));
+                    arr = arr.map((curr,i) => arr_bool[i].if_else(arr_bool[i-1].if_else(arr[i],arr[i-1]), arr[i+1]));
+
+                    return arr;
                   }
                 </textarea>
               </td>
