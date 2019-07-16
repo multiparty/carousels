@@ -75,47 +75,52 @@
             Below are a few interactive examples of how the library can be used to define a grammar and parse a concrete syntax string into a JSON representation of an abstract syntax tree. You can change the grammar or input string and see the results immediately.
           </p>
           <h3>Basic Example</h3>
+          <td>
+            Input definitions:<br/>
+            <textarea id="inp" rows="18">
+              function bubblesort(x){
+                var arr = [1,2,3,4];
+
+                var arr_bool = arr.map((curr,i) => arr[i].lt(arr[i+1]));
+                arr = arr.map((curr,i) => arr_bool[i].if_else(arr_bool[i-1].if_else(arr[i],arr[i-1]), arr[i+1]));
+
+                return arr;
+              }
+            </textarea>
+          </td>
           <table>
+            <br></br>
             <tr>
               <form>
-                <select id="selected_cost" onchange="demo('selected_cost', 'selected_param', 'inp','out');">
-                <option value="nothing" selected="selected">Select a Cost</option>
-                <option value="onlineRounds">onlineRounds</option>
-                <option value="offlineRounds">offlineRounds</option>
-                <option value="onlineMsg">onlineMsg</option>
-                <option value="offlineMsg">offlineMsg</option>
-                </select>
-                <select id="selected_param" onchange="demo('selected_cost', 'selected_param', 'inp','out');">
-                <option value="nothing" selected="selected">Fix a Parameter</option>
-                <option value="numbits">numbits</option>
-                <option value="numparties">numparties</option>
-                </select>
+                  <select id="selected_cost" onchange="demo('selected_cost', 'selected_param', 'preprocessing', 'inp','out');">
+                    <option value="nothing" selected="selected">Select a Cost</option>
+                    <option value="onlineRounds">onlineRounds</option>
+                    <option value="offlineRounds">offlineRounds</option>
+                    <option value="onlineMsg">onlineMsg</option>
+                    <option value="offlineMsg">offlineMsg</option>
+                  </select>
+                  <div id ="param" style ="display:none">
+                    <select id="selected_param" onchange="demo('selected_cost', 'selected_param', 'preprocessing', 'inp','out');">
+                      <option value="nothing" selected="selected">Fix a Parameter</option>
+                      <option value="numbits">numbits</option>
+                      <option value="numparties">numparties</option>
+                    </select>
+                </div>
+                <div id="checkbx" style ="display:none">
+                  <input type="checkbox" id="preprocessing"  onchange="demo('selected_cost', 'selected_param', 'preprocessing', 'inp','out');">Include Pre-Processing costs
+                </div>
               </form>
+              <br></br>
               <td>
-                Cost specification:<br/>
+                Cost specification w/o preprocessing:<br/>
                 <textarea id="spec" rows="18">
 
                 </textarea>
               </td>
               <td>
-                Input definitions:<br/>
-                <textarea id="inp" rows="18">
-                  function bubblesort(x){
-                    var arr = [1,2,3,4];
+                  Cost specification w/ preprocessing:<br/>
+                <textarea id="spec_prep" rows="18">
 
-                    var arr_bool = arr.map((curr,i) => arr[i].lt(arr[i+1]));
-                    arr = arr.map((curr,i) => arr_bool[i].if_else(arr_bool[i-1].if_else(arr[i],arr[i-1]), arr[i+1]));
-
-                    return arr;
-                  }
-
-                  function f(x){
-                    return open(x);
-                  }
-
-                  function g(x,y){
-                    return x.sdiv(y);
-                  }
                 </textarea>
               </td>
             </tr>
