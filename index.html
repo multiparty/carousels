@@ -58,7 +58,7 @@
     <script src="https://cdn.jsdelivr.net/npm/json-stringify-pretty-compact@1.1.0/index.min.js"></script>
     <base target="_parent">
   </head>
-  <body>
+  <body onload="demo('selected_cost', 'selected_param', 'preprocessing', 'inp','out');">
     <div id="content">
       <div id="title">carousels</div>
       <div id="description">
@@ -93,24 +93,24 @@
             <tr>
               <form>
                   <select id="selected_cost" onchange="demo('selected_cost', 'selected_param', 'preprocessing', 'inp','out');">
-                    <option value="nothing" selected="selected">Select a Cost</option>
-                    <option value="onlineRounds">onlineRounds</option>
+                    <option value="nothing">Select a Cost</option>
+                    <option value="onlineRounds" selected="selected">onlineRounds</option>
                     <option value="offlineRounds">offlineRounds</option>
                     <option value="onlineMsg">onlineMsg</option>
                     <option value="offlineMsg">offlineMsg</option>
                   </select>
                   <div id ="param" style ="display:none">
                     <select id="selected_param" onchange="demo('selected_cost', 'selected_param', 'preprocessing', 'inp','out');">
-                      <option value="nothing" selected="selected">Fix a Parameter</option>
-                      <option value="numbits">numbits</option>
+                      <option value="nothing">Fix a Parameter</option>
+                      <option value="numbits" selected="selected">numbits</option>
                       <option value="numparties">numparties</option>
                     </select>
                 </div>
                 <div id="checkbx" style ="display:none">
-                  <input type="checkbox" id="preprocessing"  onchange="demo('selected_cost', 'selected_param', 'preprocessing', 'inp','out');">Include Pre-Processing costs
+                  <input type="checkbox" id="preprocessing"  onchange="demo('selected_cost', 'selected_param', 'preprocessing', 'inp','out');" checked>Include Pre-Processing costs
                 </div>
               </form>
-              <br></br>
+              <br/><br/>
               <td>
                 Cost specification w/o preprocessing:<br/>
                 <textarea id="spec" rows="18">
