@@ -10,13 +10,19 @@
     <!--script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.1.0/highlight.min.js"></script-->
     <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Open+Sans">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.5/lodash.core.min.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+    <script src="https://code.jquery.com/jquery-2.1.1.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/6.26.0/babel.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/randomcolor/0.5.2/randomColor.min.js"></script>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
     <script src="https://lapets.github.io/polynomium/lib/polynomium.js"></script>
     <script src="lib/imparse.js"></script>
     <script src="lib/carousels.js"></script>
+    <script src="lib/costs.js"></script>
+    <script src="lib/metric.js"></script>
+    <script src="lib/plot.js"></script>
+    <script src="lib/setup.js"></script>
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.10.4/themes/flick/jquery-ui.css">
     <style>
       html, body { height:100%; margin:0; color:#000000; font-family:'Open Sans',sans-serif; }
       body #content { z-index:100; min-height:100%; width:900px; margin:0 auto -90px; }
@@ -49,148 +55,6 @@
     -ms-user-select: none;
   }
     </style>
-    <script>
-      window.onload = function() {
-        $('code').each(function(){ $(this).html(($(this).html().trim()));});
-        $('textarea').each(function(){ $(this).text(($(this).text().trim()));});
-        //hljs.initHighlightingOnLoad();
-
-        Chart.defaults.global.animation.duration = 100;
-        window.graph_config = {
-          type: 'line',
-          data: {},
-          options: {
-            responsive:false,
-            tooltips:{mode:'index', intersect:false},
-            hover:{mode:'nearest', intersect:true},
-            scales:{
-              xAxes:[{display:true, scaleLabel:{display:true, labelString:'bits'}}],
-              yAxes:[{display:true, scaleLabel:{display:true, labelString:'messages'}}]
-            }
-          }
-        };
-        var ctx = document.getElementById('canvas');
-        window.myLine = new Chart(ctx, window.graph_config);
-        demo('spec', 'inp', 'out');
-      };
-
-      window.spec = {};
-
-      function createMetric(spec) {
-      return function () {
-        var zero = polynomium.c(0).toObject(),
-            one = polynomium.c(1).toObject(),
-            plus = function (sum, node) { return polynomium.add(sum, node.metric).toObject(); };
-        return carousels.babelVisitorDefaults({
-          visitor: {
-            Program: {
-              "exit": function (p) {
-                var results = {}, metric = {};
-                for (var i = 0; i < p.node.body.length; i++) {
-                  metric[p.node.body[i].id.name] = p.node.body[i].metric;
-                  results[p.node.body[i].id.name] = polynomium.toString(p.node.body[i].metric);
-                }
-                p.node.metric = metric;
-                p.node.results = results;
-              }
-            },
-            FunctionDeclaration: {
-              "exit": function (p) {
-                p.node.metric = p.node.body.metric;
-              }
-            },
-            Identifier: {
-              "exit": function (p) {
-                p.node.metric = zero;
-              }
-            },
-            BlockStatement: {
-              "exit": function (p) {
-                p.node.metric = p.node.body.reduce(plus, zero);
-              }
-            },
-            VariableDeclaration: {
-              "exit": function (p) {
-                p.node.metric = p.node.declarations.reduce(plus, zero);
-              }
-            },
-            VariableDeclarator: {
-              "exit": function (p) {
-                p.node.metric = p.node.init.metric;
-              }
-            },
-            ReturnStatement: {
-              "exit": function (p) {
-                p.node.metric = p.node.argument.metric;
-              }
-            },
-            BinaryExpression: {
-              "exit": function (p) {
-                var start = p.node.loc.start, op = p.node.operator;
-                if (op in spec) {
-                  p.node.metric = [p.node.left, p.node.right].reduce(plus, spec[op]);
-                } else {
-                  throw Error("Node type BinaryExpression with operator " + op +
-                              " is not handled at line " + start.line + ", column " + start.column + ".");
-                }
-              }
-            },
-            NumericLiteral: {
-              "exit": function (p) {
-                p.node.metric = zero;
-              }
-            }
-          }
-        });
-      };
-      }
-      Babel.registerPlugin('metric', createMetric(window.spec));
-
-      function range(n) {
-        var xs = [];
-        for (var i = 0; i < n; i++)
-          xs.push(i);
-        return xs;
-      }
-
-      function demo(specText, inpText, outDiv) {
-        var specTxt = JSON.parse(document.getElementById(specText).value);
-        var str = document.getElementById(inpText).value;
-        if (str.length == 0) {
-          document.getElementById(outDiv).innerHTML = "No input provided.";
-        } else {
-          try {
-            // Convert specification cost strings into polynomials.
-            var spec = eval(specTxt);
-            for (var op in spec)
-              window.spec[op] = carousels.parsePoly(spec[op]);
-            var bbl = Babel.transform(str, {plugins: ['metric']});
-            document.getElementById(outDiv).innerHTML = stringify(bbl.ast.program.results, {maxLength:120}).trim();
-            var ran = range(25);
-            window.graph_config.data.datasets = [];
-            window.graph_config.data.labels = ran;
-            var color_seed = 0;
-            for (var name in bbl.ast.program.metric) {
-              color_seed += 10;
-              var p = bbl.ast.program.metric[name];
-              var color = randomColor({"seed":color_seed});
-              window.graph_config.data.datasets.push({
-                label:name,
-                backgroundColor:color,
-                borderColor:color,
-                data:ran.map(function (b) { return polynomium.evaluate(p, {"b":b}); }),
-                fill:false
-              });
-            }
-            window.myLine.update();
-          } catch (err) {
-            document.getElementById(outDiv).innerHTML = err.message;
-          }
-        }
-      }
-
-      module = {}; // Avoid error from json-stringify-pretty-compact below.
-    </script>
     <script src="https://cdn.jsdelivr.net/npm/json-stringify-pretty-compact@1.1.0/index.min.js"></script>
     <base target="_parent">
   </head>
@@ -211,41 +75,52 @@
             Below are a few interactive examples of how the library can be used to define a grammar and parse a concrete syntax string into a JSON representation of an abstract syntax tree. You can change the grammar or input string and see the results immediately.
           </p>
           <h3>Basic Example</h3>
+          <td>
+            Input definitions:<br/>
+            <textarea id="inp" rows="18">
+              function bubblesort(x){
+                var arr = [1,2,3,4];
+
+                var arr_bool = arr.map((curr,i) => arr[i].lt(arr[i+1]));
+                arr = arr.map((curr,i) => arr_bool[i].if_else(arr_bool[i-1].if_else(arr[i],arr[i-1]), arr[i+1]));
+
+                return arr;
+              }
+            </textarea>
+          </td>
           <table>
+            <br></br>
             <tr>
+              <form>
+                  <select id="selected_cost" onchange="demo('selected_cost', 'selected_param', 'preprocessing', 'inp','out');">
+                    <option value="nothing" selected="selected">Select a Cost</option>
+                    <option value="onlineRounds">onlineRounds</option>
+                    <option value="offlineRounds">offlineRounds</option>
+                    <option value="onlineMsg">onlineMsg</option>
+                    <option value="offlineMsg">offlineMsg</option>
+                  </select>
+                  <div id ="param" style ="display:none">
+                    <select id="selected_param" onchange="demo('selected_cost', 'selected_param', 'preprocessing', 'inp','out');">
+                      <option value="nothing" selected="selected">Fix a Parameter</option>
+                      <option value="numbits">numbits</option>
+                      <option value="numparties">numparties</option>
+                    </select>
+                </div>
+                <div id="checkbx" style ="display:none">
+                  <input type="checkbox" id="preprocessing"  onchange="demo('selected_cost', 'selected_param', 'preprocessing', 'inp','out');">Include Pre-Processing costs
+                </div>
+              </form>
+              <br></br>
               <td>
-                Cost specification:<br/>
-                <textarea id="spec" rows="18" onkeyup="demo('spec', 'inp', 'out');">
-{
-  "+":"b",
-  "-":"b",
-  "*":"3b",
-  "/":"3b+1",
-  "<":"5b+1",
-  ">":"5b+1",
-  "<=":"5b+1",
-  ">=":"5b+1",
-  "==":"5b+1"
-}
+                Cost specification w/o preprocessing:<br/>
+                <textarea id="spec" rows="18">
+
                 </textarea>
               </td>
-              <td colspan="2">
-                Input definitions:<br/>
-                <textarea id="inp" rows="18" onkeyup="demo('spec', 'inp', 'out');">
-function f(x) {
-  var x = 1+2+3+4+5+6+7;
-  return x;
-}
+              <td>
+                  Cost specification w/ preprocessing:<br/>
+                <textarea id="spec_prep" rows="18">
 
-function g(x) {
-  var x = 1+2;
-  var y = 3+4;
-  return x+y;
-}
-
-function h(x) {
-  return 0;
-}
                 </textarea>
               </td>
             </tr>
@@ -255,12 +130,9 @@ function h(x) {
                 <div><pre id="out"></pre></div>
               </td>
             </tr>
-            <tr>
-              <td colspan="2">
-                Performance:<br/>
-                <div><canvas style="width:900px;" id="canvas"></canvas></div>
-              </td>
-            </tr>
+            <table>
+              Performance:<br/>
+              <div id="myPlot" style="width:100%; height:100%"></div>
           </table>
         </div>
       </div><!-- /#sheet -->
