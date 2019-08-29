@@ -9,10 +9,17 @@ fn main() {
             }
         ";
     let syntax = syn::parse_file(&src).unwrap();
-    FnVisitor.visit_file(&syntax);
+    let mut visitor = FnVisitor { ir: Vec::new() };
+    visitor.visit_file(&syntax);
+    for lit in visitor.ir.iter() {
+        println!("{}", lit);
+    }
 }
 
-struct FnVisitor;
+struct FnVisitor {
+    ir: Vec<String>,
+
+}
 
 impl<'ast> Visit<'ast> for FnVisitor {
     fn visit_expr_binary(&mut self, node: &'ast ExprBinary) {
@@ -24,6 +31,6 @@ impl<'ast> Visit<'ast> for FnVisitor {
           self.visit_expr(&*node.right);
       }
      fn visit_expr_lit(&mut self, node: &'ast ExprLit){
-         println!("{}", format!("{:#?}", node.lit));
+          self.ir.push(format!("{:#?}", node.lit));
      }
 }
