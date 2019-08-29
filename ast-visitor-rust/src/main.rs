@@ -1,40 +1,29 @@
-use syn::{Item, Expr};
+use quote::quote;
+use syn::visit::{self, Visit};
+use syn::{File, ItemFn, ExprBinary, ExprLit};
 
 fn main() {
     let src = "
             fn main() {
-            println!(\"Hello World!\");
-            let x = 5;
-            println!(\"Blob!\");
+            let x = 5 + 2;
             }
         ";
     let syntax = syn::parse_file(&src).unwrap();
-    let syntax = &syntax.items[0];
-    let s: String = match_file(syntax);
+    FnVisitor.visit_file(&syntax);
 }
 
-fn match_file(syntax: &Item)-> String{
-    match syntax {
-        Item::Fn(_item) => {
-            let attributes = &_item.attrs;
-            let body = &_item.block;
+struct FnVisitor;
 
-            println!("{}",format!("{:#?}\n", body));
-            let s = String::from("hello");
-            s
-        }
-        _=>{
-            let s = String::from("hello");
-            s
-        }
-    }
-}
-
-fn match_expression(expression: &Expr)-> String{
-    match expression {
-        _=>{
-            let s = String::from("hello");
-            s
-        }
-    }
+impl<'ast> Visit<'ast> for FnVisitor {
+    fn visit_expr_binary(&mut self, node: &'ast ExprBinary) {
+          for attr in &node.attrs {
+              self.visit_attribute(attr);
+          }
+          self.visit_expr(&*node.left);
+          self.visit_bin_op(&node.op);
+          self.visit_expr(&*node.right);
+      }
+     fn visit_expr_lit(&mut self, node: &'ast ExprLit){
+         println!("{}", format!("{:#?}", node.lit));
+     }
 }
