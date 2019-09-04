@@ -183,7 +183,6 @@ impl <'ast> Visit <'ast> for Node {
      fn visit_expr_array(&mut self, node: &'ast ExprArray){
          let elements = &node.elems;
          let array = Node::default();
-         array.id = format!("{:#?}", array.ident);
      }
      fn visit_expr_index(&mut self, node: &'ast ExprIndex){
 
