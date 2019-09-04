@@ -2,14 +2,13 @@ use quote::quote;
 use syn::visit::{self, Visit};
 use syn::{File, ItemFn, FnDecl, Stmt, Lit, Expr, Local, ExprMethodCall,
     ExprBinary, ExprLit, ExprCall, ExprClosure, ExprUnary,
-    ExprArray, ExprIndex, Member, Pat};
+    ExprArray, ExprIndex, Member, Pat, BinOp};
 
 
 #[derive(Debug, Default)]
 struct Node{
     id: String,
     typ: String,
-    parent_typ: String,
     value: String,
     children: Vec<Node>
 
@@ -55,23 +54,24 @@ impl <'ast> Visit <'ast> for Node {
 
     fn visit_stmt(&mut self, node: &'ast Stmt){
 
-        println!("{}", self.id);
         let mut stmt = Node::default();
 
         match node {
             Stmt::Local(_loc)=>{
+                stmt.typ = "Local".to_string();
                 stmt.visit_local(_loc);
             }
             Stmt::Item(_item)=>{
-                println!("{}", "Item");
+                stmt.typ = "Item".to_string();
                 stmt.visit_item(_item);
             }
             Stmt::Expr(_expr)=>{
-                println!("{}", "Expr");
+                let mut expr = Node::default();
+                println!("{}", format!("{:#?}", &_expr));
+                stmt.typ = "Expr".to_string();
                 stmt.visit_expr(_expr);
             }
             Stmt::Semi(_expr, _semi)=>{
-                println!("{}", "SemiExpr");
                 stmt.visit_expr(_expr);
             }
         }
@@ -81,89 +81,118 @@ impl <'ast> Visit <'ast> for Node {
     fn visit_local(&mut self, node: &'ast Local){
         let mut local = Node::default();
         let mut ident = &node.pats[0];
+        let mut left = &node.init;
+
+        local.typ = "Let".to_string();
 
         match ident{
             Pat::Ident(_p) =>{
+                local.typ = "Ident".to_string();
                 local.id = _p.ident.to_string();
             }
             Pat::Lit(_l)=>{
+                local.typ = "Lit".to_string();
                 local.visit_expr(&_l.expr);
             }
             Pat::Tuple(_t)=>{
+                local.typ = "Tuple".to_string();
                 let front = &_t.front[0];
                 let back = &_t.back[0];
                 local.visit_pat(front);
                 local.visit_pat(back);
             }
-            _=>{
+            _=>{}
+        }
 
+        match left{
+            Some(_e)=>{
+                let expr = &_e.1;
+                local.visit_expr(&expr);
             }
+            None =>{}
         }
         self.children.push(local);
     }
 
     fn visit_expr(&mut self, node: &'ast Expr){
+        let mut expr = Node::default();
         match node{
-            Expr::InPlace(_e)=>{
-
-            }
             Expr::Array(_e)=>{
-
+                expr.typ = "Array".to_string();
+                expr.visit_expr_array(_e);
             }
             Expr::Call(_e)=>{
-
+                expr.typ = "Call".to_string();
+                expr.visit_expr_call(_e);
             }
             Expr::MethodCall(_e)=>{
-
+                expr.typ = "MethodCall".to_string();
+                expr.visit_expr_method_call(_e);
             }
             Expr::Tuple(_e)=>{
-
+                expr.typ = "Tuple".to_string();
+                expr.visit_expr_tuple(_e);
             }
             Expr::Binary(_e)=>{
-
+                expr.typ = "Binary".to_string();
+                expr.visit_expr_binary(_e);
             }
             Expr::Unary(_e)=>{
-
+                expr.typ = "Unary".to_string();
+                expr.visit_expr_unary(_e);
             }
             Expr::Lit(_e)=>{
-
+                expr.typ = "Lit".to_string();
+                expr.visit_expr_lit(_e);
             }
             Expr::If(_e)=>{
-
-            }
-            Expr::Loop(_e)=>{
-
+                expr.typ = "If".to_string();
+                expr.visit_expr_if(_e);
             }
             Expr::Match(_e)=>{
+                expr.typ = "Match".to_string();
+                expr.visit_expr_match(_e);
 
             }
             Expr::Closure(_e)=>{
+                expr.typ = "Closure".to_string();
+                expr.visit_expr_closure(_e);
 
             }
             Expr::Block(_e)=>{
-
-            }
-            Expr::Assign(_e)=>{
-
-            }
-            Expr::AssignOp(_e)=>{
-
-            }
-            Expr::Field(_e)=>{
-
-            }
-            Expr::Index(_e)=>{
-
-            }
-            Expr::Range(_e)=>{
-
+                expr.typ = "Block".to_string();
+                expr.visit_expr_block(_e);
             }
             Expr::Return(_e)=>{
-
+                expr.typ = "Return".to_string();
             }
             Expr::Paren(_e)=>{
-
+                expr.typ = "Paren".to_string();
             }
+            // Expr::Assign(_e)=>{
+            //     expr.typ = "Assign".to_string();
+            //     expr.visit_assign(_e);
+            // }
+            // Expr::AssignOp(_e)=>{
+            //     expr.typ = "AssignOp".to_string();
+            //     expr.visit_assign_op(_e);
+            // }
+            // Expr::Field(_e)=>{
+            //     expr.typ = "Field".to_string();
+            //     expr.visit_field(_e);
+            // }
+            // Expr::Index(_e)=>{
+            //     expr.typ = "Index".to_string();
+            //     expr.visit_index(_e);
+            // }
+            // Expr::Range(_e)=>{
+            //     expr.typ = "Rnage".to_string();
+            //     expr.visit_range(_e);
+            //
+            // }
+            /////////////////////////////
+            // Expr::InPlace(_e)=>{}
+            // Expr::Loop(_e)=>{}
             // Expr::Cast(_e)=>{}
             // Expr::Type(_e)=>{}
             // Expr::While(_e)=>{}
@@ -184,9 +213,10 @@ impl <'ast> Visit <'ast> for Node {
             // Expr ::IfLet (_e)=>{}
             // Expr :: WhileLet (e)=>{}
             _=>{
-
+                expr.typ = "Notimplemented".to_string();
             }
         }
+        self.children.push(expr);
     }
 
     fn visit_expr_call(&mut self, node: &'ast ExprCall){
@@ -196,47 +226,63 @@ impl <'ast> Visit <'ast> for Node {
     fn visit_expr_closure(&mut self, node: &'ast ExprClosure){
 
     }
-    fn visit_expr_lit(&mut self, node: &'ast ExprLit){
-        let li = &node.lit;
-        self.visit_lit(li);
-    }
     fn visit_expr_binary(&mut self, node: &'ast ExprBinary) {
         let left = &node.left;
         let right = &node.right;
         let op = &node.op;
-
-
+        match op { // TODO: figure out how to unwrap in this case
+            BinOp::Add(_op) => {self.value = format!("{:#?}", _op);}
+            BinOp::Sub(_op) => {self.value = format!("{:#?}", _op);}
+            BinOp::Mul(_op) => {self.value = format!("{:#?}", _op);}
+            BinOp::Div(_op) => {self.value = format!("{:#?}", _op);}
+            BinOp::Rem(_op) => {self.value = format!("{:#?}", _op);}
+            BinOp::And(_op) => {self.value = format!("{:#?}", _op);}
+            BinOp::Or(_op) => {self.value = format!("{:#?}", _op);}
+            BinOp::BitXor(_op) => {self.value = format!("{:#?}", _op);}
+            BinOp::BitAnd(_op) => {self.value = format!("{:#?}", _op);}
+            BinOp::BitOr(_op) => {self.value = format!("{:#?}", _op);}
+            BinOp::Shl(_op) => {self.value = format!("{:#?}", _op);}
+            BinOp::Shr(_op) => {self.value = format!("{:#?}", _op);}
+            BinOp::Eq(_op) => {self.value = format!("{:#?}", _op);}
+            BinOp::Lt(_op) => {self.value = format!("{:#?}", _op);}
+            BinOp::Le(_op) => {self.value = format!("{:#?}", _op);}
+            BinOp::Ne(_op) => {self.value = format!("{:#?}", _op);}
+            BinOp::Ge(_op) => {self.value = format!("{:#?}", _op);}
+            BinOp::Gt(_op) => {self.value = format!("{:#?}", _op);}
+            // BinOp::AddEq(_op) => {self.value = format!("{:#?}", _op);}
+            // BinOp::SubEq(_op) => {self.value = format!("{:#?}", _op);}
+            // BinOp::MulEq(_op) => {self.value = format!("{:#?}", _op);}
+            // BinOp::DivEq(_op) => {self.value = format!("{:#?}", _op);}
+            // BinOp::RemEq(_op) => {self.value = format!("{:#?}", _op);}
+            // BinOp::BitXorEq(_op) => {self.value = format!("{:#?}", _op);}
+            // BinOp::BitAndEq(_op) => {self.value = format!("{:#?}", _op);}
+            // BinOp::BitOrEq(_op) => {self.value = format!("{:#?}", _op);}
+            // BinOp::ShlEq(_op) => {self.value = format!("{:#?}", _op);}
+            // BinOp::ShrEq(_op) => {self.value = format!("{:#?}", _op);}
+            _=>{}
+        }
         self.visit_expr(&*node.left);
         self.visit_bin_op(&node.op);
         self.visit_expr(&*node.right);
       }
-     fn visit_lit(&mut self, node: &'ast Lit){
-         let mut value = String::new();
-         match node{
-            Lit::Str(_s)=>{
-                value = _s.value();
-            }
-            Lit::ByteStr (_bs)=>{
-                value = format!("{:#?}",_bs.value());
-            }
-            Lit::Byte (_b)=>{
-                value = _b.value().to_string();
-            }
-            Lit::Char(_ch) =>{
-                value = _ch.value().to_string();
-            }
-            Lit::Int(_i)=>{
-                value = _i.value().to_string();
-            }
-            Lit::Float(_f) =>{
-                value = _f.value().to_string();
-            }
-            Lit::Bool(_bo)=>{
-                value = _bo.value.to_string();;
-            }
-            _=>{
 
-            }
+    fn visit_expr_lit(&mut self, node: &'ast ExprLit){
+        let mut literal = Node::default();
+        let li = &node.lit;
+        literal.visit_lit(li);
+        self.children.push(literal);
+    }
+
+     fn visit_lit(&mut self, node: &'ast Lit){
+         match node{
+            Lit::Str(_s)=>{self.value = _s.value();}
+            Lit::ByteStr (_bs)=>{self.value = format!("{:#?}",_bs.value());}
+            Lit::Byte (_b)=>{self.value = _b.value().to_string();}
+            Lit::Char(_ch) =>{self.value = _ch.value().to_string();}
+            Lit::Int(_i)=>{self.value = _i.value().to_string();}
+            Lit::Float(_f) =>{self.value = _f.value().to_string();}
+            Lit::Bool(_bo)=>{self.value = _bo.value.to_string();}
+            _=>{}
          }
          // let current_node = self.ir.pop();
          // match current_node {
@@ -258,7 +304,6 @@ impl <'ast> Visit <'ast> for Node {
      fn visit_member(&mut self, node: &'ast Member){
      }
 }
-
 
 
         // println!("{}",format!("{:#?}", fn_name));
