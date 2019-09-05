@@ -87,27 +87,7 @@ impl <'ast> Visit <'ast> for Node {
         let left = &node.left;
         let right = &node.right;
         let op = &node.op;
-        match op { // TODO: figure out how to unwrap in this case
-            BinOp::Add(_op) => {exp_binary.value = format!("{:#?}", _op);}
-            BinOp::Sub(_op) => {exp_binary.value = format!("{:#?}", _op);}
-            BinOp::Mul(_op) => {exp_binary.value = format!("{:#?}", _op);}
-            BinOp::Div(_op) => {exp_binary.value = format!("{:#?}", _op);}
-            BinOp::Rem(_op) => {exp_binary.value = format!("{:#?}", _op);}
-            BinOp::And(_op) => {exp_binary.value = format!("{:#?}", _op);}
-            BinOp::Or(_op) => {exp_binary.value = format!("{:#?}", _op);}
-            BinOp::BitXor(_op) => {exp_binary.value = format!("{:#?}", _op);}
-            BinOp::BitAnd(_op) => {exp_binary.value = format!("{:#?}", _op);}
-            BinOp::BitOr(_op) => {exp_binary.value = format!("{:#?}", _op);}
-            BinOp::Shl(_op) => {exp_binary.value = format!("{:#?}", _op);}
-            BinOp::Shr(_op) => {exp_binary.value = format!("{:#?}", _op);}
-            BinOp::Eq(_op) => {exp_binary.value = format!("{:#?}", _op);}
-            BinOp::Lt(_op) => {exp_binary.value = format!("{:#?}", _op);}
-            BinOp::Le(_op) => {exp_binary.value = format!("{:#?}", _op);}
-            BinOp::Ne(_op) => {exp_binary.value = format!("{:#?}", _op);}
-            BinOp::Ge(_op) => {exp_binary.value = format!("{:#?}", _op);}
-            BinOp::Gt(_op) => {exp_binary.value = format!("{:#?}", _op);}
-            _=>{} // Implement other operators if necessary
-        }
+        exp_binary.value = format!("{:#?}", op);
         exp_binary.typ = "Binary Expression".to_string();
         exp_binary.visit_expr(&*node.left);
         exp_binary.visit_expr(&*node.right);
