@@ -1,8 +1,8 @@
 use quote::quote;
 use syn::visit::{self, Visit};
-use syn::{File, ItemFn, FnDecl, Stmt, Lit, Expr, Local, ExprAssign, ExprMethodCall,
+use syn::{File, ItemFn, FnDecl, Stmt, Lit, Expr, Local, ExprAssign, ExprMethodCall, Item,
     ExprBinary, ExprLit, ExprCall, ExprClosure, ExprUnary, ExprRepeat, ExprReturn, ExprRange, ExprParen,
-    ExprIf, ExprArray, ExprIndex, ExprBlock, Member, Pat, BinOp, Ident, UnOp};
+    ExprIf, ExprArray, ExprIndex, ExprBlock, ExprPath, Member, Pat, BinOp, Ident, UnOp};
 
 
 #[derive(Debug, Default)]
@@ -10,6 +10,8 @@ struct Node{
     id: String,
     typ: String,
     value: String,
+    context: String,
+    parent: String,
     children: Vec<Node>
 }
 
@@ -27,7 +29,6 @@ fn main() {
     let syntax = syn::parse_file(&src).unwrap();
 
     let mut file = Node::default(); //highest node in the AST
-    file.id = "File".to_string();
     file.visit_file(&syntax);
 
     println!("{}", format!("{:#?}", file));
@@ -37,135 +38,282 @@ fn main() {
 
 impl <'ast> Visit <'ast> for Node {
 
-    fn visit_item_fn(&mut self, node: &'ast ItemFn){ // TODO: implement if necessary other Items
+    fn visit_file(&mut self, node: &'ast File){ // For Readability
+        self.value = "File".to_string();
 
-        let mut fn_main = Node::default();
-        fn_main.id = node.ident.to_string();
-        fn_main.typ = "function".to_string();
-        // println!("{}", format!("{:#?}", &node.block.stmts));
+        for i in &node.items {
+            let mut item = Node::default();
+            item.parent = "File".to_string();
+            item.visit_item(i);
 
-        for stmt in &node.block.stmts {
-            fn_main.visit_stmt(stmt); // call visit_stmt on each statement in the fn body
+            self.children.push(item);
         }
-
-        self.children.push(fn_main); // push each fn into the file node's children
     }
 
-    fn visit_local(&mut self, node: &'ast Local){ //Not sure if needed.
-        let mut local = Node::default();
-        let mut ident = &node.pats[0];
-        let mut left = &node.init;
+    fn visit_item_fn(&mut self, node: &'ast ItemFn){
 
-        local.typ = "Let".to_string();
+        // println!("{}", format!("{:#?}", &node.block.stmts));
+        self.value = node.ident.to_string();
+        self.typ = "Function".to_string();
+
+        for s in &node.block.stmts {
+            let mut stmt = Node::default();
+            stmt.parent = "Function".to_string();
+            stmt.visit_stmt(s); // call visit_stmt on each statement in the fn body
+
+            self.children.push(stmt);
+        }
+    }
+
+    fn visit_local(&mut self, node: &'ast Local){ // Let left = right;
+        self.typ = "Let".to_string();
+
+        let mut left = Node::default();
+        let ident = &node.pats[0]; // the variable declared
+
+        left.parent = "Let".to_string();
+        left.context = "Declaration".to_string();
 
         match ident{
             Pat::Ident(_p) =>{
-                local.visit_ident(&_p.ident);
+                left.typ = "Variable".to_string();
+                left.visit_ident(&_p.ident);
             }
             Pat::Lit(_l)=>{
-                local.visit_expr(&_l.expr);
+                left.typ = "Literal".to_string();
+                left.visit_expr(&_l.expr);
             }
             Pat::Tuple(_t)=>{
+                left.typ = "Tuple".to_string();
+
+                let mut left_tuple = Node::default();
                 let front = &_t.front[0];
+                left.context = "Front".to_string();
+                left_tuple.visit_pat(front);
+                left.children.push(left_tuple);
+
+                let mut right_tuple = Node::default();
                 let back = &_t.back[0];
-                local.visit_pat(front);
-                local.visit_pat(back);
+                left.context = "Back".to_string();
+                right_tuple.visit_pat(back);
+                left.children.push(right_tuple);
             }
             _=>{}
         }
-        match left{
+        self.children.push(left);
+
+        let init = &node.init; // the initial value
+        match init{
             Some(_e)=>{
+                let mut right = Node::default();
                 let expr = &_e.1;
-                local.visit_expr(&expr);
+                right.parent = "Let".to_string();
+                right.context = "Init".to_string();
+                right.visit_expr(&expr);
+
+                self.children.push(right);
             }
             None =>{}
         }
-        self.children.push(local);
     }
+
+    fn visit_lit(&mut self, node: &'ast Lit){
+        match node{
+           Lit::Str(_s)=>{self.value = _s.value();}
+           Lit::ByteStr (_bs)=>{self.value = format!("{:#?}",_bs.value());}
+           Lit::Byte (_b)=>{self.value = _b.value().to_string();}
+           Lit::Char(_ch) =>{self.value = _ch.value().to_string();}
+           Lit::Int(_i)=>{self.value = _i.value().to_string();}
+           Lit::Float(_f) =>{self.value = _f.value().to_string();}
+           Lit::Bool(_bo)=>{self.value = _bo.value.to_string();}
+           _=>{}
+        }
+    }
+
+    fn visit_ident(&mut self, node: &'ast Ident){
+        self.value = node.to_string();
+    }
+
+    fn visit_member(&mut self, node: &'ast Member){
+        let mut member = Node::default();
+        member.typ = "Member".to_string();
+        match node{
+            Member::Named(_i)=>{ member.value = _i.to_string(); }
+            Member::Unnamed(_i)=>{ member.value = _i.index.to_string();}
+            }
+        self.children.push(member);
+    }
+
+
+//////////////////////////Expressions/////////////////////////////////////
+
+    fn visit_expr(&mut self, node: &'ast Expr){
+
+        match node {
+                Expr::Array(_e)=>{
+                    self.typ = "Array".to_string();
+                    self.visit_expr_array(_e);
+                }
+                Expr::Call(_e)=>{
+                    self.typ = "Call".to_string();
+                    self.visit_expr_call(_e);
+                }
+                Expr::MethodCall(_e)=>{
+                    self.typ = "Method Call".to_string();
+                    self.visit_expr_method_call(_e);
+                }
+                Expr::Tuple(_e)=>{
+                    self.typ = "Tuple".to_string();
+                    self.visit_expr_tuple(_e);
+                }
+                Expr::Binary(_e)=>{
+                    self.typ = "Binary Expr".to_string();
+                    self.visit_expr_binary(_e);
+                }
+                Expr::Unary(_e)=>{
+                    self.typ = "Unary Expr".to_string();
+                    self.visit_expr_unary(_e);
+                }
+                Expr::Lit(_e)=>{
+                    self.typ = "Literal".to_string();
+                    self.visit_expr_lit(_e);
+                }
+                Expr::If(_e)=>{
+                    self.typ = "If".to_string();
+                    self.visit_expr_if(_e);
+                }
+                Expr::Block(_e)=>{
+                    self.typ = "Block".to_string();
+                    self.visit_expr_block(_e);
+                }
+                Expr::Assign(_e)=>{
+                    self.typ = "Assignment".to_string();
+                    self.visit_expr_assign(_e);
+                }
+                Expr::Field(_e)=>{
+                    self.typ = "Field".to_string();
+                    self.visit_expr_field(_e);
+                }
+                Expr::Index(_e)=>{
+                    self.typ = "Index".to_string();
+                    self.visit_expr_index(_e);
+                }
+                Expr::Range(_e)=>{
+                    self.typ = "Range".to_string();
+                    self.visit_expr_range(_e);
+                }
+                Expr::Return(_e)=>{
+                    self.typ = "Return".to_string();
+                    self.visit_expr_return(_e);
+                }
+                Expr::Paren(_e)=>{
+                    self.typ = "Paren".to_string();
+                    self.visit_expr_paren(_e);
+                }
+                _=>{}
+            }
+
+    }
+
+
+
     fn visit_expr_binary(&mut self, node: &'ast ExprBinary) {
-        let mut exp_binary = Node::default();
-        let left = &node.left;
-        let right = &node.right;
+
         let op = &node.op;
-        exp_binary.value = format!("{:#?}", op);
-        exp_binary.typ = "Binary Expression".to_string();
-        exp_binary.visit_expr(&*node.left);
-        exp_binary.visit_expr(&*node.right);
-        self.children.push(exp_binary);
+        match op { // TODO: figure out how to unwrap in this case
+            BinOp::Add(_op) => {self.value = "+".to_string();}
+            BinOp::Sub(_op) => {self.value = "-".to_string();}
+            BinOp::Mul(_op) => {self.value = "*".to_string();}
+            BinOp::Div(_op) => {self.value = "/".to_string();}
+            BinOp::Rem(_op) => {self.value = "%".to_string();}
+            BinOp::And(_op) => {self.value = "&&".to_string();}
+            BinOp::Or(_op) => {self.value = "||".to_string();}
+            BinOp::BitXor(_op) => {self.value = "^".to_string(); self.context = "Binary".to_string()}
+            BinOp::BitAnd(_op) => {self.value = "&".to_string(); self.context = "Binary".to_string()}
+            BinOp::BitOr(_op) => {self.value = "|".to_string(); self.context = "Binary".to_string()}
+            BinOp::Shl(_op) => {self.value = "<<".to_string();}
+            BinOp::Shr(_op) => {self.value = ">>".to_string();}
+            BinOp::Eq(_op) => {self.value = "==".to_string();}
+            BinOp::Lt(_op) => {self.value = "<".to_string();}
+            BinOp::Le(_op) => {self.value = "<=".to_string();}
+            BinOp::Ne(_op) => {self.value = "!=".to_string();}
+            BinOp::Ge(_op) => {self.value = ">".to_string();}
+            BinOp::Gt(_op) => {self.value = ">=".to_string();}
+            _=>{} // Implement other operators if necessary
+        }
+
+        let mut left = Node::default();
+        left.parent = "Binary Expr".to_string();
+        left.context = "Left".to_string();
+        left.visit_expr(&*node.left);
+
+        self.children.push(left);
+
+        let mut right = Node::default();
+        right.parent = "Binary Expr".to_string();
+        right.context = "Right".to_string();
+        self.visit_expr(&*node.right);
+
+        self.children.push(right);
       }
 
     fn visit_expr_unary(&mut self, node: &'ast ExprUnary){
-        let mut unary_expr = Node::default();
-        unary_expr.typ = "Unary Expression".to_string();
         let op = node.op;
         let expr = &node.expr;
         match op{
-            UnOp::Not(_un)=>{
-                unary_expr.value = "Not".to_string();
-            }
-            UnOp::Neg(_un)=>{
-                unary_expr.value = "Neg".to_string();
-            }
-            UnOp::Deref(_un)=>{
-                unary_expr.value = "Dereference".to_string();
-            }
+            UnOp::Not(_un)=>{self.value = "!".to_string();}
+            UnOp::Neg(_un)=>{self.value = "~".to_string();}
+            UnOp::Deref(_un)=>{self.value = "*".to_string();}
         }
-        unary_expr.visit_expr(expr);
-        self.children.push(unary_expr);
+
+        let mut operand = Node::default();
+        operand.parent = "Unary Expr".to_string();
+        operand.context = "Operand".to_string();
+        operand.visit_expr(expr);
+
+        self.children.push(operand);
     }
 
     fn visit_expr_lit(&mut self, node: &'ast ExprLit){
-        let mut exp_lit = Node::default();
         let li = &node.lit;
-        exp_lit.visit_lit(li);
-        self.children.push(exp_lit);
+        self.visit_lit(li);
     }
 
-     fn visit_lit(&mut self, node: &'ast Lit){
-         match node{
-            Lit::Str(_s)=>{self.value = _s.value();}
-            Lit::ByteStr (_bs)=>{self.value = format!("{:#?}",_bs.value());}
-            Lit::Byte (_b)=>{self.value = _b.value().to_string();}
-            Lit::Char(_ch) =>{self.value = _ch.value().to_string();}
-            Lit::Int(_i)=>{self.value = _i.value().to_string();}
-            Lit::Float(_f) =>{self.value = _f.value().to_string();}
-            Lit::Bool(_bo)=>{self.value = _bo.value.to_string();}
-            _=>{}
-         }
-     }
-
-     fn visit_ident(&mut self, node: &'ast Ident){
-         let mut ident = Node::default();
-         let id = node.to_string();
-         ident.id = id;
-         ident.typ = "Variable".to_string();
-         self.children.push(ident);
-
-     }
-
      fn visit_expr_assign(&mut self, node: &'ast ExprAssign){
-         let mut assignment = Node::default();
-         let left = &node.left;
-         let right = &node.right;
+        self.value = "=".to_string();
 
+         let mut left = Node::default();
+         left.parent = "Assign".to_string();
+         left.context = "Left".to_string();
+         left.visit_expr(&node.left);
 
-         assignment.id = "=".to_string();
-         assignment.visit_expr(left);
-         assignment.visit_expr(right);
+         self.children.push(left);
+
+         let mut right = Node::default();
+         right.parent = "Assignement".to_string();
+         right.context = "Right".to_string();
+         right.visit_expr(&node.right);
+
+         self.children.push(right);
      }
 
      fn visit_expr_call(&mut self, node: &'ast ExprCall){
-         let mut expr_call = Node::default();
+         let mut func_call = Node::default();
+         func_call.parent = "Call".to_string();
+         func_call.context = "Left".to_string();
+         func_call.visit_expr(&node.func);
 
-         let expr_func = &node.func;
-         expr_call.typ = "Call Expression".to_string();
+         self.children.push(func_call);
 
-         expr_call.visit_expr(expr_func);
          for arg in &node.args{
-            expr_call.visit_expr(arg);
+            let mut argument = Node::default();
+            argument.parent = "Call".to_string();
+            argument.context = "Argument".to_string();
+            argument.visit_expr(arg);
+
+            self.children.push(argument);
          }
 
-         self.children.push(expr_call);
      }
 
      fn visit_expr_array(&mut self, node: &'ast ExprArray){
@@ -184,16 +332,6 @@ impl <'ast> Visit <'ast> for Node {
          expr_ind.visit_expr(expr);
          expr_ind.visit_expr(ind);
          self.children.push(expr_ind);
-     }
-
-     fn visit_member(&mut self, node: &'ast Member){
-         let mut member = Node::default();
-         member.typ = "Member of struct/tuple".to_string();
-         match node{
-             Member::Named(_i)=>{ member.value = _i.to_string(); }
-             Member::Unnamed(_i)=>{ member.value = _i.index.to_string();}
-             }
-         self.children.push(member);
      }
 
      fn visit_expr_if(&mut self, node: &'ast ExprIf){
@@ -216,7 +354,7 @@ impl <'ast> Visit <'ast> for Node {
      }
      fn visit_expr_repeat(&mut self, node: &'ast ExprRepeat){
          let mut expr_repeat = Node::default();
-         expr_repeat.typ = "Array initialization".to_string();
+         expr_repeat.typ = "Array Init".to_string();
 
          let len = &*node.len;
          expr_repeat.visit_expr(len);
@@ -231,13 +369,13 @@ impl <'ast> Visit <'ast> for Node {
 
      }
      fn visit_expr_range(&mut self, node: &'ast ExprRange){
-
      }
      fn visit_expr_block(&mut self, node: &'ast ExprBlock){
-
      }
+     fn visit_expr_method_call(&mut self, node: &'ast ExprMethodCall){
+     }
+
 }
 
 
-
-        // println!("{}",format!("{:#?}", fn_name));
+        // println!("{}",format!("{:#?}", node));
