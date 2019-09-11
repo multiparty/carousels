@@ -20,6 +20,7 @@ fn main() {
     let src = "
             fn main() {
             let x = add(a,b);
+            let x = x+1;
             let mut array: [i32; 3] = [0, 1, 3];
             }
             fn add(a: i64, b:i64){
@@ -109,6 +110,7 @@ impl <'ast> Visit <'ast> for Node {
                 let expr = &_e.1;
                 right.parent = "Let".to_string();
                 right.context = "Init".to_string();
+
                 right.visit_expr(&expr);
 
                 self.children.push(right);
@@ -210,6 +212,10 @@ impl <'ast> Visit <'ast> for Node {
                     self.typ = "Paren".to_string();
                     self.visit_expr_paren(_e);
                 }
+                Expr::Path(_e)=>{
+                    self.typ = "Path".to_string();
+                    self.visit_expr_path(_e);
+                }
                 _=>{}
             }
 
@@ -252,7 +258,7 @@ impl <'ast> Visit <'ast> for Node {
         let mut right = Node::default();
         right.parent = "Binary Expr".to_string();
         right.context = "Right".to_string();
-        self.visit_expr(&*node.right);
+        right.visit_expr(&*node.right);
 
         self.children.push(right);
       }
@@ -279,11 +285,16 @@ impl <'ast> Visit <'ast> for Node {
         self.visit_lit(li);
     }
 
+    fn visit_expr_path(&mut self, node: &'ast ExprPath){
+        let p = &node.path.segments[0];
+        self.id = p.ident.to_string();
+    }
+
      fn visit_expr_assign(&mut self, node: &'ast ExprAssign){
         self.value = "=".to_string();
 
          let mut left = Node::default();
-         left.parent = "Assign".to_string();
+         left.parent = "Assignement".to_string();
          left.context = "Left".to_string();
          left.visit_expr(&node.left);
 
@@ -300,27 +311,32 @@ impl <'ast> Visit <'ast> for Node {
      fn visit_expr_call(&mut self, node: &'ast ExprCall){
          let mut func_call = Node::default();
          func_call.parent = "Call".to_string();
-         func_call.context = "Left".to_string();
+         func_call.context = "Callee".to_string();
          func_call.visit_expr(&node.func);
 
          self.children.push(func_call);
 
-         for arg in &node.args{
+        for a in &node.args{
             let mut argument = Node::default();
             argument.parent = "Call".to_string();
             argument.context = "Argument".to_string();
-            argument.visit_expr(arg);
+            argument.visit_expr(a);
 
             self.children.push(argument);
-         }
-
+        }
      }
 
      fn visit_expr_array(&mut self, node: &'ast ExprArray){
          let elements = &node.elems;
-         let mut array = Node::default();
-         array.typ = "Array".to_string();
-         self.children.push(array);
+
+         for e in elements{
+             let mut element = Node::default();
+             element.context = "Array Element".to_string();
+             element.parent = "Array".to_string();
+             element.visit_expr(e);
+
+             self.children.push(element);
+         }
      }
 
      fn visit_expr_index(&mut self, node: &'ast ExprIndex){
@@ -345,12 +361,16 @@ impl <'ast> Visit <'ast> for Node {
      fn visit_expr_return(&mut self, node: &'ast ExprReturn){
          let mut return_expr = Node::default();
          let expr = &node.expr;
-         return_expr.typ = "Return".to_string();
 
          match expr{
-             Some(_e)=>{ return_expr.visit_expr(&_e); }
+             Some(_e)=>{
+                 return_expr.context = "Returnee".to_string();
+                 return_expr.parent = "Return".to_string();
+                 return_expr.visit_expr(&_e);
+             }
              None =>{}
          }
+         self.children.push(return_expr)
      }
      fn visit_expr_repeat(&mut self, node: &'ast ExprRepeat){
          let mut expr_repeat = Node::default();
@@ -366,7 +386,9 @@ impl <'ast> Visit <'ast> for Node {
 
      }
      fn visit_expr_paren(&mut self, node: &'ast ExprParen){
-
+         let mut expr = Node::default();
+         expr.visit_expr(&node.expr);
+         self.children.push(expr);
      }
      fn visit_expr_range(&mut self, node: &'ast ExprRange){
      }
