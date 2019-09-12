@@ -6,7 +6,7 @@ use serde_json::Result;
 use syn::visit::{self, Visit};
 use syn::{File, ItemFn, FnDecl, Stmt, Lit, Expr, Local, ExprAssign, ExprMethodCall, Item,
     ExprBinary, ExprLit, ExprCall, ExprClosure, ExprUnary, ExprRepeat, ExprReturn, ExprRange, ExprParen,
-    ExprIf, ExprArray, ExprIndex, ExprBlock, ExprPath, Member, Pat, BinOp, Ident, UnOp};
+    ExprIf, ExprArray, ExprIndex, ExprBlock, ExprPath, ExprMacro, Member, Pat, BinOp, Ident, UnOp};
 
 #[derive(Debug, Default, Serialize, Deserialize)]
 struct Node{
@@ -26,6 +26,10 @@ struct Node{
 #[cfg(feature = "wee_alloc")]
 #[global_allocator]
 static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
+
+#[wasm_bindgen(start)]
+pub fn main_js(){
+}
 
 
 // This is like the `main` function, except for JavaScript.
@@ -222,6 +226,10 @@ impl <'ast> Visit <'ast> for Node {
                     self.typ = "Path".to_string();
                     self.visit_expr_path(_e);
                 }
+                Expr::Macro(_m)=>{
+                    self.typ = "Macro".to_string();
+                    self.visit_expr_macro(_m);
+                }
                 _=>{}
             }
 
@@ -395,6 +403,12 @@ impl <'ast> Visit <'ast> for Node {
          let mut expr = Node::default();
          expr.visit_expr(&node.expr);
          self.children.push(expr);
+     }
+     fn visit_expr_macro(&mut self, node: &'ast ExprMacro){ //TODO: check values you can pass to a macro
+         let p = &node.mac.path.segments[0];
+         let t = &node.mac.tts.to_string();
+         self.id = p.ident.to_string();
+         self.value = t.to_string(); // potentially change this, may be messy depending on what counts as a macro
      }
      fn visit_expr_range(&mut self, node: &'ast ExprRange){
      }
