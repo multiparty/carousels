@@ -5,6 +5,6 @@ import("../pkg/index.js").then(rust => {
     function getAST (e) {
         e.preventDefault();
         const res = rust.get_ast(document.getElementById('myTextarea').value);
-        document.getElementById('result').innerHTML  = res;
+        document.getElementById('result').innerHTML  = JSON.stringify(JSON.parse(res), null, 2);;
     }
 }).catch(console.error);
