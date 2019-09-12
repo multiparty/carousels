@@ -1,11 +1,12 @@
 use quote::quote;
+use serde::{Deserialize, Serialize};
+use serde_json::Result;
 use syn::visit::{self, Visit};
 use syn::{File, ItemFn, FnDecl, Stmt, Lit, Expr, Local, ExprAssign, ExprMethodCall, Item,
     ExprBinary, ExprLit, ExprCall, ExprClosure, ExprUnary, ExprRepeat, ExprReturn, ExprRange, ExprParen,
     ExprIf, ExprArray, ExprIndex, ExprBlock, ExprPath, Member, Pat, BinOp, Ident, UnOp};
 
-
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Serialize, Deserialize)]
 struct Node{
     id: String,
     typ: String,
@@ -20,7 +21,6 @@ fn main() {
     let src = "
             fn main() {
             let x = add(a,b);
-            let x = x+1;
             let mut array: [i32; 3] = [0, 1, 3];
             }
             fn add(a: i64, b:i64){
@@ -32,7 +32,13 @@ fn main() {
     let mut file = Node::default(); //highest node in the AST
     file.visit_file(&syntax);
 
-    println!("{}", format!("{:#?}", file));
+    match serde_json::to_string(&file){
+        Ok(_v)=>{
+            let result = _v;
+            println!("{}", result);
+        },
+        Err(_e)=>{ println!("{}", "Error serializing")},
+    }
 
 }
 
@@ -398,6 +404,3 @@ impl <'ast> Visit <'ast> for Node {
      }
 
 }
-
-
-        // println!("{}",format!("{:#?}", node));
