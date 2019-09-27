@@ -81,31 +81,31 @@
           <td>
             Input definitions:<br/>
             <textarea id="inp" rows="30" style="font-size: 10pt; font-family: monospace;">
-  function index_check_answers(guesses, ships) {
-    let answers = [41, 20, 75, 65, 52];  //from server generate and share nonzero
+  function index_check_$answers(guesses, ships) {
+    let $answers = [41, 20, 75, 65, 52];  //from server generate and share nonzero
 
-    answers = answers.map((cur_g,g) => answers.map((cur_s,s) =>
-      answers[g].smult(guesses[g].ssub(ships[s]))  // if this is 0, we hit
+    $answers = $answers.map((cur_g,g) => $answers.map((cur_s,s) =>
+      $answers[g].smult(guesses[g].ssub(ships[s]))  // if this is 0, we hit
     ));
 
-    return answers;
+    return $answers;
   }
 
-  function binary_check_answers(guesses, ships) {
-     let answers = [41, 20, 75, 65, 52];
-     answers = answers.map((curr, i) => ships[i].smult(guesses[i]));
-     return answers;
+  function binary_check_$answers(guesses, ships) {
+     let $answers = [41, 20, 75, 65, 52];
+     $answers = $answers.map((curr, i) => ships[i].smult(guesses[i]));
+     return $answers;
   }
 
 
-  function row_col_check_answers(guesses, ships) {
-     let answers = [41, 20, 75, 65, 52];  //from server generate and share nonzero
-     answers = answers.map((cur_g, g) => answers.map((cur_s, s) =>
+  function row_col_check_$answers(guesses, ships) {
+     let $answers = [41, 20, 75, 65, 52];  //from server generate and share nonzero
+     $answers = $answers.map((cur_g, g) => $answers.map((cur_s, s) =>
        guesses[g].ssub(ships[s]).cadd(guesses.length).smult(
          guesses[g+1].ssub(ships[s+1]).cadd(guesses.length)
-       ).csub(guesses.length*guesses.length).smult(answers[g/2])
+       ).csub(guesses.length*guesses.length).smult($answers[g/2])
      ));
-     return answers;
+     return $answers;
   }
 </textarea>
           </td>
@@ -124,8 +124,8 @@
                     <option value="guesses">guesses</option>
                   </select>
                 </div>
-                <div id="checkbx" style="display:none">
-                  <!-- <input type="checkbox" id="preprocessing"  onchange="demo('selected_cost', 'selected_param', 'preprocessing', 'inp','out');" checked>Include Pre-Processing costs -->
+                <div id="checkbx">
+                  <input type="checkbox" id="dynamic" checked>Read decorators for dynamic length arrays
                 </div>
               </form>
               <br/><br/>
