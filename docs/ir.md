@@ -40,18 +40,18 @@ These are statements but cannot be expressions.
 
 1. expression: expression
 
-## Variable definition
+## variableDefinition
 
 1. name: nameExpression
 2. type: type
 
-#### For each
+#### forEach
 
 1. iterator: variable definition (the loop variable)
 2. range: rangeExpression
 3. body: array<statements>
 
-#### For
+#### for
 
 1. initial: statement
 2. condition: expression
@@ -66,13 +66,13 @@ These are statements but cannot be expressions.
 
 These can be expressions (or statements).
 
-#### Variable assignment
+#### variableAssignment
 
 1. name: nameExpression
 2. expression: expression
 
 
-#### If
+#### if
 
 1. condition: expression
 2. ifBody: array<statements>
