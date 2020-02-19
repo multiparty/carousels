@@ -26,6 +26,7 @@
     "chai": "^4.1.2",
     "express": "^4.16.2",
     "imparse": "^0.1.2",
+    "mathjs": "^6.6.0",
     "mocha": "^4.1.0",
     "polynomium": "^0.1.3"
   },
