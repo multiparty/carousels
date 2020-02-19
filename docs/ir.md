@@ -29,7 +29,7 @@ For now, it is ok for the type string to be exactly what the parser gives.
 
 These are statements but cannot be expressions.
 
-#### Function definition
+#### functionDefinition
 
 1. name: nameExpression
 2. parameters: array<variable definition>
