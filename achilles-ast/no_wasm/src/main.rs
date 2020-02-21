@@ -1,11 +1,16 @@
+extern crate proc_macro;
+
 use std::fs::File as FileSys;
 use std::io::Read;
 use std::error::Error;
 use serde::{Deserialize, Serialize};
 use syn::visit::{self, Visit};
-use syn::{File, ItemFn, FnDecl, Stmt, Lit, Expr, Local, ExprAssign, ExprMethodCall, Item,
+use syn::{File, ItemFn, Stmt, Lit, Expr, Local, ExprAssign, ExprMethodCall, Item,
     ExprBinary, ExprLit, ExprCall, ExprClosure, ExprUnary, ExprRepeat, ExprReturn, ExprRange, ExprParen,
-    ExprIf, ExprArray, ExprIndex, ExprBlock, ExprPath, ExprMacro, Member, Pat, BinOp, Ident, UnOp};
+    ExprIf, ExprArray, ExprIndex, ExprBlock, ExprPath, ExprMacro, Member, Pat, BinOp, Ident, UnOp, Block, Attribute};
+use syn::Token;
+use syn::Result;
+use syn::parse::{ParseStream, Parse};
 
 #[derive(Debug, Default, Serialize, Deserialize)]
 struct Node{
@@ -17,6 +22,31 @@ struct Node{
     children: Vec<Node>
 }
 
+mod kw {
+    syn::custom_keyword!(obliv);
+}
+
+enum Argument {
+    OblivIf {
+        obliv_token: kw::obliv,
+        if_expr: ExprIf,
+    }
+
+}
+impl Parse for Argument {
+    fn parse(input: ParseStream) -> Result<Self> {
+        let lookahead = input.lookahead1();
+        if lookahead.peek(kw::obliv) {
+            Ok( Argument::OblivIf {
+                obliv_token: input.parse::<kw::obliv>()?,
+                if_expr: input.parse()?,
+            })
+        } else {
+            Err(lookahead.error())
+        }
+    }
+}
+
 pub fn main(){
     let mut file = FileSys::open("src/test_program.rs").unwrap();
     let mut content = String::new();
@@ -25,7 +55,7 @@ pub fn main(){
     println!("{}", content);
     match get_ast(&content) {
         Ok(_v)=>{println!("{}", _v)},
-        Err(e) => println!("error parsing: {:?}", e),
+        Err(e) => println!("error parsing : {:?}", e),
     };
 
 }
@@ -36,8 +66,8 @@ pub fn main(){
 
 // This is like the `main` function, except for JavaScript.
 
-pub fn get_ast(val: &str) -> Result<String, Box<Error>> {
-    let syntax = syn::parse_file(&val)?;
+pub fn get_ast(val: &str) -> std::result::Result<String, Box<Error>> {
+    let syntax = syn::parse_file(val)?;
 
     let mut file = Node::default(); //highest node in the AST
     file.visit_file(&syntax);
@@ -65,7 +95,8 @@ impl <'ast> Visit <'ast> for Node {
     fn visit_item_fn(&mut self, node: &'ast ItemFn){
 
         // println!("{}", format!("{:#?}", &node.block.stmts));
-        self.value = node.ident.to_string();
+        //self.value = node.ident.to_string(); //TODO get function name/signature in string
+        //representation
         self.typ = "Function".to_string();
 
         for s in &node.block.stmts {
@@ -81,7 +112,7 @@ impl <'ast> Visit <'ast> for Node {
         self.typ = "Let".to_string();
 
         let mut left = Node::default();
-        let ident = &node.pats[0]; // the variable declared
+        let ident = &node.pat; // the variable declared
 
         left.parent = "Let".to_string();
         left.context = "Declaration".to_string();
@@ -99,13 +130,13 @@ impl <'ast> Visit <'ast> for Node {
                 left.typ = "Tuple".to_string();
 
                 let mut left_tuple = Node::default();
-                let front = &_t.front[0];
+                let front = &_t.elems[0]; //TODO confirm this is the correct access/value
                 left.context = "Front".to_string();
                 left_tuple.visit_pat(front);
                 left.children.push(left_tuple);
 
                 let mut right_tuple = Node::default();
-                let back = &_t.back[0];
+                let back = &_t.elems[1];//TODO confirm this is the correct access/value
                 left.context = "Back".to_string();
                 right_tuple.visit_pat(back);
                 left.children.push(right_tuple);
@@ -136,8 +167,8 @@ impl <'ast> Visit <'ast> for Node {
            Lit::ByteStr (_bs)=>{self.value = format!("{:#?}",_bs.value());}
            Lit::Byte (_b)=>{self.value = _b.value().to_string();}
            Lit::Char(_ch) =>{self.value = _ch.value().to_string();}
-           Lit::Int(_i)=>{self.value = _i.value().to_string();}
-           Lit::Float(_f) =>{self.value = _f.value().to_string();}
+           Lit::Int(_i)=>{self.value = _i.base10_digits().to_string();}
+           Lit::Float(_f) =>{self.value = _f.base10_digits().to_string();}
            Lit::Bool(_bo)=>{self.value = _bo.value.to_string();}
            _=>{}
         }
@@ -407,7 +438,7 @@ impl <'ast> Visit <'ast> for Node {
      }
      fn visit_expr_macro(&mut self, node: &'ast ExprMacro){ //TODO: check values you can pass to a macro
          let p = &node.mac.path.segments[0];
-         let t = &node.mac.tts.to_string();
+         let t = &node.mac.tokens.to_string(); //TODO: this use to be tts.to_string(), what were we looking for?
          self.id = p.ident.to_string();
          self.value = t.to_string(); // potentially change this, may be messy depending on what counts as a macro
      }
