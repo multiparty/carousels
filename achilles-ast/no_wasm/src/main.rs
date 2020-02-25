@@ -1,16 +1,19 @@
-extern crate proc_macro;
+#[macro_use]
+extern crate syn;
 
 use std::fs::File as FileSys;
 use std::io::Read;
 use std::error::Error;
 use serde::{Deserialize, Serialize};
-use syn::visit::{self, Visit};
+use syn::visit::{Visit};
 use syn::{File, ItemFn, Stmt, Lit, Expr, Local, ExprAssign, ExprMethodCall, Item,
-    ExprBinary, ExprLit, ExprCall, ExprClosure, ExprUnary, ExprRepeat, ExprReturn, ExprRange, ExprParen,
+    ExprBinary, ExprForLoop, ExprLit, ExprCall, ExprClosure, ExprUnary, ExprRepeat, ExprReturn, ExprRange, ExprParen,
     ExprIf, ExprArray, ExprIndex, ExprBlock, ExprPath, ExprMacro, Member, Pat, BinOp, Ident, UnOp, Block, Attribute};
 use syn::Token;
+use syn::{token::If, token::Else, token::Bang};
 use syn::Result;
 use syn::parse::{ParseStream, Parse};
+
 
 #[derive(Debug, Default, Serialize, Deserialize)]
 struct Node{
@@ -23,32 +26,33 @@ struct Node{
 }
 
 mod kw {
-    syn::custom_keyword!(obliv);
+    custom_keyword!(obliv);
 }
 
-enum Argument {
-    OblivIf {
-        obliv_token: kw::obliv,
-        if_expr: ExprIf,
-    }
-
+pub struct OblivIf {
+    pub obliv_token: kw::obliv,
+    pub if_expr: syn::ExprIf
 }
-impl Parse for Argument {
+
+
+impl Parse for OblivIf {
     fn parse(input: ParseStream) -> Result<Self> {
         let lookahead = input.lookahead1();
-        if lookahead.peek(kw::obliv) {
-            Ok( Argument::OblivIf {
-                obliv_token: input.parse::<kw::obliv>()?,
-                if_expr: input.parse()?,
-            })
-        } else {
+        if(lookahead.peek(kw::obliv)){
+            println!("hello there!");
+            let obliv_token =input.parse::<kw::obliv>()?;
+            let if_expr: ExprIf = input.parse()?;
+
+            Ok(OblivIf{obliv_token, if_expr})
+        }else{
+            println!("hello there!");
             Err(lookahead.error())
         }
     }
 }
 
 pub fn main(){
-    let mut file = FileSys::open("src/test_program.rs").unwrap();
+    let mut file = FileSys::open("src/test_hello.rs").unwrap();
     let mut content = String::new();
 
     file.read_to_string(&mut content).unwrap();
@@ -246,6 +250,10 @@ impl <'ast> Visit <'ast> for Node {
                     self.typ = "Range".to_string();
                     self.visit_expr_range(_e);
                 }
+                Expr::ForLoop(_e)=>{
+                    self.typ = "ForLoop".to_string();
+                    self.visit_expr_for_loop(_e);
+                }
                 Expr::Return(_e)=>{
                     self.typ = "Return".to_string();
                     self.visit_expr_return(_e);
@@ -442,7 +450,31 @@ impl <'ast> Visit <'ast> for Node {
          self.id = p.ident.to_string();
          self.value = t.to_string(); // potentially change this, may be messy depending on what counts as a macro
      }
+     fn visit_expr_for_loop(&mut self, node: &'ast ExprForLoop){
+     }
      fn visit_expr_range(&mut self, node: &'ast ExprRange){
+         let mut from = Node::default();
+         from.parent = "Range Expr".to_string();
+         from.context = "From".to_string();
+         let _from = &node.from;
+         match _from{
+             Some(_f) =>{
+                 from.visit_expr(&_f);
+             }
+             None =>{}
+         }
+         let mut to = Node::default();
+         to.parent = "Range Expr".to_string();
+         to.context = "To".to_string();
+         let _to = &node.to;
+         match _to{
+             Some(_t) =>{
+                 to.visit_expr(&_t);
+             }
+             None =>{}
+         }
+         self.children.push(from);
+         self.children.push(to);
      }
      fn visit_expr_block(&mut self, node: &'ast ExprBlock){
      }
