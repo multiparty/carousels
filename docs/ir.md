@@ -32,8 +32,8 @@ These are statements but cannot be expressions.
 #### functionDefinition
 
 1. name: nameExpression
-2. parameters: array<variable definition>
-3. body: array<statements>
+2. parameters: array of variable definition
+3. body: array of statements
 4. return type: type
 
 #### returnStatement
@@ -49,7 +49,7 @@ These are statements but cannot be expressions.
 
 1. iterator: variable definition (the loop variable)
 2. range: rangeExpression
-3. body: array<statements>
+3. body: array of statements
 
 #### for
 
@@ -75,8 +75,8 @@ These can be expressions (or statements).
 #### if
 
 1. condition: expression
-2. ifBody: array<statements>
-3. elseBody: array<statements> (empty if no else)
+2. ifBody: array of statements
+3. elseBody: array of statements (empty if no else)
 
 if else if else should be represented as:
 ```javascript
@@ -98,8 +98,8 @@ the return value of this statement.
 #### oblivIf
 
 1. condition: expression
-2. ifBody: array<statements>
-3. elseBody: array<statements>
+2. ifBody: array of statements
+3. elseBody: array of statements
 
 _Note_: The last statment in both if and else body is considered to be
 the return value of this statement.
@@ -118,7 +118,7 @@ Represent variable or function names (no dots).
 
 1. operator: string ('+', '-', ...)
 2. arity: number
-3. operands: array<expression>
+3. operands: array of expression
 
 Binary and uniary expressions.
 
@@ -143,14 +143,14 @@ Binary and uniary expressions.
 
 #### arrayExpression
 
-1. elements: array<expression>
+1. elements: array of expression
 
 Represents a direct array value ([1, 2, 3] or [1, func(), 2 + 3]).
 
 #### functionCall
 
 1. function: nameExpression | dotExpression (the function name or obj.name etc)
-2. params: array<expressions>
+2. params: array of expressions
 
 #### dotExpression
 
