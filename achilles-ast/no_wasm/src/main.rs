@@ -1,3 +1,6 @@
+#![allow(unused_variables)]
+#![allow(non_snake_case)]
+
 #[macro_use]
 extern crate syn;
 
@@ -70,7 +73,7 @@ pub fn main(){
 
 // This is like the `main` function, except for JavaScript.
 
-pub fn get_ast(val: &str) -> std::result::Result<String, Box<Error>> {
+pub fn get_ast(val: &str) -> std::result::Result<String, Box<dyn Error>> {
     let syntax = syn::parse_file(val)?;
 
     let mut file = Node::default(); //highest node in the AST
