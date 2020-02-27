@@ -119,8 +119,8 @@ pub fn get_ast(val: &str) -> std::result::Result<String, Box<dyn Error>> {
 impl <'ast> Visit <'ast> for Node {
 
     fn visit_item_fn(&mut self, node: &'ast ItemFn){
-        let returntype = &node.sig.output;
-        let inputparam = &node.sig.inputs;
+        let return_type = &node.sig.output;
+        let input_param = &node.sig.inputs;
 
         // println!("{}", format!("{:#?}", &node.block.stmts));
         self.nodeType = "functionDefinition".to_string();
@@ -380,49 +380,59 @@ impl <'ast> Visit <'ast> for Node {
 //
      fn visit_expr_call(&mut self, node: &'ast ExprCall){
 
-         self.visit_expr(&node.func);
-
-         self.children.push(func_call);
+         let mut function_call = Node::default();
+         function_call.visit_expr(&node.func);
 
         for a in &node.args{
             let mut argument = Node::default();
-            argument.parent = "Call".to_string();
-            argument.context = "Argument".to_string();
             argument.visit_expr(a);
-
-            self.children.push(argument);
+            function_call.parameters.push(argument);
         }
+        self.function.push(function_call);
      }
 //
-//      fn visit_expr_array(&mut self, node: &'ast ExprArray){
-//          let elements = &node.elems;
+     fn visit_expr_array(&mut self, node: &'ast ExprArray){
+
+         for e in &node.elems{
+             let mut element = Node::default();
+             element.visit_expr(e);
+             self.elements.push(element);
+         }
+
+     }
+
+     fn visit_expr_index(&mut self, node: &'ast ExprIndex){
+         // self.visit_expr(&node.expr);
+         let mut index = Node::default();
+         index.visit_expr(&node.index);
+         self.index.push(index);
+     }
 //
-//          for e in elements{
-//              let mut element = Node::default();
-//              element.context = "Array Element".to_string();
-//              element.parent = "Array".to_string();
-//              element.visit_expr(e);
-//
-//              self.children.push(element);
-//          }
-//      }
-//
-//      fn visit_expr_index(&mut self, node: &'ast ExprIndex){
-//          let mut expr_ind = Node::default();
-//          let ind = &node.index;
-//          let expr = &node.expr;
-//
-//          expr_ind.typ = "Array Access".to_string();
-//          expr_ind.visit_expr(expr);
-//          expr_ind.visit_expr(ind);
-//          self.children.push(expr_ind);
-//      }
-//
-//      fn visit_expr_if(&mut self, node: &'ast ExprIf){
-//          let mut if_expr = Node::default();
-//          if_expr.typ = "If".to_string();
-//
-//      }
+         fn visit_expr_if(&mut self, node: &'ast ExprIf){
+             let mut condition = Node::default();
+             let mut if_body = Node::default();
+             let mut else_body = Node::default();
+
+             condition.visit_expr(&node.cond);
+             self.condition.push(condition);
+
+             for s in &node.then_branch.stmts {
+                 let mut stmt = Node::default();
+                 stmt.visit_stmt(s); // call visit_stmt on each statement in the fn body
+                 self.ifBody.push(stmt);
+             }
+
+
+             match &node.else_branch{
+                 Some(_else)=>{
+                     let (_t,_e) = _else;
+                     else_body.visit_expr(_e);
+                 }
+                 None =>{}
+             }
+             self.elseBody.push(else_body);
+
+         }
 //      fn visit_expr_closure(&mut self, node: &'ast ExprClosure){
 //
 //      }
