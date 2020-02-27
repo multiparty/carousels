@@ -14,9 +14,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/6.26.0/babel.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/randomcolor/0.5.2/randomColor.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/6.6.0/math.min.js"></script>
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-    <script src="https://lapets.github.io/polynomium/lib/polynomium.js"></script>
-    <script src="lib/imparse.js"></script>
     <script src="lib/carousels.js"></script>
     <script src="lib/costs.js"></script>
     <script src="lib/metric.js"></script>
@@ -38,7 +37,7 @@
       body #content #sheet .section table { width:100%; font-size:12px; }
       body #content #sheet .section table div { width:100%; border:1px solid #888888; padding:5px; font-family:Monospace; font-size:11px; }
       body #content #sheet .section table div pre { margin:0; padding:0; }
-      body #content #sheet .section textarea { width:100%; height:100%; border:1px solid #888888; margin:0; padding:5px; font-size:12px; }
+      body #content #sheet .section textarea { width:100%; height:100%; border:1px solid #888888; margin:0; padding:5px; font-family:Monospace; font-size:12px; }
       body #content #sheet .section ul { list-style:none; padding:8px 0px 8px 0px; margin:0; }
       body #content #sheet .section li { padding-left:1.5em; text-indent:-1em; }
       body #content #sheet .section li:before { content:"4"; color:#888888; font-family:'Webdings'; }
@@ -77,16 +76,41 @@
           <h3>Basic Example</h3>
           <td>
             Input definitions:<br/>
-            <textarea id="inp" rows="18">
-              function demo(x){
-                var arr = [1,2,3,4];
+            <textarea id="inp" rows="23">
+function demo(x) {
+  var arr = [1,2,3,4];
 
-                var arr_bool = arr.map((curr,i) => arr[i].lt(arr[i+1]));
-                arr = arr.map((curr,i) => arr_bool[i].if_else(arr_bool[i-1].if_else(arr[i],arr[i-1]), arr[i+1]));
+  var arr_bool = arr.map((curr,i) => arr[i].lt(arr[i+1]));
+  arr = arr.map((curr,i) => arr_bool[i].if_else(arr_bool[i-1].if_else(arr[i],arr[i-1]), arr[i+1]));
 
-                return arr;
-              }
-            </textarea>
+  return arr;
+}
+
+function demo2(x) {
+  var arr = [1,2,3,4];
+
+  for (let i = 0; i < 4; i++) {
+    let cmp = arr[i].lt(arr[i+1]);
+    arr[i] = cmp.if_else(arr_bool[i-1].if_else(arr[i], arr[i-1]), arr[i+1])
+  }
+
+  return arr;
+}
+
+async function demo3(x) {
+  var arr = [1,2,3,4];
+
+  for (let i = 0; i < 4; i++) {
+    let cmp = await arr[i].lt(arr[i+1]);
+    if (cmp.open() == 1) {  // awaited
+      arr[i] = arr_bool[i-1].if_else(arr[i], arr[i-1]);
+    } else {
+      arr[i] = arr[i+1];
+    }
+  }
+
+  return arr;
+}</textarea>
           </td>
           <table>
             <br></br>

@@ -9,20 +9,19 @@
     <!--link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.1.0/styles/vs.min.css"-->
     <!--script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.1.0/highlight.min.js"></script-->
     <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Open+Sans">
-    <script src="lib/lodash.core.min.js"></script>
-    <script src="lib/jquery-2.1.1.js"></script>
-    <script src="lib/babel.min.js"></script>
-    <script src="lib/Chart.bundle.min.js"></script>
-    <script src="lib/randomColor.min.js"></script>
-    <script src="lib/plotly-latest.min.js"></script>
-    <script src="lib/polynomium.js"></script>
-    <script src="lib/imparse.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.5/lodash.core.min.js"></script>
+    <script src="https://code.jquery.com/jquery-2.1.1.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/6.26.0/babel.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/randomcolor/0.5.2/randomColor.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/6.6.0/math.min.js"></script>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
     <script src="lib/carousels.js"></script>
     <script src="lib/costs.js"></script>
     <script src="lib/metric.js"></script>
     <script src="lib/plot.js"></script>
     <script src="lib/setup.js"></script>
-    <link rel="stylesheet" href="lib/jquery-ui.css">
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.10.4/themes/flick/jquery-ui.css">
     <style>
       html, body { height:100%; margin:0; color:#000000; font-family:'Open Sans',sans-serif; }
       body #content { z-index:100; min-height:100%; width:900px; margin:0 auto -90px; }
@@ -38,7 +37,7 @@
       body #content #sheet .section table { width:100%; font-size:12px; }
       body #content #sheet .section table div { width:100%; border:1px solid #888888; padding:5px; font-family:Monospace; font-size:11px; }
       body #content #sheet .section table div pre { margin:0; padding:0; }
-      body #content #sheet .section textarea { width:100%; height:100%; border:1px solid #888888; margin:0; padding:5px; font-size:12px; }
+      body #content #sheet .section textarea { width:100%; height:100%; border:1px solid #888888; margin:0; padding:5px; font-family:Monospace; font-size:10px; }
       body #content #sheet .section ul { list-style:none; padding:8px 0px 8px 0px; margin:0; }
       body #content #sheet .section li { padding-left:1.5em; text-indent:-1em; }
       body #content #sheet .section li:before { content:"4"; color:#888888; font-family:'Webdings'; }
@@ -80,7 +79,7 @@
           </p>
           <td>
             Input definitions:<br/>
-            <textarea id="inp" rows="30" style="font-size: 10pt; font-family: monospace;">
+            <textarea id="inp" rows="30">
   function index_check_$answers(guesses, ships) {
     let $answers = [41, 20, 75, 65, 52];  //from server generate and share nonzero
 
@@ -125,7 +124,7 @@
                   </select>
                 </div>
                 <div id="checkbx">
-                  <input type="checkbox" id="dynamic" checked>Read decorators for dynamic length arrays
+                  <input type="checkbox" id="dynamic" onchange="demo('selected_cost', 'selected_param', 'preprocessing', 'inp','out');" checked>Read decorators for dynamic length arrays
                 </div>
               </form>
               <br/><br/>

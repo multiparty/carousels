@@ -3,7 +3,7 @@
 const math = require('mathjs');
 
 // costs that we parse from specificiation
-const cost1 = math.parse('2*x^2'); 
+const cost1 = math.parse('2*x^2');
 const cost2 = math.parse('x^2 + log(x, 2)');
 
 // we manipulate the costs as we go on parsing the file
