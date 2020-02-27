@@ -170,6 +170,7 @@ impl <'ast> Visit <'ast> for Node {
                 assignment.nodeType = "variableAssignment".to_string();
                 assignment.visit_expr(&_e.1);
                 self.right.push(assignment);
+                self.operator = "=".to_string();
             }
             None =>{}
         }
@@ -509,6 +510,26 @@ impl <'ast> Visit <'ast> for Node {
      fn visit_expr_block(&mut self, node: &'ast ExprBlock){
      }
      fn visit_expr_method_call(&mut self, node: &'ast ExprMethodCall){
+         let mut function = Node::default();
+         let mut left = Node::default();
+         let mut right = Node::default();
+         let mut parameters = Node::default();
+
+
+         function.nodeType = "dotExpression".to_string();
+         right.name = node.method.to_string();
+         left.visit_expr(&node.receiver);
+
+         function.right.push(right);
+         function.left.push(left);
+
+         self.function.push(function);
+
+         for p in node.args.iter(){
+             let mut parameter = Node::default();
+             parameter.visit_expr(p);
+             self.parameters.push(parameter);
+         }
      }
      fn visit_expr_field(&mut self, node: &'ast ExprField){
          let mut left = Node::default();

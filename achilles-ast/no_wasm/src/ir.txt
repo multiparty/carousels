@@ -36,3 +36,5 @@ length: Vec<Node>,
 initial: Vec<Node>,
 start: Vec<Node>,
 end: Vec<Node>,
+
+// println!("{}", format!("{:#?}", &node.block.stmts));
