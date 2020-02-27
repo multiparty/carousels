@@ -9,11 +9,9 @@ use std::io::Read;
 use std::error::Error;
 use serde::{Deserialize, Serialize};
 use syn::visit::{Visit};
-use syn::{File, ItemFn, Stmt, Lit, Expr, Local, ExprAssign, ExprMethodCall, Item,
-    ExprBinary, ExprForLoop, ExprLit, ExprCall, ExprClosure, ExprUnary, ExprRepeat, ExprReturn, ExprRange, ExprParen,
-    ExprIf, ExprArray, ExprIndex, ExprBlock, ExprPath, ExprMacro, Member, Pat, BinOp, Ident, UnOp, Block, Attribute};
-use syn::Token;
-use syn::{token::If, token::Else, token::Bang};
+use syn::{ItemFn, Lit, Expr, Local, Member, ExprAssign, ExprMethodCall,
+    ExprBinary, ExprForLoop, ExprLit, ExprCall, ExprUnary, ExprRepeat, ExprReturn, ExprRange, ExprParen,
+    ExprIf, ExprArray, ExprField, ExprIndex, ExprBlock, ExprPath, ExprMacro, Pat, BinOp, Ident, UnOp};
 use syn::Result;
 use syn::parse::{ParseStream, Parse};
 
@@ -53,6 +51,8 @@ struct Node{
     index: Vec<Node>,
     iterator: Vec<Node>,
     increment: Vec<Node>,
+    repeat: Vec<Node>,
+    length: Vec<Node>,
     initial: Vec<Node>,
     start: Vec<Node>,
     end: Vec<Node>,
@@ -71,7 +71,7 @@ pub struct OblivIf {
 impl Parse for OblivIf {
     fn parse(input: ParseStream) -> Result<Self> {
         let lookahead = input.lookahead1();
-        if(lookahead.peek(kw::obliv)){
+        if lookahead.peek(kw::obliv) {
             println!("hello there!");
             let obliv_token =input.parse::<kw::obliv>()?;
             let if_expr: ExprIf = input.parse()?;
@@ -213,15 +213,12 @@ impl <'ast> Visit <'ast> for Node {
         self.name = node.to_string();
     }
 //
-//     fn visit_member(&mut self, node: &'ast Member){
-//         let mut member = Node::default();
-//         member.typ = "Member".to_string();
-//         match node{
-//             Member::Named(_i)=>{ member.value = _i.to_string(); }
-//             Member::Unnamed(_i)=>{ member.value = _i.index.to_string();}
-//             }
-//         self.children.push(member);
-//     }
+    fn visit_member(&mut self, node: &'ast Member){
+        match node{
+            Member::Named(_i)=>{ self.value = _i.to_string(); }
+            Member::Unnamed(_i)=>{ self.value = _i.index.to_string();}
+            }
+    }
 //
 //
 // //////////////////////////Expressions/////////////////////////////////////
@@ -270,7 +267,7 @@ impl <'ast> Visit <'ast> for Node {
                     self.visit_expr_assign(_e);
                 }
                 Expr::Field(_e)=>{
-                    self.nodeType = "field".to_string();
+                    self.nodeType = "dotExpression".to_string();
                     self.visit_expr_field(_e);
                 }
                 Expr::Index(_e)=>{
@@ -450,19 +447,20 @@ impl <'ast> Visit <'ast> for Node {
          }
          self.expression.push(return_expr);
      }
-//      fn visit_expr_repeat(&mut self, node: &'ast ExprRepeat){
-//          let mut expr_repeat = Node::default();
-//          expr_repeat.typ = "Array Init".to_string();
-//
-//          let len = &*node.len;
-//          expr_repeat.visit_expr(len);
-//
-//          let init_expr = &node.expr;
-//          expr_repeat.visit_expr(init_expr);
-//
-//          self.children.push(expr_repeat);
-//
-//      }
+     fn visit_expr_repeat(&mut self, node: &'ast ExprRepeat){
+         let mut repeat_expr = Node::default();
+         let mut length = Node::default();
+         let mut initial = Node::default();
+
+         length.visit_expr(&*node.len);
+         initial.visit_expr(&node.expr);
+
+         repeat_expr.length.push(length);
+         repeat_expr.initial.push(initial);
+
+         self.repeat.push(repeat_expr);
+
+     }
      fn visit_expr_paren(&mut self, node: &'ast ExprParen){
          let mut expr = Node::default();
          expr.visit_expr(&node.expr);
@@ -476,7 +474,7 @@ impl <'ast> Visit <'ast> for Node {
          let mut iterator = Node::default();
          let mut range = Node::default();
 
-         iterator.nodeType = "iterator";
+         iterator.nodeType = "iterator".to_string();
          iterator.visit_pat(&node.pat);
          self.iterator.push(iterator);
 
@@ -511,6 +509,17 @@ impl <'ast> Visit <'ast> for Node {
      fn visit_expr_block(&mut self, node: &'ast ExprBlock){
      }
      fn visit_expr_method_call(&mut self, node: &'ast ExprMethodCall){
+     }
+     fn visit_expr_field(&mut self, node: &'ast ExprField){
+         let mut left = Node::default();
+         let mut right = Node::default();
+
+         left.visit_expr(&node.base);
+         right.visit_member(&node.member);
+
+         self.left.push(left);
+         self.right.push(right);
+         self.operator = ".".to_string();
      }
 
 }
