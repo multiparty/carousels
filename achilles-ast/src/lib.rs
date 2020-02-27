@@ -1,4 +1,6 @@
 extern crate proc_macro;
+use wasm_bindgen::prelude::*;
+use web_sys::console;
 
 use std::fs::File as FileSys;
 use std::io::Read;
@@ -22,61 +24,36 @@ struct Node{
     children: Vec<Node>
 }
 
-mod kw {
-    syn::custom_keyword!(obliv);
+
+
+// When the `wee_alloc` feature is enabled, this uses `wee_alloc` as the global
+// allocator.
+//
+// If you don't want to use `wee_alloc`, you can safely delete this.
+#[cfg(feature = "wee_alloc")]
+#[global_allocator]
+static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
+
+#[wasm_bindgen(start)]
+pub fn main_js(){
 }
-
-enum Argument {
-    OblivIf {
-        obliv_token: kw::obliv,
-        if_expr: ExprIf,
-    }
-
-}
-impl Parse for Argument {
-    fn parse(input: ParseStream) -> Result<Self> {
-        let lookahead = input.lookahead1();
-        if lookahead.peek(kw::obliv) {
-            Ok( Argument::OblivIf {
-                obliv_token: input.parse::<kw::obliv>()?,
-                if_expr: input.parse()?,
-            })
-        } else {
-            Err(lookahead.error())
-        }
-    }
-}
-
-pub fn main(){
-    let mut file = FileSys::open("src/test_program.rs").unwrap();
-    let mut content = String::new();
-
-    file.read_to_string(&mut content).unwrap();
-    println!("{}", content);
-    match get_ast(&content) {
-        Ok(_v)=>{println!("{}", _v)},
-        Err(e) => println!("error parsing : {:?}", e),
-    };
-
-}
-
-
-
 
 
 // This is like the `main` function, except for JavaScript.
 
-pub fn get_ast(val: &str) -> std::result::Result<String, Box<Error>> {
-    let syntax = syn::parse_file(val)?;
+#[wasm_bindgen]
+pub fn get_ast(val: &str) -> String {
+    let syntax = syn::parse_file(&val).unwrap();
 
     let mut file = Node::default(); //highest node in the AST
     file.visit_file(&syntax);
-    match serde_json::to_string_pretty(&file){
-        Ok(_v)=>{Ok(_v)},
-        Err(_e)=>{Ok("Error serializing".to_string())},
+    match serde_json::to_string(&file){
+        Ok(_v)=>{_v},
+        Err(_e)=>{"Error serializing".to_string()},
     }
 
 }
+
 
 impl <'ast> Visit <'ast> for Node {
 
