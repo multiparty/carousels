@@ -342,68 +342,57 @@ impl <'ast> Visit <'ast> for Node {
         self.operands.push(right);
       }
 //
-//     fn visit_expr_unary(&mut self, node: &'ast ExprUnary){
-//         let op = node.op;
-//         let expr = &node.expr;
-//         match op{
-//             UnOp::Not(_un)=>{self.operator = "!".to_string();}
-//             UnOp::Neg(_un)=>{self.operator = "~".to_string();}
-//             UnOp::Deref(_un)=>{self.operator = "*".to_string();}
-//         }
+    fn visit_expr_unary(&mut self, node: &'ast ExprUnary){
+        let op = node.op;
+        match op{
+            UnOp::Not(_un)=>{self.operator = "!".to_string();}
+            UnOp::Neg(_un)=>{self.operator = "~".to_string();}
+            UnOp::Deref(_un)=>{self.operator = "*".to_string();}
+        }
+
+        let mut operand = Node::default();
+        operand.visit_expr(&node.expr);
+        self.operands.push(operand);
+    }
 //
-//         let mut operand = Node::default();
-//         operand.parent = "Unary Expr".to_string();
-//         operand.context = "Operand".to_string();
-//         operand.visit_expr(expr);
+    fn visit_expr_lit(&mut self, node: &'ast ExprLit){
+        self.visit_lit(&node.lit);
+    }
 //
-//         self.children.push(operand);
-//     }
+    fn visit_expr_path(&mut self, node: &'ast ExprPath){
+        self.name = node.path.segments[0].ident.to_string();
+    }
 //
-//     fn visit_expr_lit(&mut self, node: &'ast ExprLit){
-//         let li = &node.lit;
-//         self.visit_lit(li);
-//     }
+     fn visit_expr_assign(&mut self, node: &'ast ExprAssign){
+        self.operator = "=".to_string();
+
+         let mut left = Node::default();
+         left.visit_expr(&node.left);
+         let mut right = Node::default();
+         right.visit_expr(&node.right);
+
+         left.value = right.value.clone();
+         right.name = left.name.clone();
+
+         self.operands.push(left);
+         self.operands.push(right);
+     }
 //
-//     fn visit_expr_path(&mut self, node: &'ast ExprPath){
-//         let p = &node.path.segments[0];
-//         self.id = p.ident.to_string();
-//     }
-//
-//      fn visit_expr_assign(&mut self, node: &'ast ExprAssign){
-//         self.value = "=".to_string();
-//
-//          let mut left = Node::default();
-//          left.parent = "Assignement".to_string();
-//          left.context = "Left".to_string();
-//          left.visit_expr(&node.left);
-//
-//          self.children.push(left);
-//
-//          let mut right = Node::default();
-//          right.parent = "Assignement".to_string();
-//          right.context = "Right".to_string();
-//          right.visit_expr(&node.right);
-//
-//          self.children.push(right);
-//      }
-//
-//      fn visit_expr_call(&mut self, node: &'ast ExprCall){
-//          let mut func_call = Node::default();
-//          func_call.parent = "Call".to_string();
-//          func_call.context = "Callee".to_string();
-//          func_call.visit_expr(&node.func);
-//
-//          self.children.push(func_call);
-//
-//         for a in &node.args{
-//             let mut argument = Node::default();
-//             argument.parent = "Call".to_string();
-//             argument.context = "Argument".to_string();
-//             argument.visit_expr(a);
-//
-//             self.children.push(argument);
-//         }
-//      }
+     fn visit_expr_call(&mut self, node: &'ast ExprCall){
+
+         self.visit_expr(&node.func);
+
+         self.children.push(func_call);
+
+        for a in &node.args{
+            let mut argument = Node::default();
+            argument.parent = "Call".to_string();
+            argument.context = "Argument".to_string();
+            argument.visit_expr(a);
+
+            self.children.push(argument);
+        }
+     }
 //
 //      fn visit_expr_array(&mut self, node: &'ast ExprArray){
 //          let elements = &node.elems;
