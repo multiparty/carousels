@@ -4,4 +4,5 @@ fn main(a: String, b: String) {
     if x > 3{
         2
     }
+    return 5;
 }
