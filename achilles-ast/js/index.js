@@ -10,8 +10,11 @@ Promise.all([import("../pkg/index.js"), import("./metrics.js")]).then(res => {
   function getAST (e) {
     e.preventDefault();
     var rust_code = document.getElementById('myTextarea').value;
-    var res = rust_code.replace(/ obliv /gi, function (x) {
-    return "\nlet __obliv = !__obliv;\n";
+    var res = rust_code.replace(/ else obliv if /gi, function(x) {
+      return "else if ";
+    });
+    res = res.replace(/ obliv if /gi, function (x) {
+      return "\nlet __obliv = !__obliv;\n if ";
   });
     console.log(res);
     const ir = rust.get_ast(res);
