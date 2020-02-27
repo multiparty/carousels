@@ -470,10 +470,26 @@ impl <'ast> Visit <'ast> for Node {
      }
      fn visit_expr_macro(&mut self, node: &'ast ExprMacro){ //TODO: check values you can pass to a macro
          self.name = node.mac.path.segments[0].ident.to_string();
+         self.value = node.mac.tokens.to_string();
      }
      fn visit_expr_for_loop(&mut self, node: &'ast ExprForLoop){
+         let mut iterator = Node::default();
+         let mut range = Node::default();
+
+         iterator.nodeType = "iterator";
+         iterator.visit_pat(&node.pat);
+         self.iterator.push(iterator);
+
+         range.visit_expr(&node.expr);
+         self.range.push(range);
+
+         for s in &node.body.stmts {
+             let mut stmt = Node::default();
+             stmt.visit_stmt(s); // call visit_stmt on each statement in the fn body
+             self.body.push(stmt);
+         }
      }
-     fn visit_expr_range(&mut self, node: &'ast ExprRange){
+     fn visit_expr_range(&mut self, node: &'ast ExprRange){// include a limit param
          match &node.from{
              Some(_f) =>{
                  let mut from = Node::default();
