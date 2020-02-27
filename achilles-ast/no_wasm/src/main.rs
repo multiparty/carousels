@@ -309,9 +309,16 @@ impl <'ast> Visit <'ast> for Node {
 //
 //
     fn visit_expr_binary(&mut self, node: &'ast ExprBinary) {
+        let mut left = Node::default();
+        let mut right = Node::default();
 
-        let op = &node.op;
-        match op { // TODO: figure out how to unwrap in this case
+        left.visit_expr(&*node.left);
+        self.operands.push(left);
+
+        right.visit_expr(&*node.right);
+        self.operands.push(right);
+
+        match &node.op{
             BinOp::Add(_op) => {self.operator = "+".to_string();}
             BinOp::Sub(_op) => {self.operator = "-".to_string();}
             BinOp::Mul(_op) => {self.operator = "*".to_string();}
@@ -333,26 +340,19 @@ impl <'ast> Visit <'ast> for Node {
             _=>{} // Implement other operators if necessary
         }
 //
-        let mut left = Node::default();
-        left.visit_expr(&*node.left);
-        self.operands.push(left);
-
-        let mut right = Node::default();
-        right.visit_expr(&*node.right);
-        self.operands.push(right);
       }
 //
     fn visit_expr_unary(&mut self, node: &'ast ExprUnary){
-        let op = node.op;
-        match op{
+        let mut operand = Node::default();
+        operand.visit_expr(&node.expr);
+        self.operands.push(operand);
+
+        match node.op{
             UnOp::Not(_un)=>{self.operator = "!".to_string();}
             UnOp::Neg(_un)=>{self.operator = "~".to_string();}
             UnOp::Deref(_un)=>{self.operator = "*".to_string();}
         }
 
-        let mut operand = Node::default();
-        operand.visit_expr(&node.expr);
-        self.operands.push(operand);
     }
 //
     fn visit_expr_lit(&mut self, node: &'ast ExprLit){
@@ -364,18 +364,19 @@ impl <'ast> Visit <'ast> for Node {
     }
 //
      fn visit_expr_assign(&mut self, node: &'ast ExprAssign){
-        self.operator = "=".to_string();
-
          let mut left = Node::default();
-         left.visit_expr(&node.left);
          let mut right = Node::default();
+
+         left.visit_expr(&node.left);
          right.visit_expr(&node.right);
 
          left.value = right.value.clone();
          right.name = left.name.clone();
 
+         self.operator = "=".to_string();
          self.operands.push(left);
          self.operands.push(right);
+
      }
 //
      fn visit_expr_call(&mut self, node: &'ast ExprCall){
@@ -402,54 +403,53 @@ impl <'ast> Visit <'ast> for Node {
      }
 
      fn visit_expr_index(&mut self, node: &'ast ExprIndex){
-         // self.visit_expr(&node.expr);
+         let mut array = Node::default();
          let mut index = Node::default();
+
+         array.visit_expr(&node.expr);
+         self.array.push(array);
+
          index.visit_expr(&node.index);
          self.index.push(index);
      }
-//
-         fn visit_expr_if(&mut self, node: &'ast ExprIf){
-             let mut condition = Node::default();
-             let mut if_body = Node::default();
-             let mut else_body = Node::default();
 
-             condition.visit_expr(&node.cond);
-             self.condition.push(condition);
+     fn visit_expr_if(&mut self, node: &'ast ExprIf){
+         let mut condition = Node::default();
+         let mut if_body = Node::default();
+         let mut else_body = Node::default();
 
-             for s in &node.then_branch.stmts {
-                 let mut stmt = Node::default();
-                 stmt.visit_stmt(s); // call visit_stmt on each statement in the fn body
-                 self.ifBody.push(stmt);
-             }
+         condition.visit_expr(&node.cond);
+         self.condition.push(condition);
 
-
-             match &node.else_branch{
-                 Some(_else)=>{
-                     let (_t,_e) = _else;
-                     else_body.visit_expr(_e);
-                 }
-                 None =>{}
-             }
-             self.elseBody.push(else_body);
-
+         for s in &node.then_branch.stmts {
+             let mut stmt = Node::default();
+             stmt.visit_stmt(s); // call visit_stmt on each statement in the fn body
+             self.ifBody.push(stmt);
          }
+
+         match &node.else_branch{
+             Some(_else)=>{
+                 let (_t,_e) = _else;
+                 else_body.visit_expr(_e);
+             }
+             None =>{}
+         }
+         self.elseBody.push(else_body);
+
+     }
 //      fn visit_expr_closure(&mut self, node: &'ast ExprClosure){
 //
 //      }
-//      fn visit_expr_return(&mut self, node: &'ast ExprReturn){
-//          let mut return_expr = Node::default();
-//          let expr = &node.expr;
-//
-//          match expr{
-//              Some(_e)=>{
-//                  return_expr.context = "Returnee".to_string();
-//                  return_expr.parent = "Return".to_string();
-//                  return_expr.visit_expr(&_e);
-//              }
-//              None =>{}
-//          }
-//          self.children.push(return_expr)
-//      }
+     fn visit_expr_return(&mut self, node: &'ast ExprReturn){
+         let mut return_expr = Node::default();
+         match &node.expr{
+             Some(_e)=>{
+                return_expr.visit_expr(&_e);
+             }
+             None =>{}
+         }
+         self.expression.push(return_expr);
+     }
 //      fn visit_expr_repeat(&mut self, node: &'ast ExprRepeat){
 //          let mut expr_repeat = Node::default();
 //          expr_repeat.typ = "Array Init".to_string();
@@ -463,46 +463,54 @@ impl <'ast> Visit <'ast> for Node {
 //          self.children.push(expr_repeat);
 //
 //      }
-//      fn visit_expr_paren(&mut self, node: &'ast ExprParen){
-//          let mut expr = Node::default();
-//          expr.visit_expr(&node.expr);
-//          self.children.push(expr);
-//      }
-//      fn visit_expr_macro(&mut self, node: &'ast ExprMacro){ //TODO: check values you can pass to a macro
-//          let p = &node.mac.path.segments[0];
-//          let t = &node.mac.tokens.to_string(); //TODO: this use to be tts.to_string(), what were we looking for?
-//          self.id = p.ident.to_string();
-//          self.value = t.to_string(); // potentially change this, may be messy depending on what counts as a macro
-//      }
-//      fn visit_expr_for_loop(&mut self, node: &'ast ExprForLoop){
-//      }
-//      fn visit_expr_range(&mut self, node: &'ast ExprRange){
-//          let mut from = Node::default();
-//          from.parent = "Range Expr".to_string();
-//          from.context = "From".to_string();
-//          let _from = &node.from;
-//          match _from{
-//              Some(_f) =>{
-//                  from.visit_expr(&_f);
-//              }
-//              None =>{}
-//          }
-//          let mut to = Node::default();
-//          to.parent = "Range Expr".to_string();
-//          to.context = "To".to_string();
-//          let _to = &node.to;
-//          match _to{
-//              Some(_t) =>{
-//                  to.visit_expr(&_t);
-//              }
-//              None =>{}
-//          }
-//          self.children.push(from);
-//          self.children.push(to);
-//      }
-//      fn visit_expr_block(&mut self, node: &'ast ExprBlock){
-//      }
-//      fn visit_expr_method_call(&mut self, node: &'ast ExprMethodCall){
-//      }
+     fn visit_expr_paren(&mut self, node: &'ast ExprParen){
+         let mut expr = Node::default();
+         expr.visit_expr(&node.expr);
+         self.expression.push(expr);
+     }
+     fn visit_expr_macro(&mut self, node: &'ast ExprMacro){ //TODO: check values you can pass to a macro
+         self.name = node.mac.path.segments[0].ident.to_string();
+         self.value = node.mac.tokens.to_string();
+     }
+     fn visit_expr_for_loop(&mut self, node: &'ast ExprForLoop){
+         let mut iterator = Node::default();
+         let mut range = Node::default();
+
+         iterator.nodeType = "iterator";
+         iterator.visit_pat(&node.pat);
+         self.iterator.push(iterator);
+
+         range.visit_expr(&node.expr);
+         self.range.push(range);
+
+         for s in &node.body.stmts {
+             let mut stmt = Node::default();
+             stmt.visit_stmt(s); // call visit_stmt on each statement in the fn body
+             self.body.push(stmt);
+         }
+     }
+     fn visit_expr_range(&mut self, node: &'ast ExprRange){// include a limit param
+         match &node.from{
+             Some(_f) =>{
+                 let mut from = Node::default();
+                 from.visit_expr(_f);
+                 self.start.push(from);
+             }
+             None =>{}
+         }
+
+         match &node.to{
+             Some(_t) =>{
+                 let mut to = Node::default();
+                 to.visit_expr(_t);
+                 self.end.push(to);
+             }
+             None =>{}
+         }
+     }
+     fn visit_expr_block(&mut self, node: &'ast ExprBlock){
+     }
+     fn visit_expr_method_call(&mut self, node: &'ast ExprMethodCall){
+     }
 
 }
