@@ -8,53 +8,73 @@ use std::fs::File as FileSys;
 use std::io::Read;
 use std::error::Error;
 use serde::{Deserialize, Serialize};
+
 use syn::visit::{Visit};
 use syn::{ItemFn, Lit, Expr, Local, Member, ExprAssign, ExprMethodCall,
     ExprBinary, ExprForLoop, ExprLit, ExprCall, ExprUnary, ExprRepeat, ExprReturn, ExprRange, ExprParen,
-    ExprIf, ExprArray, ExprField, ExprIndex, ExprBlock, ExprPath, ExprMacro, Pat, BinOp, Ident, UnOp};
+    ExprIf, ExprArray, ExprField, ExprIndex, ExprPath, ExprMacro, Pat, BinOp, Ident, UnOp};
 use syn::Result;
 use syn::parse::{ParseStream, Parse};
 
-
 #[derive(Debug, Default, Serialize, Deserialize)]
 struct Node{
+    #[serde(skip_serializing_if = "String::is_empty")]
     name: String,
+    #[serde(skip_serializing_if = "String::is_empty")]
     value: String,
-
+    #[serde(skip_serializing_if = "String::is_empty")]
     type_: String,
+    #[serde(skip_serializing_if = "String::is_empty")]
     nodeType: String,
+    #[serde(skip_serializing_if = "String::is_empty")]
     returnType: String,
+    #[serde(skip_serializing_if = "String::is_empty")]
     secret: String,
-
+    #[serde(skip_serializing_if = "String::is_empty")]
     arity: String,
+    #[serde(skip_serializing_if = "String::is_empty")]
     operator: String,
-
+    #[serde(skip_serializing_if = "Vec::is_empty")]
     function: Vec<Node>,
+    #[serde(skip_serializing_if = "Vec::is_empty")]
     parameters: Vec<Node>,
-
+    #[serde(skip_serializing_if = "Vec::is_empty")]
     array: Vec<Node>,
-
+    #[serde(skip_serializing_if = "Vec::is_empty")]
     ifBody: Vec<Node>,
+    #[serde(skip_serializing_if = "Vec::is_empty")]
     elseBody: Vec<Node>,
-
+    #[serde(skip_serializing_if = "Vec::is_empty")]
     left: Vec<Node>,
+    #[serde(skip_serializing_if = "Vec::is_empty")]
     right: Vec<Node>,
-
+    #[serde(skip_serializing_if = "Vec::is_empty")]
     expression: Vec<Node>,
+    #[serde(skip_serializing_if = "Vec::is_empty")]
     condition: Vec<Node>,
-
+    #[serde(skip_serializing_if = "Vec::is_empty")]
     body: Vec<Node>,
+    #[serde(skip_serializing_if = "Vec::is_empty")]
     elements: Vec<Node>,
+    #[serde(skip_serializing_if = "Vec::is_empty")]
     operands: Vec<Node>,
-
+    #[serde(skip_serializing_if = "Vec::is_empty")]
     range: Vec<Node>,
+    #[serde(skip_serializing_if = "Vec::is_empty")]
     index: Vec<Node>,
+    #[serde(skip_serializing_if = "Vec::is_empty")]
     iterator: Vec<Node>,
+    #[serde(skip_serializing_if = "Vec::is_empty")]
     increment: Vec<Node>,
+    #[serde(skip_serializing_if = "Vec::is_empty")]
     repeat: Vec<Node>,
+    #[serde(skip_serializing_if = "Vec::is_empty")]
     length: Vec<Node>,
+    #[serde(skip_serializing_if = "Vec::is_empty")]
     initial: Vec<Node>,
+    #[serde(skip_serializing_if = "Vec::is_empty")]
     start: Vec<Node>,
+    #[serde(skip_serializing_if = "Vec::is_empty")]
     end: Vec<Node>,
 }
 
@@ -148,17 +168,15 @@ impl <'ast> Visit <'ast> for Node {
             Pat::Tuple(_t)=>{
                 definition.type_ = "tuple".to_string();
 
+                let mut right = Node::default();
                 let mut left = Node::default();
+
                 left.visit_pat(&_t.elems[0]);
                 definition.left.push(left);
 
-                let mut right = Node::default();
                 right.visit_pat(&_t.elems[1]);
                 definition.right.push(right);
             }
-            // Pat::PatType(_p, _t)=>{
-            //
-            // }
             _=>{}
         }
         self.left.push(definition);
@@ -167,15 +185,17 @@ impl <'ast> Visit <'ast> for Node {
         match init{
             Some(_e)=>{
                 let mut assignment = Node::default();
+
                 assignment.nodeType = "variableAssignment".to_string();
                 assignment.visit_expr(&_e.1);
+
                 self.right.push(assignment);
                 self.operator = "=".to_string();
             }
             None =>{}
         }
     }
-//
+
     fn visit_lit(&mut self, node: &'ast Lit){
         match node{
            Lit::Str(_s)=>{
@@ -213,17 +233,16 @@ impl <'ast> Visit <'ast> for Node {
     fn visit_ident(&mut self, node: &'ast Ident){
         self.name = node.to_string();
     }
-//
+
     fn visit_member(&mut self, node: &'ast Member){
         match node{
             Member::Named(_i)=>{ self.value = _i.to_string(); }
             Member::Unnamed(_i)=>{ self.value = _i.index.to_string();}
             }
     }
-//
-//
+
 // //////////////////////////Expressions/////////////////////////////////////
-//
+
     fn visit_expr(&mut self, node: &'ast Expr){
 
         match node {
@@ -259,10 +278,6 @@ impl <'ast> Visit <'ast> for Node {
                     self.nodeType = "if".to_string();
                     self.visit_expr_if(_e);
                 }
-                Expr::Block(_e)=>{
-                    self.nodeType = "Block".to_string();
-                    self.visit_expr_block(_e);
-                }
                 Expr::Assign(_e)=>{
                     self.nodeType = "variableAssignment".to_string();
                     self.visit_expr_assign(_e);
@@ -292,7 +307,7 @@ impl <'ast> Visit <'ast> for Node {
                     self.visit_expr_paren(_e);
                 }
                 Expr::Path(_e)=>{
-                    self.nodeType = "path".to_string();
+
                     self.visit_expr_path(_e);
                 }
                 Expr::Macro(_m)=>{
@@ -303,9 +318,7 @@ impl <'ast> Visit <'ast> for Node {
             }
 
     }
-//
-//
-//
+
     fn visit_expr_binary(&mut self, node: &'ast ExprBinary) {
         let mut left = Node::default();
         let mut right = Node::default();
@@ -337,9 +350,8 @@ impl <'ast> Visit <'ast> for Node {
             BinOp::Gt(_op) => {self.operator = ">=".to_string();}
             _=>{} // Implement other operators if necessary
         }
-//
       }
-//
+
     fn visit_expr_unary(&mut self, node: &'ast ExprUnary){
         let mut operand = Node::default();
         operand.visit_expr(&node.expr);
@@ -352,15 +364,15 @@ impl <'ast> Visit <'ast> for Node {
         }
 
     }
-//
+
     fn visit_expr_lit(&mut self, node: &'ast ExprLit){
         self.visit_lit(&node.lit);
     }
-//
+
     fn visit_expr_path(&mut self, node: &'ast ExprPath){
         self.name = node.path.segments[0].ident.to_string();
     }
-//
+
      fn visit_expr_assign(&mut self, node: &'ast ExprAssign){
          let mut left = Node::default();
          let mut right = Node::default();
@@ -376,7 +388,7 @@ impl <'ast> Visit <'ast> for Node {
          self.operands.push(right);
 
      }
-//
+
      fn visit_expr_call(&mut self, node: &'ast ExprCall){
 
          let mut function_call = Node::default();
@@ -389,7 +401,7 @@ impl <'ast> Visit <'ast> for Node {
         }
         self.function.push(function_call);
      }
-//
+
      fn visit_expr_array(&mut self, node: &'ast ExprArray){
 
          for e in &node.elems{
@@ -435,9 +447,6 @@ impl <'ast> Visit <'ast> for Node {
          self.elseBody.push(else_body);
 
      }
-//      fn visit_expr_closure(&mut self, node: &'ast ExprClosure){
-//
-//      }
      fn visit_expr_return(&mut self, node: &'ast ExprReturn){
          let mut return_expr = Node::default();
          match &node.expr{
@@ -462,15 +471,18 @@ impl <'ast> Visit <'ast> for Node {
          self.repeat.push(repeat_expr);
 
      }
+
      fn visit_expr_paren(&mut self, node: &'ast ExprParen){
          let mut expr = Node::default();
          expr.visit_expr(&node.expr);
          self.expression.push(expr);
      }
+
      fn visit_expr_macro(&mut self, node: &'ast ExprMacro){ //TODO: check values you can pass to a macro
          self.name = node.mac.path.segments[0].ident.to_string();
          self.value = node.mac.tokens.to_string();
      }
+
      fn visit_expr_for_loop(&mut self, node: &'ast ExprForLoop){
          let mut iterator = Node::default();
          let mut range = Node::default();
@@ -488,6 +500,7 @@ impl <'ast> Visit <'ast> for Node {
              self.body.push(stmt);
          }
      }
+
      fn visit_expr_range(&mut self, node: &'ast ExprRange){// include a limit param
          match &node.from{
              Some(_f) =>{
@@ -507,8 +520,7 @@ impl <'ast> Visit <'ast> for Node {
              None =>{}
          }
      }
-     fn visit_expr_block(&mut self, node: &'ast ExprBlock){
-     }
+
      fn visit_expr_method_call(&mut self, node: &'ast ExprMethodCall){
          let mut function = Node::default();
          let mut left = Node::default();
@@ -531,6 +543,7 @@ impl <'ast> Visit <'ast> for Node {
              self.parameters.push(parameter);
          }
      }
+
      fn visit_expr_field(&mut self, node: &'ast ExprField){
          let mut left = Node::default();
          let mut right = Node::default();
