@@ -13,7 +13,6 @@ pub fn ir_node_derive(input: TokenStream) -> TokenStream {
     // Build the trait implementation
     let name = &ast.ident;
     let gen = quote::quote! {
-        #[typetag::serde]
         impl IRNode for #name {
             fn node_type(&self) -> &str {
                 return stringify!(#name);
