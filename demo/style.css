@@ -1,0 +1,151 @@
+html, body {
+	height: 100%;
+	margin: 0;
+	color: #000000;
+	font-family: 'Open Sans', sans-serif;
+}
+
+body #content {
+	z-index: 100;
+	min-height: 100%;
+	width: 900px;
+	margin: 0 auto -90px;
+}
+
+body #content #title {
+	margin-bottom: 8px;
+	padding-top: 50px;
+	color: #C48C17;
+	font-family: 'Open Sans', sans-serif;
+	font-size: 48px;
+}
+
+body #content #title>span {
+	color: firebrick;
+}
+
+body #content #description {
+	padding-bottom: 40px;
+	font-size: 16px;
+}
+
+body #content #sheet {
+	margin: 0 auto;
+	padding-bottom: 40px;
+	color: #000000;
+	background-color: white;
+}
+
+body #content #sheet .section {
+	padding-top: 20px;
+	font-family: 'Open Sans', sans-serif;
+	font-size: 16px;
+}
+
+body #content #sheet .section h2 {
+	font-family: 'Open Sans', sans-serif;
+	font-weight: normal;
+	font-size: 28px;
+	color: #888888;
+}
+
+body #content #sheet .section h3 {
+	font-weight: normal;
+	color: #666666;
+}
+
+body #content #sheet .section>pre>code {
+	padding: 10px;
+	font-size: 14px;
+}
+
+body #content #sheet .section>pre>code {
+	background-color: #F1F1F1;
+}
+
+body #content #sheet .section table {
+	width: 100%;
+	font-size: 12px;
+}
+
+body #content #sheet .section table div {
+	width: 100%;
+	border: 1px solid #888888;
+	padding: 5px;
+	font-family: Monospace;
+	font-size: 11px;
+}
+
+body #content #sheet .section table div pre {
+	margin: 0;
+	padding: 0;
+}
+
+body #content #sheet .section textarea {
+	width: 100%;
+	height: 100%;
+	border: 1px solid #888888;
+	margin: 0;
+	padding: 5px;
+	font-family: Monospace;
+	font-size: 10px;
+}
+
+body #content #sheet .section ul {
+	list-style: none;
+	padding: 8px 0px 8px 0px;
+	margin: 0;
+}
+
+body #content #sheet .section li {
+	padding-left: 1.5em;
+	text-indent: -1em;
+}
+
+body #content #sheet .section li:before {
+	content: "4";
+	color: #888888;
+	font-family: 'Webdings';
+}
+
+body #content #sheet .section a {
+	color: firebrick;
+	text-decoration: none;
+}
+
+body #content #sheet .section a:hover {
+	text-decoration: underline;
+}
+
+body #content #footer_spacer {
+	height: 70px;
+}
+
+body #footer {
+	width: 900px;
+	height: 70px;
+	margin: 0 auto;
+	padding-top: 15px;
+	font-family: 'Open Sans', sans-serif;
+	font-size: 13px;
+}
+
+body #footer hr {
+	border: 0px;
+	border-top: 1px solid #DFDFDF;
+}
+
+body #footer a {
+	color: #000000;
+	text-decoration: none;
+}
+
+body #footer a:hover {
+	text-decoration: underline;
+}
+
+canvas {
+	-moz-user-select: none;
+	-webkit-user-select: none;
+	-ms-user-select: none;
+}

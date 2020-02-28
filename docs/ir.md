@@ -40,7 +40,7 @@ These are statements but cannot be expressions.
 
 1. expression: expression
 
-## variableDefinition
+#### variableDefinition
 
 1. name: nameExpression
 2. type: type
@@ -56,10 +56,7 @@ These are statements but cannot be expressions.
 1. initial: statement
 2. condition: expression
 3. increment: statement
-
-
-
-
+4. body: array<statements>
 
 
 ## Expressions
@@ -78,7 +75,7 @@ These can be expressions (or statements).
 2. ifBody: array<statements>
 3. elseBody: array<statements> (empty if no else)
 
-if else if else should be represented as:
+if { } else if { } else { } should be represented as:
 ```javascript
 if(condition1) {
   // ifBody1
@@ -142,7 +139,6 @@ Binary and uniary expressions.
 2. range: rangeExpression
 
 #### arrayExpression
-
 1. elements: array<expression>
 
 Represents a direct array value ([1, 2, 3] or [1, func(), 2 + 3]).
@@ -150,7 +146,7 @@ Represents a direct array value ([1, 2, 3] or [1, func(), 2 + 3]).
 #### functionCall
 
 1. function: nameExpression | dotExpression (the function name or obj.name etc)
-2. params: array<expressions>
+2. parameters: array<expressions>
 
 #### dotExpression
 
