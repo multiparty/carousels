@@ -40,6 +40,10 @@ pub fn main_js(){
 
 
 // This is like the `main` function, except for JavaScript.
+#[wasm_bindgen]
+pub fn test_wasm_now() -> u32 {
+  10
+}
 
 #[wasm_bindgen]
 pub fn get_ast(val: &str) -> String {
