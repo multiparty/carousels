@@ -1,117 +1,132 @@
-use serde::{Serialize, Deserialize};
-use std::fmt::Debug;
-use ir_node_derive::IRNode;
+use ir_node_derive::ir_node;
 
-trait IRNode: Debug {
-    fn node_type(&self) -> &str;
-}
+// Abstract trait
+#[typetag::serde(tag = "type")]
+trait IRNode: std::fmt::Debug { }
 
-
-
-#[derive(Serialize, Deserialize, Debug, IRNode)]
+// Logical nodes
+#[ir_node]
 struct TypeNode {
     secret: bool,
     type_: String
 }
-#[derive(Debug, IRNode)]
+
+// Statements
+#[ir_node]
 struct FunctionDefinition {
-    name: NameExpr,
-    parameters: Vec<Box<dyn IRNode>>,
+    name: NameExpression,
+    parameters: Vec<VariableDefinition>,
     body: Vec<Box<dyn IRNode>>,
-    return_type: TypeNode,
-}
-#[derive(Debug, IRNode)]
-struct ReturnStatement {
-    expression: Box<dyn IRNode>,
-}
-#[derive(Debug, IRNode)]
-struct VariableDefinition {
-    name: NameExpr,
-    type_: TypeNode,
-}
-#[derive(Debug, IRNode)]
-struct ForEach {
-    iterator: VariableDefinition,
-    range: RangeExpr,
-    body: Vec<Box<dyn IRNode>>,
-}
-#[derive(Debug, IRNode)]
-struct ForStatement {
-    initial: Box<dyn IRNode>,
-    condition: Box<dyn IRNode>,
-    increment: Box<dyn IRNode>,
-    body: Vec<Box<dyn IRNode>>,
-}
-/// Expr Definitions
-#[derive(Debug, IRNode)]
-struct VariableAssignment {
-    name: NameExpr,
-    expression: Box<dyn IRNode>,
-}
-#[derive(Debug, IRNode)]
-struct IfExpr {
-    condition: Box<dyn IRNode>,
-    ifBody: Vec<Box<dyn IRNode>>,
-    elseBody: Vec<Box<dyn IRNode>>,
-}
-#[derive(Debug, IRNode)]
-struct OblivIf {
-    condition: Box<dyn IRNode>,
-    ifBody: Vec<Box<dyn IRNode>>,
-    elseBody: Vec<Box<dyn IRNode>>,
-}
-#[derive(Debug, IRNode)]
-enum Value {
-    bool,
-    String,
-    i64,
-}
-#[derive(Debug, IRNode)]
-struct literalExpr {
-    value: Value,
+    return_type: TypeNode
 }
 
-#[derive(Debug, IRNode)]
-struct NameExpr {
-    name: String,
+#[ir_node]
+struct ReturnStatement {
+    expression: Box<dyn IRNode>
 }
-#[derive(Debug, IRNode)]
-struct directExpr {
+#[ir_node]
+struct VariableDefinition {
+    name: NameExpression,
+    type_: TypeNode
+}
+#[ir_node]
+struct ForEach {
+    iterator: VariableDefinition,
+    range: RangeExpression,
+    body: Vec<Box<dyn IRNode>>
+}
+#[ir_node]
+struct For {
+    initial: Vec<Box<dyn IRNode>>,
+    condition: Box<dyn IRNode>,
+    increment: Vec<Box<dyn IRNode>>,
+    body: Vec<Box<dyn IRNode>>
+}
+
+// Expressions
+#[ir_node]
+struct VariableAssignment {
+    name: NameExpression,
+    expression: Box<dyn IRNode>
+}
+
+#[ir_node]
+struct If {
+    condition: Box<dyn IRNode>,
+    if_body: Vec<Box<dyn IRNode>>,
+    else_body: Vec<Box<dyn IRNode>>
+}
+
+#[ir_node]
+struct OblivIf {
+    condition: Box<dyn IRNode>,
+    if_body: Vec<Box<dyn IRNode>>,
+    else_body: Vec<Box<dyn IRNode>>
+}
+
+#[ir_node]
+struct LiteralExpression {
+    value: String,
+    type_: String // "number", "boolean" or "string"
+}
+
+#[ir_node]
+struct NameExpression {
+    name: String
+}
+
+#[ir_node]
+struct DirectExpression {
     operator: String,
-    arity: i64,
-    operands: Vec<Box<dyn IRNode>>,
+    arity: u32,
+    operands: Vec<Box<dyn IRNode>>
 }
-#[derive(Debug, IRNode)]
-struct parentheticalExpr {
-    expression: dyn IRNode,
+
+#[ir_node]
+struct ParenthesesExpression {
+    expression: Box<dyn IRNode>
 }
-#[derive(Debug, IRNode)]
+
+#[ir_node]
 struct ArrayAccess {
     array: Box<dyn IRNode>,
-    index: dyn IRNode,
+    index: Box<dyn IRNode>
 }
-#[derive(Debug, IRNode)]
-struct RangeExpr {
+
+#[ir_node]
+struct RangeExpression {
     start: Box<dyn IRNode>,
     end: Box<dyn IRNode>,
-    increment: Option<Box<dyn IRNode>>,
+    increment: Option<Box<dyn IRNode>>
 }
-#[derive(Debug, IRNode)]
-struct SliceExpr {
+
+#[ir_node]
+struct SliceExpression {
     array: Box<dyn IRNode>,
-    index: RangeExpr,
+    index: RangeExpression
 }
-#[derive(Debug, IRNode)]
+
+#[ir_node]
+struct ArrayExpression {
+    elements: Vec<Box<dyn IRNode>>
+}
+
+#[ir_node]
 struct FunctionCall {
-    function: Box<dyn IRNode>,
-    parameters: Vec<Box<dyn IRNode>>,
+    function: Box<dyn IRNode>, // either NameExpression or DotExpression
+    parameters: Vec<Box<dyn IRNode>>
+}
+
+#[ir_node]
+struct DotExpression {
+    left: Box<dyn IRNode>,
+    right: NameExpression
 }
 
 fn main() {
-    let type_node = TypeNode { secret: false, type_: "Test Type".to_string()};
-    let name = NameExpr {name: String::from("new expr")};
-    let serialized = serde_json::to_string(&type_node).unwrap();
-    println!("serialized = {:?} ", serialized);
-    println!("node type = {}", type_node.node_type());
-    println!("node type = {}", name.node_type());
+    let type_expression = TypeNode::new(false, "Test Type".to_string());
+    let name_expression = NameExpression::new("f1".to_string());
+    let function_def = FunctionDefinition::new(name_expression, Vec::new(), Vec::new(), type_expression);
+
+    println!("{}", serde_json::to_string(&function_def).unwrap());
 }

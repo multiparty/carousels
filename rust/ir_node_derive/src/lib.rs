@@ -1,23 +1,53 @@
 extern crate proc_macro;
+use self::proc_macro::TokenStream;
 
-use crate::proc_macro::TokenStream;
-use quote;
 use syn;
+use quote;
 
-#[proc_macro_derive(IRNode)]
-pub fn ir_node_derive(input: TokenStream) -> TokenStream {
-    // Construct a representation of Rust code as a syntax tree
-    // that we can manipulate
-    let ast = syn::parse_macro_input!(input as syn::DeriveInput);
+#[proc_macro_attribute]
+pub fn ir_node(_attr: TokenStream, item: TokenStream) -> TokenStream {
+    // parse the struct to which this attribute was attached
+    let ast = syn::parse_macro_input!(item as syn::DeriveInput);
 
-    // Build the trait implementation
+    // parse the fields (names and types) inside the struct
+    let fields = match &ast.data {
+        syn::Data::Struct(syn::DataStruct { fields: syn::Fields::Named(fields), .. }) => &fields.named,
+        _ => panic!("expected a struct with named fields"),
+    };
+    let field_name = fields.iter().map(|field| &field.ident);
+    let field_name2 = fields.iter().map(|field| &field.ident);
+    let field_name3 = fields.iter().map(|field| &field.ident);
+
+    let field_type = fields.iter().map(|field| &field.ty);
+    let field_type2 = fields.iter().map(|field| &field.ty);
+
+    // parse the struct name
     let name = &ast.ident;
+
+    // regenerate struct with added field 'node_type'
     let gen = quote::quote! {
+        #[derive(serde::Serialize, serde::Deserialize, std::fmt::Debug)]
+        #[serde(rename_all = "camelCase")]
+        struct #name {
+            #(
+                #field_name: #field_type,
+            )*
+            node_type: String
+        }
+
+        #[typetag::serde]
         impl IRNode for #name {
-            fn node_type(&self) -> &str {
-                return stringify!(#name);
+        }
+
+        impl #name {
+            pub fn new(#(#field_name2: #field_type2,)*) -> #name {
+                #name {
+                    #(#field_name3,)*
+                    node_type: stringify!(#name).to_string()
+                }
             }
         }
     };
+
     return gen.into();
 }

@@ -30,7 +30,7 @@ These node types are statements but cannot be expressions.
 1. name: NameExpression
 2. parameters: array<VariableDefinition>
 3. body: array<Statement>
-4. return type: TypeNode
+4. returnType: TypeNode
 
 #### ReturnStatement
 
@@ -101,7 +101,11 @@ the return value of this statement.
 
 #### LiteralExpression
 
-1. value: number | string | boolean
+1. value: string
+2. type: "number" | "boolean" | "string"
+
+The value is always a string to simplify serialization. However, the actual literal
+may have been either a number, a boolean, or a string, as specified by type.
 
 #### NameExpression
 
