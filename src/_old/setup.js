@@ -3,7 +3,10 @@
 const babel = require('babel-core');
 const math = require('mathjs');
 
-var stringify = require('./index.js');
+const prettyStringify = function (obj) {
+  return JSON.stringify(obj, null, 2);
+};
+
 var createMetric = require('./metric.js');
 var plot = require('./plot.js');
 var costs = require('./costs.js');
@@ -21,9 +24,9 @@ function mode(str, spec, outDiv) {  // modes for normal and preprocessing costs
   var bbl_result = bbl.ast.program.results;
 
   if (document.getElementById(outDiv).innerHTML === '' ) {
-    document.getElementById(outDiv).innerHTML = stringify(bbl_result, {maxLength:120}).trim();
+    document.getElementById(outDiv).innerHTML = prettyStringify(bbl_result, {maxLength:120}).trim();
   } else {
-    var str1 = stringify(bbl_result, {maxLength:120}).trim().replace(/":/, '_preproc.":');
+    var str1 = prettyStringify(bbl_result, {maxLength:120}).trim().replace(/":/, '_preproc.":');
     document.getElementById(outDiv).insertAdjacentHTML('beforeend', str1);
   }
 
@@ -43,9 +46,7 @@ function demo(specText, sel_param, preprocessing, inpText, outDiv) {
 
   document.getElementById('checkbx').style.display = 'inline';
   document.getElementById('param').style.display = 'inline';
-
-  // document.getElementById("spec_prep").value = JSON.stringify(spec_preproc, null, '\t');
-  document.getElementById('spec').value = JSON.stringify(spec, null, '\t');
+  document.getElementById('spec').value = prettyStringify(spec);
 
   var preproc = false;/* hide for now */  //document.getElementById(preprocessing).checked;
   var param = document.getElementById(sel_param).value;

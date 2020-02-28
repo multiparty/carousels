@@ -7,7 +7,7 @@ var find_Scope = function (p) { // TODO: fix scoping problems with arrays
     scope = scope.parent;
   }
   return scope.block.id.name;
-}
+};
 
 var createMetric = function (spec) {
   var dict = {}; // acts as a stack
@@ -235,6 +235,6 @@ var createMetric = function (spec) {
       }
     });
   };
-}
+};
 
 module.exports = createMetric;

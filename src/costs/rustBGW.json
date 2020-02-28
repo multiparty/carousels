@@ -1,0 +1,42 @@
+{
+  "parameters": [
+    {"parameter": "p", "description": "number of parties"},
+    {"parameter": "b", "description": "number of bits in field"}
+  ],
+  "metrics": [
+    "Online Messages",
+    "Online Rounds"
+  ],
+  "operations": [
+    {
+      "rule": {
+        "nodeType": "DirectExpression",
+        "match": "^<type:number,secret:true>\\+<type:number,secret:true>$"
+      },
+      "cost": {
+        "Online Messages": "0",
+        "Online Rounds": "0"
+      }
+    },
+    {
+      "rule": {
+        "nodeType": "DirectExpression",
+        "match": "^<type:number,secret:true>\\*<type:number,secret:true>$"
+      },
+      "cost": {
+        "Online Messages": "p-1",
+        "Online Rounds": "1"
+      }
+    },
+    {
+      "rule": {
+        "nodeType": "DirectExpression",
+        "match": "^<type:number,secret:true><<type:number,secret:true>$"
+      },
+      "cost": {
+        "Online Messages": "p-1",
+        "Online Rounds": "1"
+      }
+    }
+  ]
+}

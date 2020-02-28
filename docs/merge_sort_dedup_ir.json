@@ -1,131 +1,138 @@
 [
   {
-    "nodeType": "functionDefinition",
+    "nodeType": "FunctionDefinition",
     "name": {
-      "nodeType": "nameExpression",
+      "nodeType": "NameExpression",
       "name": "merge_sort_dedup"
     },
     "parameters": [
       {
-        "nodeType": "variableDefinition",
+        "nodeType": "VariableDefinition",
         "name": {
-          "nodeType": "nameExpression",
+          "nodeType": "NameExpression",
           "name": "a"
         },
         "type": {
+          "nodeType": "TypeNode",
           "secret": true,
           "type": "array"
         }
       }
     ],
     "returnType": {
+      "nodeType": "TypeNode",
       "secret": true,
       "type": "array"
     },
     "body": [
       {
-        "nodeType": "variableDefinition",
+        "nodeType": "VariableDefinition",
         "name": {
-          "nodeType": "nameExpression",
+          "nodeType": "NameExpression",
           "name": "n"
         },
         "type": {
+          "nodeType": "TypeNode",
           "secret": false,
           "type": "number"
         }
       },
       {
-        "nodeType": "variableAssignment",
+        "nodeType": "VariableAssignment",
         "name": {
-          "nodeType": "nameExpression",
+          "nodeType": "NameExpression",
           "name": "n"
         },
         "expression": {
-          "nodeType": "functionCall",
+          "nodeType": "FunctionCall",
           "function": {
-            "nodeType": "dotExpression",
+            "nodeType": "DotExpression",
             "left": "a",
             "right": "len"
           },
-          "params": []
+          "parameters": []
         }
       },
       {
-        "nodeType": "if",
+        "nodeType": "If",
         "condition": {
-          "nodeType": "directExpression",
+          "nodeType": "DirectExpression",
           "operator": ">",
           "arity": 2,
           "operands": [
             {
-              "nodeType": "nameExpression",
+              "nodeType": "NameExpression",
               "name": "n"
             },
             {
-              "nodeType": "literalExpression",
+              "nodeType": "LiteralExpression",
               "value": 1
             }
           ]
         },
         "ifBody": [
           {
-            "nodeType": "variableDefinition",
+            "nodeType": "VariableDefinition",
             "name": {
-              "nodeType": "nameExpression",
+              "nodeType": "NameExpression",
               "name": "m"
             },
-            "type": "number"
+            "type": {
+              "nodeType": "TypeNode",
+              "secret": false,
+              "type": "number"
+            }
           },
           {
-            "nodeType": "variableAssignment",
+            "nodeType": "VariableAssignment",
             "name": {
-              "nodeType": "nameExpression",
+              "nodeType": "NameExpression",
               "name": "m"
             },
             "expression": {
-              "nodeType": "directExpression",
+              "nodeType": "DirectExpression",
               "operator": "/",
               "arity": 2,
               "operands": [
                 {
-                  "nodeType": "nameExpression",
+                  "nodeType": "NameExpression",
                   "name": "n"
                 },
                 {
-                  "nodeType": "literalExpression",
+                  "nodeType": "LiteralExpression",
                   "value": 2
                 }
               ]
             }
           },
           {
-            "nodeType": "functionCall",
+            "nodeType": "FunctionCall",
             "function": {
-              "nodeType": "nameExpression",
+              "nodeType": "NameExpression",
               "name": "merge_dedup"
             },
-            "params": [
+            "parameters": [
               {
-                "nodeType": "functionCall",
+                "nodeType": "FunctionCall",
                 "function": {
-                  "nodeType": "nameExpression",
+                  "nodeType": "NameExpression",
                   "name": "merge_sort_dedup"
                 },
-                "params": [
+                "parameters": [
                   {
-                    "nodeType": "sliceExpression",
+                    "nodeType": "SliceExpression",
                     "array": {
-                      "nodeType": "nameExpression",
+                      "nodeType": "NameExpression",
                       "name": "a"
                     },
                     "range": {
-                      "nodeType": "rangeExpression",
+                      "nodeType": "RangeExpression",
                       "start": {
-                        "type": "literalExpression",
+                        "type": "LiteralExpression",
                         "value": 0
                       },
                       "end": {
-                        "type": "nameExpression",
+                        "type": "NameExpression",
                         "name": "m"
                       }
                     }
@@ -133,26 +140,26 @@
                 ]
               },
               {
-                "nodeType": "functionCall",
+                "nodeType": "FunctionCall",
                 "function": {
-                  "nodeType": "nameExpression",
+                  "nodeType": "NameExpression",
                   "name": "merge_sort_dedup"
                 },
-                "params": [
+                "parameters": [
                   {
-                    "nodeType": "sliceExpression",
+                    "nodeType": "SliceExpression",
                     "array": {
-                      "nodeType": "nameExpression",
+                      "nodeType": "NameExpression",
                       "name": "a"
                     },
                     "range": {
-                      "nodeType": "rangeExpression",
+                      "nodeType": "RangeExpression",
                       "start": {
-                        "type": "nameExpression",
+                        "nodeType": "NameExpression",
                         "name": "m"
                       },
                       "end": {
-                        "type": "nameExpression",
+                        "nodeType": "NameExpression",
                         "name": "n"
                       }
                     }
@@ -164,49 +171,53 @@
         ],
         "elseBody": [
           {
-            "nodeType": "functionCall",
+            "nodeType": "FunctionCall",
             "function": {
-              "nodeType": "dotExpression",
+              "nodeType": "DotExpression",
               "left": {
-                "nodeType": "nameExpression",
+                "nodeType": "NameExpression",
                 "name": "a"
               },
               "right": {
-                "nodeType": "nameExpression",
+                "nodeType": "NameExpression",
                 "name": "to_owned"
               }
             },
-            "params": []
+            "parameters": []
           }
         ]
       }
     ]
   },
   {
-    "nodeType": "functionDefinition",
+    "nodeType": "FunctionDefinition",
     "name": "merge_dedup",
     "parameters": [
       {
-        "nodeType": "variableDefinition",
+        "nodeType": "VariableDefinition",
         "name": "a",
         "type": {
+          "nodeType": "TypeNode",
           "secret": true,
           "type": "array"
-        },
-        "nodeType": "variableDefinition",
+        }
+      },
+      {
+        "nodeType": "VariableDefinition",
         "name": "b",
         "type": {
+          "nodeType": "TypeNode",
           "secret": true,
           "type": "array"
         }
       }
     ],
     "returnType": {
+      "nodeType": "TypeNode",
       "secret": true,
       "type": "array"
     },
     "body": [
-      "...etc..."
     ]
   }
 ]

@@ -32,7 +32,7 @@ function transpose(matrix) {
 }
 
 function unique(a) {
-  let b = {}
+  let b = {};
   a.map(e => b[e] = e);
   return Object.keys(b);
 }
