@@ -13,16 +13,19 @@ function Type(dataType, secret, dependentType) {
   if (this.secret !== true && this.secret !== false) {
     throw new Error('Secret must be either true or false! Instead it was "' + this.secret + '".');
   }
-  if (this.dependentType != null && this.dependentType.compatible(this.dataType)) {
+  if (this.hasDependentType() && this.dependentType.compatible(this.dataType)) {
     throw new Error('Unexpected dependent type "' + this.dependentType + '" given for non array type "' + this.dataType + '"!');
   }
 }
 Type.prototype.toString = function () { // used for regex matching against cost rules
-  const dependentTypeString = this.dependentType != null ? this.dependentType.toString() : '';
+  const dependentTypeString = this.hasDependentType() ? this.dependentType.toString() : '';
   const secretString = this.secret ? ',secret:true' : '';
   const preambleString = this.secret ? 'type:' : '';
 
   return '<' + preambleString + this.dataType.toLowerCase() + dependentTypeString + secretString + '>';
+};
+Type.prototype.hasDependentType = function (prop) {
+  return this.dependentType != null && (prop == null || this.dependentType[prop] == null);
 };
 
 // Function type behaves differently
@@ -48,7 +51,7 @@ NumberDependentType.compatible = function (dataType) {
   return dataType === TYPE_ENUM.NUMBER;
 };
 NumberDependentType.toString = function () {
-  return '';
+  return '<value:' + this.value + '>';
 };
 
 // length: either constant number or Parameter
@@ -60,7 +63,7 @@ ArrayDependentType.prototype.compatible = function (dataType) {
   return dataType === TYPE_ENUM.ARRAY;
 };
 ArrayDependentType.prototype.toString = function () {
-  return this.dataType.toString();
+  return '<datatype:' + this.dataType.toString() + ',length:' + this.length + '>';
 };
 
 module.exports = {

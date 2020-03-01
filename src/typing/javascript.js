@@ -8,9 +8,8 @@ module.exports = [
       type: function (node, args, children) {
         // <array<type: ..., length: n>.length is of type: <number <value: n>>
         const arrayType = children.left;
-        const arrayDependentType = arrayType.dependentType;
-
-        if (arrayType.dataType === carouselsTypes.ARRAY && arrayDependentType != null && arrayDependentType.length != null) {
+        if (arrayType.dataType === carouselsTypes.ARRAY && arrayType.hasDependentType('length')) {
+          const arrayDependentType = arrayType.dependentType;
           const resultDependentType = new carouselsTypes.NumberDependentType(arrayDependentType.length);
           return new carouselsTypes.Type(carouselsTypes.TYPE_ENUM.NUMBER, false, resultDependentType);
         }
