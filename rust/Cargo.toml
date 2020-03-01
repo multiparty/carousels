@@ -1,5 +1,5 @@
 [package]
-name = "carousels-rust"
+name = "carousels"
 description = "WASM Rust Parser and Carousels Intermediate Language generator for obliv-rust compatibility with Carousels"
 version = "0.1.0"
 authors = ["Frederick Jansen <fjansen@bu.edu>", "Rawane Issa <ra1issa@bu.edu>", "Peter Flockhart <pflock@bu.edu>", "Kinan Dak Albab <babman@bu.edu"]
@@ -7,8 +7,14 @@ categories = ["wasm"]
 readme = "../README.md"
 edition = "2018"
 
-#[lib]
-#crate-type = ["cdylib"]
+[lib]
+name = "carousels"
+path = "src/lib.rs"
+crate-type = ["cdylib", "rlib"] # support using the library from both rust (rlib) and outside languages (cdylib)
+
+[[bin]]
+name = "main"
+path = "src/bin/main.rs"
 
 [profile.release]
 lto = true

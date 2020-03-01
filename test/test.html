@@ -38,12 +38,21 @@
     <pre id="OUTPUT"></pre>
 </body>
 <script type="text/javascript">
-    const code = document.getElementById('CODE').innerHTML;
-    const IRCode = carousels.parsers.rust(code);
-    const costs = carousels.costs.rustBGW;
+    carousels.promise.then(function () {
+        try {
+            const language = 'rust';
+            const code = document.getElementById('CODE').innerHTML;
+            const costs = carousels.costs.rustBGW;
 
-    document.getElementById('IR').innerHTML = JSON.stringify(IRCode, null, 2);
-    document.getElementById('COSTS').innerHTML = JSON.stringify(costs, null, 2);
-    document.getElementById('OUTPUT').innerHTML = carousels.analyze(IRCode, costs).toString();
+            // TODO: remove this
+            const IRCode = carousels.parsers.rust(code);
+            document.getElementById('IR').innerHTML = JSON.stringify(IRCode, null, 2);
+            document.getElementById('COSTS').innerHTML = JSON.stringify(costs, null, 2);
+
+            document.getElementById('OUTPUT').innerHTML = carousels.analyze(language, code, costs).toString();
+        } catch (err) {
+          console.log(err);
+        }
+    });
 </script>
 </html>

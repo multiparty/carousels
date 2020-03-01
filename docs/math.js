@@ -65,8 +65,8 @@ function get_rec_def(recurance, conditions) {
 // Set up the parser
 const parser = math.parser();
 parser.set('iff', function (n, above_base_case, thunk_f, base_val) {
-    parser.set('n', n);
-    return above_base_case ? parser.evaluate(thunk_f) : base_val;
+  parser.set('n', n);
+  return above_base_case ? parser.evaluate(thunk_f) : base_val;
 });
 
 // g and f are supposed to be the same function

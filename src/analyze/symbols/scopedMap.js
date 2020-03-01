@@ -19,6 +19,8 @@ ScopedMap.prototype.get = function (name) {
       return val;
     }
   }
+
+  return undefined;
 };
 
 module.exports = ScopedMap;

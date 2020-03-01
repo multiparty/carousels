@@ -28,7 +28,7 @@ pub fn ir_node(_attr: TokenStream, item: TokenStream) -> TokenStream {
     let gen = quote::quote! {
         #[derive(serde::Serialize, serde::Deserialize, std::fmt::Debug)]
         #[serde(rename_all = "camelCase")]
-        struct #name {
+        pub struct #name {
             #(
                 #field_name: #field_type,
             )*

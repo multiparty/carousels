@@ -1,7 +1,8 @@
-const rust = require('./rust.js');
-const javascript = require('./javascript.js');
+const rust = require('./parsers/rust/index.js');
+const javascript = require('./parsers/javascript/index.js');
 
 module.exports = {
-  rust: rust,
-  javascript: javascript
+  rust: rust.parse,
+  javascript: javascript,
+  promise: rust.promise
 };

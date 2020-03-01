@@ -1,5 +1,5 @@
 const parseJavascript = function (code) {
-  return {};
+  return [];
 };
 
 module.exports = parseJavascript;
