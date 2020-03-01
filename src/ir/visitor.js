@@ -42,6 +42,22 @@ IRVisitor.prototype.visit = function (node, args) {
   return this['visit'+node.nodeType](node, args);
 };
 
+IRVisitor.prototype.addVisitor = function (nodeType, visitorFunction) {
+  if (IR_NODES.indexOf(nodeType) === -1) {
+    throw new Error('Attempted to add visitor for illegal node type "' + nodeType + '"!');
+  }
+
+  this['visit'+nodeType] = visitorFunction.bind(this);
+};
+
+IRVisitor.prototype.addVisitors = function (visitorsMap) {
+  for (let nodeType in visitorsMap) {
+    if (Object.prototype.hasOwnProperty.call(visitorsMap, nodeType)) {
+      this.addVisitor(nodeType, visitorsMap[nodeType]);
+    }
+  }
+};
+
 // Default visitor used for node types for which a user visitor was not set
 const defaultVisitor = function (nodeType, node, args) {
   console.log('Warning: visitor function for', nodeType, 'is undefined!');

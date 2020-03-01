@@ -34,8 +34,8 @@
         "match": "^<type:number,secret:true><<type:number,secret:true>$"
       },
       "cost": {
-        "Online Messages": "p-1",
-        "Online Rounds": "1"
+        "Online Messages": "b*(p-1)",
+        "Online Rounds": "b-1"
       }
     }
   ]

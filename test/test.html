@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Development Test</title>
+    <script type="text/javascript" src="../dist/carousels.js"></script>
+</head>
+<body>
+    <h2>Input Code</h2>
+    <pre id="CODE">
+        fn merge_sort_dedup<T, P: Obliv>(a: &[Possession<T, P>])
+        -> Vec<Possession<T, P>>
+        where T: Ord + Clone
+        {
+            let n = a.len();
+            if n > 1 {
+                let m = n/2;
+                merge_dedup(&merge_sort_dedup(&a[0..m]),
+                            &merge_sort_dedup(&a[m..n]))
+            } else {
+                a.to_owned()
+            }
+        }
+
+        fn merge_dedup<T, P: Obliv>(a: &[Possession<T, P>], b: &[Possession<T, P>])
+        -> Vec<Possession<T, P>>
+        where T: Ord + Clone
+        { }
+    </pre>
+
+    <h2>Parsed as IR</h2>
+    <pre id="IR"></pre>
+
+    <h2>Costs</h2>
+    <pre id="COSTS"></pre>
+
+    <h2>Result</h2>
+    <pre id="OUTPUT"></pre>
+</body>
+<script type="text/javascript">
+    const code = document.getElementById('CODE').innerHTML;
+    const IRCode = carousels.parsers.rust(code);
+    const costs = carousels.costs.rustBGW;
+
+    document.getElementById('IR').innerHTML = JSON.stringify(IRCode, null, 2);
+    document.getElementById('COSTS').innerHTML = JSON.stringify(costs, null, 2);
+    document.getElementById('OUTPUT').innerHTML = carousels.analyze(IRCode, costs).toString();
+</script>
+</html>

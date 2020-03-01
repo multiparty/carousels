@@ -11,14 +11,14 @@
     {
       "rule": {
         "nodeType": "FunctionCall",
-        "match": "^<JIFFClient>\\.share"
+        "match": "^jiffClient\\.share(@P)$"
       },
       "cost": "p-1"
     },
     {
       "rule": {
         "nodeType": "FunctionCall",
-        "match": "^<SecretShare>\\.smult(<SecretShare>.*"
+        "match": "^<type:number,secret:true>\\.smult(<type:number,secret:true>@P)$"
       },
       "cost": "p-1"
     }

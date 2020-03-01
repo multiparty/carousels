@@ -7,7 +7,7 @@
     "test": "mocha --reporter spec",
     "lint": "eslint .",
     "build:rust": "cd rust && ./build.sh",
-    "build:browserify": "browserify src/setup.js --debug --s carousels -o dist/carousels.js",
+    "build:browserify": "browserify src/index.js --debug --s carousels -o dist/carousels.js",
     "build": "npm run build:rust && npm run build:browserify"
   },
   "repository": {
