@@ -1,4 +1,3 @@
 node_modules/
-test.js
-dist/
-rust/
+dist/carousels.js
+rust/dist/index*.js

@@ -57,7 +57,3 @@ typings/
 
 # dotenv environment variables file
 .env
-
-# rust target directories
-achilles-ast/target/
-achilles-ast/no_wasm/target/

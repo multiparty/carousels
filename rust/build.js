@@ -27,14 +27,19 @@ const string = buffer.toString('base64');
 
 let generatedBundle = `
 // Generated Code
-const USELESS = require('./${FILES.WASM_INDEX}'); // will add wasm_bindgen to global scope
+// will add wasm_bindgen to global scope
+require('./${FILES.WASM_INDEX}');
+
+// remove wasm_bindgen from global scope, make it only accessible in this file
+const wasm_bindgen = window.wasm_bindgen;
+delete window['wasm_bindgen'];
 
 const wasmBinary = (function (base64String) {
   var raw = window.atob(base64String);
   var rawLength = raw.length;
   var array = new Uint8Array(new ArrayBuffer(rawLength));
 
-  for(let i = 0; i < rawLength; i++) {
+  for (let i = 0; i < rawLength; i++) {
     array[i] = raw.charCodeAt(i);
   }
   return array;
@@ -47,7 +52,7 @@ module.exports = wasmPromise;
 // End of Generated Code
 `;
 
-generatedBundle = generatedBundle.trim().replace(/\\n\ \ /g, '\n');
+generatedBundle = generatedBundle.trim();
 
 console.log('Write bundle');
 fs.writeFileSync(bundleOutputPath, generatedBundle);
