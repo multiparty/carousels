@@ -1,44 +1,19 @@
-// All node types that can be visited
-const IR_NODES = [
-  // logical nodes
-  'TypeNode',
-  // statements
-  'FunctionDefinition',
-  'ReturnStatement',
-  'VariableDefinition',
-  'ForEach',
-  'For',
-  'VariableAssignment',
-  // expressions
-  'If',
-  'OblivIf',
-  'LiteralExpression',
-  'NameExpression',
-  'DirectExpression',
-  'ParenthesesExpression',
-  'ArrayAccess',
-  'RangeExpression',
-  'SliceExpression',
-  'ArrayExpression',
-  'FunctionCall',
-  'DotExpression'
-];
+const IR_NODES = require('./ir.js');
 
 // The visitor class
-function IRVisitor(IR) {
-  this.IR = IR;
+function IRVisitor(args) {
+  this.args = args;
 }
 
 // Start visiting
-IRVisitor.prototype.start = function (args) {
-  this.visit(this.IR, args);
+IRVisitor.prototype.start = function (IRNode, args) {
+  this.visit(IRNode, args);
 };
 
 IRVisitor.prototype.visit = function (node, args) {
   if (node == null || node.nodeType == null) {
     return args;
   }
-
   return this['visit'+node.nodeType](node, args);
 };
 

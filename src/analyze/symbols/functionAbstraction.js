@@ -45,3 +45,5 @@ FunctionAbstraction.prototype.concretize = function (parameters) {
 
   return this.abstractionName + '(' + concreteParams.join(',') + ')';
 };
+
+module.exports = FunctionAbstraction;
