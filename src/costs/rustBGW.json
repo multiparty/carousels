@@ -7,12 +7,12 @@
     {
       "title": "Online Messages",
       "description": "Total number of messages sent during the online phase",
-      "metric": "TotalMetric"
+      "type": "TotalMetric"
     },
     {
       "title": "Online Rounds",
       "description": "Total number of rounds of communication during the online phase",
-      "metric": "RoundMetric"
+      "type": "RoundMetric"
     }
   ],
   "operations": [

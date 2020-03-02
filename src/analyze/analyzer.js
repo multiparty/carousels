@@ -6,6 +6,8 @@ const CostRuleBook = require('./rules/costRuleBook.js');
 
 const ScopedMap = require('./symbols/scopedMap.js');
 
+const metrics = require('./metrics/metrics.js');
+
 const IRVisitor = require('../ir/visitor.js');
 const visitorImplementations = [
   require('./visitors/array.js'),
@@ -15,7 +17,8 @@ const visitorImplementations = [
   require('./visitors/if.js'),
   require('./visitors/oblivIf.js'),
   require('./visitors/value.js'),
-  require('./visitors/variable.js')
+  require('./visitors/variable.js'),
+  require('./visitors/sequence.js')
 ];
 
 function Analyzer(language, code, costs, extraTyping) {
@@ -37,19 +40,42 @@ function Analyzer(language, code, costs, extraTyping) {
   this.variableTypeMap = new ScopedMap();
   this.functionTypeMap = new ScopedMap();
   this.functionDependentTypeMap = new ScopedMap();
-  this.functionMetricMap = new ScopedMap();
-  this.functionSymbolEquationMap = new ScopedMap();
+  this.variableMetricMap = {};
+  this.functionMetricMap = {};
+  this.functionPlaceholderToClosedFormMap = {};
+
+  // Metrics tables
+  this.metrics = {};
+  for (let i = 0; i < costs.metrics.length; i++) {
+    const metric = costs.metrics[i];
+    this.metrics[metric.title] = metrics[metric.type];
+    this.functionMetricMap[metric.title] = new ScopedMap();
+    this.variableMetricMap[metric.title] = new ScopedMap(metrics[metric.type].initial);
+  }
 
   // visitor pattern
-  this.visitor = new IRVisitor(this);
+  this.visitor = new IRVisitor({ analyzer: this });
   for (let i = 0; i < visitorImplementations.length; i++) {
     this.visitor.addVisitors(visitorImplementations[i]);
   }
 }
 
+Analyzer.prototype.mapMetrics = function (lambda) {
+  const result = {};
+  for (let metricTitle in this.metrics) {
+    if (!Object.prototype.hasOwnProperty.call(this.metrics, metricTitle)) {
+      continue;
+    }
+    result[metricTitle] = lambda(metricTitle, this.metrics[metricTitle]);
+  }
+  return result;
+};
+
 Analyzer.prototype.analyze = function () {
-  this.visitor.start(this.IR);
-  return 'b*2';
+  const result = this.visitor.start(this.IR);
+  return this.mapMetrics(function (metricTitle) {
+    return result.metrics[metricTitle].toString();
+  });
 };
 
 module.exports = Analyzer;

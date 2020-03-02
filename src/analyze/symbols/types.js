@@ -1,7 +1,7 @@
 const Enum = require('../../utils/enum.js');
 
 // Enum containing supported types
-const TYPE_ENUM = new Enum('TYPE_ENUM', 'NUMBER', 'ARRAY', 'BOOLEAN', 'STRING', 'ANY');
+const TYPE_ENUM = new Enum('TYPE_ENUM', 'NUMBER', 'ARRAY', 'BOOLEAN', 'STRING', 'ANY', 'NULL');
 
 // Type abstraction
 function Type(dataType, secret, dependentType) {

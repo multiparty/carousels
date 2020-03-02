@@ -1,7 +1,21 @@
 const RuleBook = require('./ruleBook.js');
+const math = require('../math.js');
 
 function CostRuleBook(rules) {
-  RuleBook.call(this, rules.operations);
+  const operations = rules.operations.map(function (op) {
+    const copy = Object.assign({}, op);
+
+    copy.value = {};
+    for (let metric in op.value) {
+      if (!Object.prototype.hasOwnProperty.call(op.value, metric)) {
+        continue;
+      }
+      copy.value[metric] = math.parse(op.value[metric]);
+    }
+    return copy;
+  });
+
+  RuleBook.call(this, operations);
 }
 
 CostRuleBook.prototype.applyMatch = function (node, expressionTypeString, args, metrics) {

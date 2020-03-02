@@ -49,7 +49,7 @@
             document.getElementById('IR').innerHTML = JSON.stringify(IRCode, null, 2);
             document.getElementById('COSTS').innerHTML = JSON.stringify(costs, null, 2);
 
-            document.getElementById('OUTPUT').innerHTML = carousels.analyze(language, code, costs).toString();
+            document.getElementById('OUTPUT').innerHTML = JSON.stringify(carousels.analyze(language, code, costs));
         } catch (err) {
           console.log(err);
         }

@@ -1,5 +1,6 @@
-function ScopedMap() {
+function ScopedMap(dVal) {
   this.scopes = [{}];
+  this.dVal = dVal;
 }
 ScopedMap.prototype.addScope = function () {
   this.scopes.push({});
@@ -20,7 +21,7 @@ ScopedMap.prototype.get = function (name) {
     }
   }
 
-  return undefined;
+  return this.dVal;
 };
 
 module.exports = ScopedMap;

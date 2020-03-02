@@ -1,24 +1,29 @@
 const IR_NODES = require('./ir.js');
 
 // The visitor class
-function IRVisitor(args) {
-  this.args = args;
+function IRVisitor(namedArgs) {
+  Object.assign(this, namedArgs);
 }
 
 // Start visiting
 IRVisitor.prototype.start = function (IRNode, args) {
-  this.visit(IRNode, args);
+  return this.visit(IRNode, args);
 };
 
 IRVisitor.prototype.visit = function (node, args) {
-  if (node == null || node.nodeType == null) {
+  if (node == null) {
     return args;
   }
+
+  if (Array.isArray(node)) {
+    return this['visitSequence'](node, args);
+  }
+
   return this['visit'+node.nodeType](node, args);
 };
 
 IRVisitor.prototype.addVisitor = function (nodeType, visitorFunction) {
-  if (IR_NODES.indexOf(nodeType) === -1) {
+  if (IR_NODES.indexOf(nodeType) === -1 && nodeType !== 'Sequence') {
     throw new Error('Attempted to add visitor for illegal node type "' + nodeType + '"!');
   }
 
@@ -42,5 +47,11 @@ for (let i = 0; i < IR_NODES.length; i++) {
   const nodeType = IR_NODES[i];
   IRVisitor.prototype['visit'+nodeType] = defaultVisitor.bind(null, nodeType);
 }
+
+// Visitor for sequences (e.g. body of a function or body of a for loop)
+IRVisitor.prototype.visitSequence = function (nodeType, node, args) {
+  console.log('Warning: visitor function for "Sequence" is undefined!');
+  return args;
+};
 
 module.exports = IRVisitor;

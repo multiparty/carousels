@@ -4,8 +4,8 @@ const IR_NODES = require('./ir.js');
 /*
  * Abstract metric
  *
- * This is an abstract class that defines the API of a metric
- * Concrete metrics are constructed based on this API via inheritance at ../analyze/metrics/
+ * This is a class that defines the API of a metric
+ * Concrete metrics are constructed as instances of this class, and share its API.
  *
  * Metrics are an immutable object, they should never be modified in place.
  *
@@ -28,18 +28,19 @@ const IR_NODES = require('./ir.js');
  *    should be, given the metric instances of all the children of that IRNode. This is a composition
  *    step that usually happens at higher level statements and expressions (e.g. for loops)
  *
- * Finally, every concrete Metric should have a default value, that is used to initialize the metric
+ * Finally, every concrete Metric should provide an initial value, that is used to initialize the metric
  * for atomic program constructs (new variables and constants).
  */
-function AbstractMetric(name, value) {
+function AbstractMetric(name) {
   this.name = name;
-  this.value = value;
 }
+
+AbstractMetric.prototype.initial = math.ZERO;
 
 AbstractMetric.prototype.defaults = {};
 
-AbstractMetric.prototype.addCost = function (cost) {
-  return new this.constructor(math.add(this.value, cost));
+AbstractMetric.prototype.addCost = function (metric, cost) {
+  return math.add(metric, cost);
 };
 
 // Default visitor used for node types for which a user visitor was not set
