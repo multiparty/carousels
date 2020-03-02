@@ -38,19 +38,20 @@ function Analyzer(language, code, costs, extraTyping) {
 
   // Scoped tables
   this.variableTypeMap = new ScopedMap();
-  this.functionTypeMap = new ScopedMap();
-  this.functionDependentTypeMap = new ScopedMap();
   this.variableMetricMap = {};
-  this.functionMetricMap = {};
-  this.functionPlaceholderToClosedFormMap = {};
+
+  this.functionTypeMap = new ScopedMap();
+  this.functionReturnAbstractionMap = new ScopedMap();
+  this.functionMetricAbstractionMap = {};
+  this.abstractionToClosedFormMap = {};
 
   // Metrics tables
   this.metrics = {};
   for (let i = 0; i < costs.metrics.length; i++) {
     const metric = costs.metrics[i];
     this.metrics[metric.title] = metrics[metric.type];
-    this.functionMetricMap[metric.title] = new ScopedMap();
-    this.variableMetricMap[metric.title] = new ScopedMap(metrics[metric.type].initial);
+    this.variableMetricMap[metric.title] = new ScopedMap();
+    this.functionMetricAbstractionMap[metric.title] = new ScopedMap();
   }
 
   // visitor pattern

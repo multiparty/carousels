@@ -1,5 +1,6 @@
-function ScopedMap(dVal) {
+function ScopedMap(error, dVal) {
   this.scopes = [{}];
+  this.error = error !== false;
   this.dVal = dVal;
 }
 ScopedMap.prototype.addScope = function () {
@@ -19,6 +20,10 @@ ScopedMap.prototype.get = function (name) {
     if (val != null) {
       return val;
     }
+  }
+
+  if (this.error) {
+    throw new Error('Scoped Map attempted to access symbol "' + name + '" that is not in scope!');
   }
 
   return this.dVal;

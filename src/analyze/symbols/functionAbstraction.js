@@ -2,8 +2,9 @@ const carouselsTypes = require('./types.js');
 
 let ABSTRACTION_COUNTER = 0;
 
-function FunctionAbstraction(functionName, functionType) {
+function FunctionAbstraction(functionName, abstractionTitle, functionType) {
   this.functionName = functionName;
+  this.abstractionTitle = abstractionTitle;
 
   this.id = ABSTRACTION_COUNTER++;
   this.abstractionName = 'f' + this.id;
@@ -15,7 +16,7 @@ function FunctionAbstraction(functionName, functionType) {
 
   for (let i = 0; i < functionType.parameterTypes.length; i++) {
     const parameterType = functionType.parameterTypes[i];
-    if (parameterType == null || parameterType.dataType !== carouselsTypes.TYPE_ENUM.ARRAY) {
+    if (parameterType.is(carouselsTypes.TYPE_ENUM.ARRAY) && parameterType.hasDependentType('length')) {
       this.parameters.push(parameterType.dependentType.length);
       this.parameterIndices.push(i);
     }
@@ -36,7 +37,7 @@ FunctionAbstraction.prototype.concretize = function (parameters) {
     const parameterType = parameters[index];
 
     // Expects an array parameter with some length (symbolic or valued)
-    if (parameterType.dataType !== carouselsTypes.TYPE_ENUM.ARRAY || !parameterType.hasDependentType('length')) {
+    if (!parameterType.is(carouselsTypes.TYPE_ENUM.ARRAY) || !parameterType.hasDependentType('length')) {
       throw new Error('Function "' + this.functionName + '" called with non-dependent argument "' + parameterType.toString() + '" at position ' + index);
     }
 

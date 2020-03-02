@@ -20,3 +20,5 @@ Parameter.forArrayLength = function (arrayName) {
 Parameter.prototype.toString = function () {
   return this.symbol + ': ' + this.description;
 };
+
+module.exports = Parameter;

@@ -1,6 +1,37 @@
 [
   {
     "nodeType": "FunctionDefinition",
+    "name": "merge_dedup",
+    "parameters": [
+      {
+        "nodeType": "VariableDefinition",
+        "name": "a",
+        "type": {
+          "nodeType": "TypeNode",
+          "secret": true,
+          "type": "array"
+        }
+      },
+      {
+        "nodeType": "VariableDefinition",
+        "name": "b",
+        "type": {
+          "nodeType": "TypeNode",
+          "secret": true,
+          "type": "array"
+        }
+      }
+    ],
+    "returnType": {
+      "nodeType": "TypeNode",
+      "secret": true,
+      "type": "array"
+    },
+    "body": [
+    ]
+  },
+  {
+    "nodeType": "FunctionDefinition",
     "name": {
       "nodeType": "NameExpression",
       "name": "merge_sort_dedup"
@@ -187,37 +218,6 @@
           }
         ]
       }
-    ]
-  },
-  {
-    "nodeType": "FunctionDefinition",
-    "name": "merge_dedup",
-    "parameters": [
-      {
-        "nodeType": "VariableDefinition",
-        "name": "a",
-        "type": {
-          "nodeType": "TypeNode",
-          "secret": true,
-          "type": "array"
-        }
-      },
-      {
-        "nodeType": "VariableDefinition",
-        "name": "b",
-        "type": {
-          "nodeType": "TypeNode",
-          "secret": true,
-          "type": "array"
-        }
-      }
-    ],
-    "returnType": {
-      "nodeType": "TypeNode",
-      "secret": true,
-      "type": "array"
-    },
-    "body": [
     ]
   }
 ]
