@@ -100,22 +100,22 @@
           "nodeType": "TypeNode",
           "secret": false,
           "type": "number"
-        }
-      },
-      {
-        "nodeType": "VariableAssignment",
-        "name": {
-          "nodeType": "NameExpression",
-          "name": "n"
         },
-        "expression": {
-          "nodeType": "FunctionCall",
-          "function": {
-            "nodeType": "DotExpression",
-            "left": "a",
-            "right": "len"
+        "assignment": {
+          "nodeType": "VariableAssignment",
+          "name": {
+            "nodeType": "NameExpression",
+            "name": "n"
           },
-          "parameters": []
+          "expression": {
+            "nodeType": "FunctionCall",
+            "function": {
+              "nodeType": "DotExpression",
+              "left": "a",
+              "right": "len"
+            },
+            "parameters": []
+          }
         }
       },
       {
@@ -146,28 +146,28 @@
               "nodeType": "TypeNode",
               "secret": false,
               "type": "number"
-            }
-          },
-          {
-            "nodeType": "VariableAssignment",
-            "name": {
-              "nodeType": "NameExpression",
-              "name": "m"
             },
-            "expression": {
-              "nodeType": "DirectExpression",
-              "operator": "/",
-              "arity": 2,
-              "operands": [
-                {
-                  "nodeType": "NameExpression",
-                  "name": "n"
-                },
-                {
-                  "nodeType": "LiteralExpression",
-                  "value": 2
-                }
-              ]
+            "assignment": {
+              "nodeType": "VariableAssignment",
+              "name": {
+                "nodeType": "NameExpression",
+                "name": "m"
+              },
+              "expression": {
+                "nodeType": "DirectExpression",
+                "operator": "/",
+                "arity": 2,
+                "operands": [
+                  {
+                    "nodeType": "NameExpression",
+                    "name": "n"
+                  },
+                  {
+                    "nodeType": "LiteralExpression",
+                    "value": 2
+                  }
+                ]
+              }
             }
           },
           {
