@@ -1,6 +1,8 @@
 const parsers = require('../ir/parsers.js');
 const typings = require('../typing/index.js');
 
+const Parameter = require('./symbols/parameter.js');
+
 const TypingRuleBook = require('./rules/typingRuleBook.js');
 const CostRuleBook = require('./rules/costRuleBook.js');
 
@@ -36,6 +38,13 @@ function Analyzer(language, code, costs, extraTyping) {
   // costs parsing
   this.costs = new CostRuleBook(costs);
 
+  // description of every encountered parameters
+  this.parameters = {};
+  for (let i = 0; i < costs['parameters'].length; i++) {
+    const parameter = costs['parameters'][i];
+    this.parameters[parameter['symbol']] = new Parameter(parameter['symbol'], parameter['description']);
+  }
+
   // Scoped tables
   this.variableTypeMap = new ScopedMap();
   this.variableMetricMap = {};
@@ -47,8 +56,10 @@ function Analyzer(language, code, costs, extraTyping) {
 
   // Metrics tables
   this.metrics = {};
+  this.metricsDescription = {};
   for (let i = 0; i < costs.metrics.length; i++) {
     const metric = costs.metrics[i];
+    this.metricsDescription[metric.title] = metric.description;
     this.metrics[metric.title] = metrics[metric.type];
     this.variableMetricMap[metric.title] = new ScopedMap();
     this.functionMetricAbstractionMap[metric.title] = new ScopedMap();
@@ -61,6 +72,19 @@ function Analyzer(language, code, costs, extraTyping) {
   }
 }
 
+Analyzer.prototype.addParameters = function (parameters) {
+  for (let i = 0; i < parameters.length; i++) {
+    this.parameters[parameters[i].mathSymbol.toString()] = parameters[i];
+  }
+};
+
+Analyzer.prototype.getParametersBySymbol = function (symbols) {
+  const self = this;
+  return symbols.map(function (symbol) {
+    return symbol ? self.parameters[symbol.toString()] : null;
+  });
+};
+
 Analyzer.prototype.mapMetrics = function (lambda) {
   const result = {};
   for (let metricTitle in this.metrics) {
@@ -72,8 +96,33 @@ Analyzer.prototype.mapMetrics = function (lambda) {
   return result;
 };
 
+Analyzer.prototype.addScope = function () {
+  const self = this;
+
+  this.variableTypeMap.addScope();
+  this.functionTypeMap.addScope();
+  this.functionReturnAbstractionMap.addScope();
+  this.mapMetrics(function (metric) {
+    self.variableMetricMap[metric].addScope();
+    self.functionMetricAbstractionMap[metric].addScope();
+  });
+};
+
+Analyzer.prototype.removeScope = function () {
+  const self = this;
+
+  this.variableTypeMap.removeScope();
+  this.functionTypeMap.removeScope();
+  this.functionReturnAbstractionMap.removeScope();
+  this.mapMetrics(function (metric) {
+    self.variableMetricMap[metric].removeScope();
+    self.functionMetricAbstractionMap[metric].removeScope();
+  });
+};
+
 Analyzer.prototype.analyze = function () {
-  const result = this.visitor.start(this.IR);
+  const result = this.visitor.start(this.IR, '');
+  console.log(this);
   return this.mapMetrics(function (metricTitle) {
     return result.metrics[metricTitle].toString();
   });

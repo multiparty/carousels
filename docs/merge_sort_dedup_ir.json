@@ -1,31 +1,55 @@
 [
   {
     "nodeType": "FunctionDefinition",
-    "name": "merge_dedup",
+    "name": {
+      "nodeType": "NameExpression",
+      "name": "merge_dedup"
+    },
     "parameters": [
       {
         "nodeType": "VariableDefinition",
-        "name": "a",
+        "name":  {
+          "nodeType": "NameExpression",
+          "name": "a"
+        },
         "type": {
           "nodeType": "TypeNode",
           "secret": true,
-          "type": "array"
+          "type": "array",
+          "dependentType": {
+            "nodeType": "TypeNode",
+            "secret": true,
+            "type": "number"
+          }
         }
       },
       {
         "nodeType": "VariableDefinition",
-        "name": "b",
+        "name":  {
+          "nodeType": "NameExpression",
+          "name": "b"
+        },
         "type": {
           "nodeType": "TypeNode",
           "secret": true,
-          "type": "array"
+          "type": "array",
+          "dependentType": {
+            "nodeType": "TypeNode",
+            "secret": true,
+            "type": "number"
+          }
         }
       }
     ],
     "returnType": {
       "nodeType": "TypeNode",
       "secret": true,
-      "type": "array"
+      "type": "array",
+      "dependentType": {
+        "nodeType": "TypeNode",
+        "secret": true,
+        "type": "number"
+      }
     },
     "body": [
     ]
@@ -46,14 +70,24 @@
         "type": {
           "nodeType": "TypeNode",
           "secret": true,
-          "type": "array"
+          "type": "array",
+          "dependentType": {
+            "nodeType": "TypeNode",
+            "secret": true,
+            "type": "number"
+          }
         }
       }
     ],
     "returnType": {
       "nodeType": "TypeNode",
       "secret": true,
-      "type": "array"
+      "type": "array",
+      "dependentType": {
+        "nodeType": "TypeNode",
+        "secret": true,
+        "type": "number"
+      }
     },
     "body": [
       {
@@ -140,14 +174,20 @@
             "nodeType": "FunctionCall",
             "function": {
               "nodeType": "NameExpression",
-              "name": "merge_dedup"
+              "name":  {
+                "nodeType": "NameExpression",
+                "name": "merge_dedup"
+              }
             },
             "parameters": [
               {
                 "nodeType": "FunctionCall",
                 "function": {
                   "nodeType": "NameExpression",
-                  "name": "merge_sort_dedup"
+                  "name":  {
+                    "nodeType": "NameExpression",
+                    "name": "merge_sort_dedup"
+                  }
                 },
                 "parameters": [
                   {

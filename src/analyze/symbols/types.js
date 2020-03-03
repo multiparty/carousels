@@ -14,7 +14,7 @@ function Type(dataType, secret, dependentType) {
   if (this.secret !== true && this.secret !== false) {
     throw new Error('Secret must be either true or false! Instead it was "' + this.secret + '".');
   }
-  if (this.hasDependentType() && this.dependentType.compatible(this.dataType)) {
+  if (this.hasDependentType() && !this.dependentType.compatible(this.dataType)) {
     throw new Error('Unexpected dependent type "' + this.dependentType + '" given for non array type "' + this.dataType + '"!');
   }
 }
@@ -31,22 +31,42 @@ Type.prototype.hasDependentType = function (prop) {
 Type.prototype.is = function (dataType) {
   return this.dataType === dataType;
 };
-Type.fromTypeNode = function (typeNode, dependentType) {
+Type.prototype.copyWithDependentType = function (dependentType) {
+  return new Type(this.dataType, this.secret, dependentType);
+};
+Type.fromTypeNode = function (pathStr, typeNode, dependentType) {
   const type = typeNode.type.toUpperCase();
   const secret = typeNode.secret;
+  let parameters = [];
 
   // compute dependentType
   if (dependentType === undefined) {
     if (type === TYPE_ENUM.ARRAY) {
-      // TODO: Update IR with nested dependentType in typeNode for generics (or just arrays?)
-      dependentType = new ArrayDependentType(Type.fromTypeNode(typeNode.dependentType));
-    } else {
-      // TODO: right now arrays are of numbers by default! remove this default in the future
-      dependentType = new ArrayDependentType(new Type(TYPE_ENUM.NUMBER, secret));
+      const lengthParameter = Parameter.forArrayLength(pathStr);
+      parameters.push(lengthParameter);
+
+      if (typeNode.dependentType != null) { // TODO: Update IR with nested dependentType in typeNode for generics (or just arrays?)
+        const nestedType = Type.fromTypeNode(pathStr + '[dependentType]', typeNode.dependentType);
+        parameters = parameters.concat(nestedType.parameters);
+        dependentType = new ArrayDependentType(nestedType.type, lengthParameter.mathSymbol);
+      } else { // TODO: right now arrays are of numbers by default! remove this default in the future
+        const valueParameter = Parameter.forNumberValue(pathStr + '[dependentType]');
+        parameters.push(valueParameter);
+        dependentType = new ArrayDependentType(new Type(TYPE_ENUM.NUMBER, secret, valueParameter.mathSymbol), lengthParameter.mathSymbol);
+      }
+    }
+
+    if (type === TYPE_ENUM.NUMBER) {
+      const valueParameter = Parameter.forNumberValue(pathStr);
+      parameters.push(valueParameter);
+      dependentType = new NumberDependentType(valueParameter.mathSymbol);
     }
   }
 
-  return new Type(type, secret, dependentType);
+  return {
+    type: new Type(type, secret, dependentType),
+    parameters: parameters
+  };
 };
 
 // All dependent types must have this interface (constructors can differ)
@@ -86,34 +106,42 @@ FunctionType.prototype.toString = function () {
   });
   return '<' + thisType + '(' + params.join(',') + ')=>' + this.returnType.toString() + '>';
 };
-FunctionType.prototype.hasDependentParameters = function () {
+// instance of Parameter corresponding to dependent types of this.parameterTypes in order
+FunctionType.prototype.getDependentParameters = function () {
+  const symbols = [];
   for (let i = 0; i < this.parameterTypes.length; i++) {
-    const parameter = this.parameterTypes[i];
-    if (parameter.is(TYPE_ENUM.ARRAY) && parameter.hasDependentType('length')) {
-      return true;
+    let parameterType = this.parameterTypes[i];
+    let dependentParameter = null;
+    if (parameterType.is(TYPE_ENUM.ARRAY)) {
+      dependentParameter = parameterType.dependentType.length;
+    } else if (parameterType.is(TYPE_ENUM.NUMBER)) {
+      dependentParameter = parameterType.dependentType.value;
     }
+    symbols.push(dependentParameter);
   }
 
-  return false;
+  return symbols;
 };
-FunctionType.fromFunctionDefinitionNode = function (node) {
+FunctionType.fromFunctionDefinitionNode = function (pathStr, node) {
+  // figure out return type
+  const returnType = Type.fromTypeNode(pathStr + '[return]', node.returnType);
+
   // figure out parameter types
   // array parameters are assigned "fresh" new symbolic parameters as lengths
   const parametersType = [];
+  let parameters = returnType.parameters;
   for (let i = 0; i < node.parameters.length; i++) {
-    const parameterType = Type.fromTypeNode(node.parameters[i].type);
-
-    if (parameterType.is(TYPE_ENUM.ARRAY)) {
-      const lengthParameter = Parameter.forArrayLength(node.parameters[i].name);
-      parameterType.dependentType.length = lengthParameter;
-    }
-
-    parametersType.push(parameterType);
+    const paramPathStr = pathStr + '@' + node.parameters[i].name.name;
+    const parameterType = Type.fromTypeNode(paramPathStr, node.parameters[i].type);
+    parameters = parameters.concat(parameterType.parameters);
+    parametersType.push(parameterType.type);
   }
 
-  // figure out return type
-  const returnType = Type.fromTypeNode(node.returnType);
-  return new FunctionType(null, parametersType, returnType);
+  // return function type and all the symbolic parameters created for its parameters
+  return {
+    functionType: new FunctionType(null, parametersType, returnType.type),
+    parameters: parameters
+  };
 };
 
 module.exports = {

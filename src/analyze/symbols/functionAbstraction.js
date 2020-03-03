@@ -1,35 +1,42 @@
 const carouselsTypes = require('./types.js');
+const math = require('../math.js');
 
 let ABSTRACTION_COUNTER = 0;
 
-function FunctionAbstraction(functionName, abstractionTitle, functionType) {
+// parameters: array of Parameter objects corresponding to each parameter of the function in order
+// function parameters that have no parameter can be left as null to avoid cluttering
+function FunctionAbstraction(functionName, abstractionTitle, parameters) {
   this.functionName = functionName;
   this.abstractionTitle = abstractionTitle;
 
   this.id = ABSTRACTION_COUNTER++;
-  this.abstractionName = 'f' + this.id;
+  this.abstractionName = 'F' + this.id;
 
   // store the parameters (and their indices in the function definition) that
   // have dependent types (arrays with lengths)
   this.parameters = [];
   this.parameterIndices = [];
 
-  for (let i = 0; i < functionType.parameterTypes.length; i++) {
-    const parameterType = functionType.parameterTypes[i];
-    if (parameterType.is(carouselsTypes.TYPE_ENUM.ARRAY) && parameterType.hasDependentType('length')) {
-      this.parameters.push(parameterType.dependentType.length);
+  for (let i = 0; i < parameters.length; i++) {
+    if (parameters[i] != null) {
+      this.parameters.push(parameters[i]);
       this.parameterIndices.push(i);
     }
   }
+
+  // function symbol
+  const parameterSymbols = this.parameters.map(function (parameter) {
+    return parameter.mathSymbol;
+  });
+  this.mathSymbol = math.parse(this.abstractionName + '(' + parameterSymbols.join(',') + ')');
 }
 
-// Abstract Symbol: does not depend on invocation, only definition
-FunctionAbstraction.prototype.symbol = function () {
-  return this.abstractionName + '(' + this.parameters.join(',') + ')';
+// Concrete Symbol: specialized to the given parameters used at this invocation
+FunctionAbstraction.prototype.concretize = function (concreteParams) {
+  return math.parse(this.abstractionName + '(' + concreteParams.join(',') + ')');
 };
 
-// Concrete Symbol: specialized to the given parameters used at this invocation
-FunctionAbstraction.prototype.concretize = function (parameters) {
+FunctionAbstraction.prototype.concretizeDependent = function (parameters) {
   let concreteParams = [];
 
   for (let i = 0; i < this.parameterIndices; i++) {
@@ -37,14 +44,21 @@ FunctionAbstraction.prototype.concretize = function (parameters) {
     const parameterType = parameters[index];
 
     // Expects an array parameter with some length (symbolic or valued)
-    if (!parameterType.is(carouselsTypes.TYPE_ENUM.ARRAY) || !parameterType.hasDependentType('length')) {
+    if (parameterType.is(carouselsTypes.TYPE_ENUM.ARRAY) && parameterType.hasDependentType('length')) {
+      concreteParams.push(parameterType.dependentType.length);
+    } else if (parameterType.is(carouselsTypes.TYPE_ENUM.NUMBER) && parameterType.hasDependentType('value')) {
+      concreteParams.push(parameterType.value.length);
+    } else {
       throw new Error('Function "' + this.functionName + '" called with non-dependent argument "' + parameterType.toString() + '" at position ' + index);
     }
-
-    concreteParams.push(parameterType.dependentType.length);
   }
 
-  return this.abstractionName + '(' + concreteParams.join(',') + ')';
+  return this.concretize(concreteParams);
+};
+
+FunctionAbstraction.prototype.toString = function () {
+  return '<Abstraction ' + this.mathSymbol.toString() + ': ' + (this.abstractionTitle + '\n' +
+    this.parameters.join('\n')).trim() + '>';
 };
 
 module.exports = FunctionAbstraction;

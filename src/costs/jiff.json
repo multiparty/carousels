@@ -1,7 +1,7 @@
 {
   "parameters": [
-    {"parameter": "p", "description": "number of parties"},
-    {"parameter": "b", "description": "number of bits in field"}
+    {"symbol": "p", "description": "number of parties"},
+    {"symbol": "b", "description": "number of bits in field"}
   ],
   "metrics": [
     {

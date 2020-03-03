@@ -9,7 +9,7 @@ ScopedMap.prototype.addScope = function () {
 ScopedMap.prototype.removeScope = function () {
   this.scopes.pop();
 };
-ScopedMap.prototype.add = function (key, val) {
+ScopedMap.prototype.add = function (name, val) {
   const index = this.scopes.length - 1;
   this.scopes[index][name] = val;
 };
