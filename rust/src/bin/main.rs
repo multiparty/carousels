@@ -1,4 +1,4 @@
-use carousels::{TypeNode, NameExpression, FunctionDefinition};
+use carousels::visitor;
 
 // This is not the entry point to our Rust-WASM library
 //
@@ -9,9 +9,17 @@ use carousels::{TypeNode, NameExpression, FunctionDefinition};
 // Use `cargo run --bin main` to compile and run this file
 
 pub fn main() {
-    let type_expression = TypeNode::new(false, "Test Type".to_string());
-    let name_expression = NameExpression::new("f1".to_string());
-    let function_def = FunctionDefinition::new(name_expression, Vec::new(), Vec::new(), type_expression);
+    let filename = "../src/old/test_program.rs";
 
-    println!("{}", serde_json::to_string(&function_def).unwrap());
+    let file = visitor::get_ast(&filename);
+    match file {
+        Ok(_v)=>{println!("{}", serde_json::to_string(&_v).unwrap());},
+        Err(e) => println!("error parsing : {:?}", e),
+    };
+
+    let file_str = visitor::get_ast_str(&filename);
+    match file_str {
+        Ok(_v)=>{println!("{}", _v);},
+        Err(e) => println!("error parsing : {:?}", e),
+    };
 }
