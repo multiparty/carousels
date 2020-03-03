@@ -39,7 +39,8 @@ These node types are statements but cannot be expressions.
 #### VariableDefinition
 
 1. name: NameExpression
-2. type: TypeNode
+2. type: TypeNode (optional)
+3. assignment: VariableAssignment (optional)
 
 #### ForEach
 

@@ -11,15 +11,26 @@ IRVisitor.prototype.start = function (IRNode, args) {
 };
 
 IRVisitor.prototype.visit = function (node, args) {
-  if (node == null) {
-    return args;
-  }
+  try {
+    if (node == null) {
+      return args;
+    }
 
-  if (Array.isArray(node)) {
-    return this['visitSequence'](node, args);
-  }
+    if (Array.isArray(node)) {
+      return this['visitSequence'](node, args);
+    }
 
-  return this['visit'+node.nodeType](node, args);
+    return this['visit' + node.nodeType](node, args);
+  } catch (error) {
+    if (!error.__visited) {
+      error.message = 'Error occured in carousels while parsing "'
+        + (node.nodeType != null ? node.nodeType : 'Sequence')
+        + '" node with args "' + args + '"\n'
+        + error.message;
+      error.__visited = true;
+    }
+    throw error;
+  }
 };
 
 IRVisitor.prototype.addVisitor = function (nodeType, visitorFunction) {
