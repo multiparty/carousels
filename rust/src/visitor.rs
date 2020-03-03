@@ -86,7 +86,7 @@ impl <'ast> Visit <'ast> for Node {
             }
             _=>{}
         }
-        self.left.push(definition);
+        self.operands.push(definition);
 
         let init = &node.init; // the initial value
         match init{
@@ -96,7 +96,7 @@ impl <'ast> Visit <'ast> for Node {
                 assignment.nodeType = "variableAssignment".to_string();
                 assignment.visit_expr(&_e.1);
 
-                self.right.push(assignment);
+                self.operands.push(assignment);
                 self.operator = "=".to_string();
             }
             None =>{}

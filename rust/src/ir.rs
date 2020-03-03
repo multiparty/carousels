@@ -7,7 +7,7 @@
 pub trait IRNode: std::fmt::Debug { }
 
 //#[ir_node]
-#[derive(serde::Serialize, serde::Deserialize, std::fmt::Debug, Default)]
+#[derive(serde::Serialize, serde::Deserialize, Debug, Default)]
 pub struct Node{
     #[serde(skip_serializing_if = "String::is_empty")]
     pub name: String,
