@@ -176,9 +176,9 @@ impl <'ast> Visit <'ast> for Node {
         // println!("{}", format!("{:#?}", &node));
         match node{
             Type::Array(_a)=>{
-                self.dependentType.push_str(&"[".to_string());
+                self.dependentType_.push_str(&"[".to_string());
                 self.visit_type(&_a.elem);
-                self.dependentType.push_str(&"]".to_string());
+                self.dependentType_.push_str(&"]".to_string());
 
                 let mut length = Node::default();
                 length.nodeType = "length".to_string();
@@ -189,20 +189,20 @@ impl <'ast> Visit <'ast> for Node {
                 self.visit_path(&_p.path);
             }
             Type::Ptr(_ptr)=>{
-                self.dependentType.push_str(&"*".to_string());
+                self.dependentType_.push_str(&"*".to_string());
                 self.visit_type(&_ptr.elem);
             }
             Type::Reference(_r)=>{
-                self.dependentType.push_str(&"&".to_string());
+                self.dependentType_.push_str(&"&".to_string());
                 self.visit_type(&_r.elem);
             }
             Type::Slice(_s)=>{
-                self.dependentType.push_str(&"[".to_string());
+                self.dependentType_.push_str(&"[".to_string());
                 self.visit_type(&_s.elem);
-                self.dependentType.push_str(&"]".to_string());
+                self.dependentType_.push_str(&"]".to_string());
             }
             Type::Verbatim(_v)=>{
-                self.dependentType.push_str(&_v.to_string());
+                self.dependentType_.push_str(&_v.to_string());
             }
             _=>{}
         }
@@ -220,7 +220,7 @@ impl <'ast> Visit <'ast> for Node {
         for ps in node.segments.iter(){
 
             let ident = ps.ident.to_string();
-            self.dependentType.push_str(&ident);
+            self.dependentType_.push_str(&ident);
 
             if ident == "Possession"{
                 self.secret = true;
@@ -247,7 +247,7 @@ impl <'ast> Visit <'ast> for Node {
             match &ps.arguments{
                 PathArguments::AngleBracketed(_a)=>{
 
-                self.dependentType.push_str(&"<".to_string());
+                self.dependentType_.push_str(&"<".to_string());
 
                     for _arg in _a.args.iter(){
                         match _arg {
@@ -277,24 +277,24 @@ impl <'ast> Visit <'ast> for Node {
                             }
                             _=>{}
                         }
-                        self.dependentType.push_str(&",".to_string());
+                        self.dependentType_.push_str(&",".to_string());
                     }
-                    self.dependentType.pop();
-                    self.dependentType.push_str(&">".to_string());
+                    self.dependentType_.pop();
+                    self.dependentType_.push_str(&">".to_string());
                 }
                 PathArguments::Parenthesized(_p)=>{
                     let mut inputType = Node::default();
                     inputType.nodeType = "inputType".to_string();
-                    inputType.dependentType.push_str(&"(".to_string());
+                    inputType.dependentType_.push_str(&"(".to_string());
 
                     for inp in _p.inputs.iter(){
                         inputType.visit_type(inp);
-                        inputType.dependentType.push_str(&",".to_string());
+                        inputType.dependentType_.push_str(&",".to_string());
                     }
-                    inputType.dependentType.pop();
-                    inputType.dependentType.push_str(&")".to_string());
+                    inputType.dependentType_.pop();
+                    inputType.dependentType_.push_str(&")".to_string());
 
-                    self.dependentType.push_str(&inputType.dependentType);
+                    self.dependentType_.push_str(&inputType.dependentType_);
 
                     match &_p.output{
                         ReturnType::Type(_, _t)=>{
@@ -302,8 +302,8 @@ impl <'ast> Visit <'ast> for Node {
                             outputType.nodeType = "TypeNode".to_string();
                             outputType.visit_type(_t);
 
-                            self.dependentType.push_str(&"->".to_string());
-                            self.dependentType.push_str(&outputType.dependentType.clone());
+                            self.dependentType_.push_str(&"->".to_string());
+                            self.dependentType_.push_str(&outputType.dependentType_.clone());
                             self.returnType.push(outputType);
                         }
                         _=>{}
