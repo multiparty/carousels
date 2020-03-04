@@ -26,7 +26,7 @@ fn merge_dedup<T, P>(a: &[Possession<T, P>], b: &[Possession<T, P>])
 -> Vec<Possession<T, P>>
 where T: Ord + Clone
 {
-
+let a:u8 = 4;
 }
 
 

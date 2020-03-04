@@ -17,7 +17,7 @@ pub fn main() {
         Err(e) => println!("error parsing : {:?}", e),
     };
 
-    let file_str = visitor::get_ast_str(&filename);
+    let file_str = visitor::get_ast_str_from_file(&filename);
     match file_str {
         Ok(_v)=>{println!("{}", _v);},
         Err(e) => println!("error parsing : {:?}", e),
