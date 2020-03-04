@@ -60,12 +60,17 @@ pub fn get_ast(val: &str) -> std::result::Result<Node, Box<dyn Error>> {
 impl <'ast> Visit <'ast> for Node {
 
     fn visit_item_fn(&mut self, node: &'ast ItemFn){
+        // TODO: handle return type and input parameters
         let return_type = &node.sig.output;
         let input_param = &node.sig.inputs;
+        let params = Node::default();
+        let returnType = Node::default();
 
         // println!("{}", format!("{:#?}", &node.block.stmts));
-        self.nodeType = "functionDefinition".to_string();
+        self.nodeType = "FunctionDefinition".to_string();
         self.name = node.sig.ident.to_string();
+        //params.visit_fn_arg(input_param);
+        self.parameters.push(params);
 
         for s in &node.block.stmts {
             let mut stmt = Node::default();
@@ -75,7 +80,7 @@ impl <'ast> Visit <'ast> for Node {
     }
 
     fn visit_local(&mut self, node: &'ast Local){ // Let left = right;
-        self.nodeType = "local".to_string();
+        self.nodeType = "VariableDefinition".to_string();
 
         let mut definition = Node::default();
         definition.nodeType = "variableDefinition".to_string();
@@ -100,7 +105,10 @@ impl <'ast> Visit <'ast> for Node {
             }
             _=>{}
         }
-        self.operands.push(definition);
+        //self.type_ = ;
+        self.name = definition.name;
+        //self.operands.push(definition);
+        //self.expression = ;
 
         let init = &node.init; // the initial value
         match init{
@@ -110,7 +118,7 @@ impl <'ast> Visit <'ast> for Node {
                 assignment.nodeType = "variableAssignment".to_string();
                 assignment.visit_expr(&_e.1);
 
-                self.operands.push(assignment);
+                self.expression.push(assignment);
                 self.operator = "=".to_string();
             }
             None =>{}
@@ -152,6 +160,7 @@ impl <'ast> Visit <'ast> for Node {
     }
 
     fn visit_ident(&mut self, node: &'ast Ident){
+        self.nodeType = "NameExpression".to_string();
         self.name = node.to_string();
     }
 
@@ -172,7 +181,7 @@ impl <'ast> Visit <'ast> for Node {
                     self.visit_expr_array(_e);
                 }
                 Expr::Call(_e)=>{
-                    self.nodeType = "Call".to_string();
+                    self.nodeType = "FunctionCall".to_string();
                     self.visit_expr_call(_e);
                 }
                 Expr::MethodCall(_e)=>{
@@ -184,11 +193,11 @@ impl <'ast> Visit <'ast> for Node {
                     self.visit_expr_tuple(_e);
                 }
                 Expr::Binary(_e)=>{
-                    self.nodeType = "binaryExpression".to_string();
+                    self.nodeType = "DirectExpression".to_string();
                     self.visit_expr_binary(_e);
                 }
                 Expr::Unary(_e)=>{
-                    self.nodeType = "unaryExpression".to_string();
+                    self.nodeType = "DirectExpression".to_string();
                     self.visit_expr_unary(_e);
                 }
                 Expr::Lit(_e)=>{
@@ -196,7 +205,7 @@ impl <'ast> Visit <'ast> for Node {
                     self.visit_expr_lit(_e);
                 }
                 Expr::If(_e)=>{
-                    self.nodeType = "if".to_string();
+                    self.nodeType = "If".to_string();
                     self.visit_expr_if(_e);
                 }
                 Expr::Assign(_e)=>{
@@ -250,6 +259,7 @@ impl <'ast> Visit <'ast> for Node {
 
         left.visit_expr(&*node.left);
         self.operands.push(left);
+        self.arity = String::from("2");
 
         right.visit_expr(&*node.right);
         self.operands.push(right);
@@ -295,6 +305,7 @@ impl <'ast> Visit <'ast> for Node {
     }
 
     fn visit_expr_path(&mut self, node: &'ast ExprPath){
+        self.nodeType = "NameExpression".to_string();
         self.name = node.path.segments[0].ident.to_string();
     }
 
@@ -365,7 +376,7 @@ impl <'ast> Visit <'ast> for Node {
          match &node.else_branch{
              Some(_else)=>{
                  let (_t,_e) = _else;
-                 else_body.visit_expr(_e);
+                 else_body.visit_expr(_e); //TODO handle else clauses
              }
              None =>{}
          }
@@ -455,6 +466,7 @@ impl <'ast> Visit <'ast> for Node {
 
          function.nodeType = "dotExpression".to_string();
          right.name = node.method.to_string();
+         right.nodeType = "NameExpression".to_string();
          left.visit_expr(&node.receiver);
 
          function.right.push(right);
