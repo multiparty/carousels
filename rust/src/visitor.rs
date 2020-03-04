@@ -64,7 +64,6 @@ impl <'ast> Visit <'ast> for Node {
         // TODO: handle return type and input parameters
         let return_type = &node.sig.output;
         let input_param = &node.sig.inputs;
-        let params = Node::default();
         let returnType = Node::default();
         let mut nameExpression = Node::default();
 
@@ -74,8 +73,6 @@ impl <'ast> Visit <'ast> for Node {
         nameExpression.nodeType = "NameExpression".to_string();
         nameExpression.name_ = node.sig.ident.to_string();
         self.name.push(nameExpression);
-        //params.visit_fn_arg(input_param);
-        self.parameters.push(params);
 
         for inp in &node.sig.inputs{
             let mut input = Node::default();
