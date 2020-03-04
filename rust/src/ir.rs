@@ -18,7 +18,7 @@ pub struct Node{
     #[serde(skip_serializing_if = "String::is_empty")]
     pub type_: String,
     #[serde(skip_serializing_if = "String::is_empty")]
-    pub dependentType: String,
+    pub dependentType_: String,
     #[serde(skip_serializing_if = "String::is_empty")]
     pub nodeType: String,
     #[serde(skip_serializing_if = "String::is_empty")]
