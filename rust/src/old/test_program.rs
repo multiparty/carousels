@@ -26,18 +26,18 @@ fn merge_dedup<T, P>(a: &[Possession<T, P>], b: &[Possession<T, P>])
 -> Vec<Possession<T, P>>
 where T: Ord + Clone
 {
-    let alen = a.len();
-    let blen = b.len();
 
-    if alen < 1 { return b[0..blen].to_owned() }
-    if blen < 1 { return a[0..blen].to_owned() }
-
-    // NOTE: This is the only obliv if below.
-    if a[0] < b[0] {
-        merge_dedup(&a[1..alen], &b[0..blen]).concat(a[0].clone())
-    } else if a[0] > b[0] {
-        merge_dedup(&a[0..alen], &b[1..blen]).concat(b[0].clone())
-    } else {
-        merge_dedup(&a[0..alen], &b[1..blen])
-    }
 }
+
+
+// if alen < 1 { return b[0..blen].to_owned() }
+// if blen < 1 { return a[0..blen].to_owned() }
+//
+// // NOTE: This is the only obliv if below.
+// if a[0] < b[0] {
+//     merge_dedup(&a[1..alen], &b[0..blen]).concat(a[0].clone())
+// } else if a[0] > b[0] {
+//     merge_dedup(&a[0..alen], &b[1..blen]).concat(b[0].clone())
+// } else {
+//     merge_dedup(&a[0..alen], &b[1..blen])
+// }
