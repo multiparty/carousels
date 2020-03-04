@@ -15,7 +15,6 @@ pub fn get_ast_str_from_file(val: &str) -> std::result::Result<String, Box<dyn E
     let mut content = String::new();
 
     file.read_to_string(&mut content).unwrap();
-    println!("{}", content);
     let syntax = syn::parse_file(&content)?;
 
     let mut file = Node::default(); //highest node in the AST
@@ -49,7 +48,7 @@ pub fn get_ast(val: &str) -> std::result::Result<Node, Box<dyn Error>> {
     let mut content = String::new();
 
     file.read_to_string(&mut content).unwrap();
-    println!("{}", content);
+    //println!("{}", content);
     let syntax = syn::parse_file(&content)?;
 
     let mut file = Node::default(); //highest node in the AST
@@ -61,22 +60,45 @@ pub fn get_ast(val: &str) -> std::result::Result<Node, Box<dyn Error>> {
 impl <'ast> Visit <'ast> for Node {
 
     fn visit_item_fn(&mut self, node: &'ast ItemFn){
-        // println!("{}", format!("{:#?}", &node.sig.output));
-        self.nodeType = "functionDefinition".to_string();
-        self.name = node.sig.ident.to_string();
+        // TODO: handle return type and input parameters
+        let return_type = &node.sig.output;
+        let input_param = &node.sig.inputs;
+        let returnType = Node::default();
+        let mut nameNode = Node::default();
+
+        // println!("{}", format!("{:#?}", &node.block.stmts));
+        self.nodeType = "FunctionDefinition".to_string();
+
+        nameNode.nodeType = "NameExpression".to_string();
+        nameNode.name = node.sig.ident.to_string();
+        self.nameNode.push(nameNode);
 
         for inp in &node.sig.inputs{
             let mut input = Node::default();
             match inp{
                 FnArg::Receiver(_r)=>{
-                    input.name = "self".to_string();
-                    input.type_ = "any".to_string();
+                    let mut inputName = Node::default();
+                    inputName.nodeType = "NameExpression".to_string();
+                    inputName.name = "self".to_string();
+
+                    input.nameNode.push(inputName);
+
+                    let mut typeNode = Node::default();
+                    typeNode.nodeType = "TypeNode".to_string();
+                    typeNode.type_ = "any".to_string();
+
+                    input.typeNode.push(typeNode);
                 }
                 FnArg::Typed(_t)=>{
                     input.visit_pat(&_t.pat);
-                    input.visit_type(&_t.ty);
+
+                    let mut typeNode = Node::default();
+                    typeNode.nodeType = "TypeNode".to_string();
+                    typeNode.visit_type(&_t.ty);
+                    input.typeNode.push(typeNode);
                 }
             }
+            input.nodeType = "VariableDefinition".to_string();
 
             self.parameters.push(input);
         }
@@ -84,7 +106,7 @@ impl <'ast> Visit <'ast> for Node {
         match &node.sig.output {
             ReturnType::Type(_ , _t)=>{
                 let mut returnType = Node::default();
-                returnType.nodeType = "type".to_string();
+                returnType.nodeType = "TypeNode".to_string();
                 returnType.visit_type(_t);
                 self.returnType.push(returnType);
             }
@@ -99,16 +121,20 @@ impl <'ast> Visit <'ast> for Node {
     }
 
     fn visit_local(&mut self, node: &'ast Local){ // Let left = right;
-        self.nodeType = "variableDefinition".to_string();
+        self.nodeType = "VariableDefinition".to_string();
 
         let ident = &node.pat; // the variable declared
         match ident{
             Pat::Ident(_p)=>{
-                self.type_  = "variable".to_string();
+                let mut typeNode = Node::default();
+                typeNode.type_  = "variable".to_string();
+                self.typeNode.push(typeNode);
                 self.visit_ident(&_p.ident);
             }
             Pat::Tuple(_t)=>{
-                self.type_ = "tuple".to_string();
+                let mut typeNode = Node::default();
+                typeNode.type_  = "tuple".to_string();
+                self.typeNode.push(typeNode);
 
                 let mut right = Node::default();
                 let mut left = Node::default();
@@ -121,7 +147,12 @@ impl <'ast> Visit <'ast> for Node {
             }
             Pat::Type(_t)=>{
                 self.visit_pat(&_t.pat);
-                self.visit_type(&_t.ty);
+
+                let mut typeNode = Node::default();
+                typeNode.type_  = "variable".to_string();
+                typeNode.visit_type(&_t.ty);
+
+                self.typeNode.push(typeNode);
             }
             _=>{}
         }
@@ -134,7 +165,7 @@ impl <'ast> Visit <'ast> for Node {
                 assignment.nodeType = "variableAssignment".to_string();
                 assignment.visit_expr(&_e.1);
 
-                self.operands.push(assignment);
+                self.expression.push(assignment);
                 self.operator = "=".to_string();
             }
             None =>{}
@@ -145,9 +176,9 @@ impl <'ast> Visit <'ast> for Node {
         // println!("{}", format!("{:#?}", &node));
         match node{
             Type::Array(_a)=>{
-                self.dependentType.push_str(&"[".to_string());
+                self.dependentType_.push_str(&"[".to_string());
                 self.visit_type(&_a.elem);
-                self.dependentType.push_str(&"]".to_string());
+                self.dependentType_.push_str(&"]".to_string());
 
                 let mut length = Node::default();
                 length.nodeType = "length".to_string();
@@ -158,20 +189,20 @@ impl <'ast> Visit <'ast> for Node {
                 self.visit_path(&_p.path);
             }
             Type::Ptr(_ptr)=>{
-                self.dependentType.push_str(&"*".to_string());
+                self.dependentType_.push_str(&"*".to_string());
                 self.visit_type(&_ptr.elem);
             }
             Type::Reference(_r)=>{
-                self.dependentType.push_str(&"&".to_string());
+                self.dependentType_.push_str(&"&".to_string());
                 self.visit_type(&_r.elem);
             }
             Type::Slice(_s)=>{
-                self.dependentType.push_str(&"[".to_string());
+                self.dependentType_.push_str(&"[".to_string());
                 self.visit_type(&_s.elem);
-                self.dependentType.push_str(&"]".to_string());
+                self.dependentType_.push_str(&"]".to_string());
             }
             Type::Verbatim(_v)=>{
-                self.dependentType.push_str(&_v.to_string());
+                self.dependentType_.push_str(&_v.to_string());
             }
             _=>{}
         }
@@ -189,10 +220,10 @@ impl <'ast> Visit <'ast> for Node {
         for ps in node.segments.iter(){
 
             let ident = ps.ident.to_string();
-            self.dependentType.push_str(&ident);
+            self.dependentType_.push_str(&ident);
 
             if ident == "Possession"{
-                self.secret = "true".to_string();
+                self.secret = true;
             }
 
             if self.type_.is_empty(){
@@ -216,7 +247,7 @@ impl <'ast> Visit <'ast> for Node {
             match &ps.arguments{
                 PathArguments::AngleBracketed(_a)=>{
 
-                self.dependentType.push_str(&"<".to_string());
+                self.dependentType_.push_str(&"<".to_string());
 
                     for _arg in _a.args.iter(){
                         match _arg {
@@ -226,14 +257,14 @@ impl <'ast> Visit <'ast> for Node {
                             GenericArgument::Binding(_b)=>{
                                 let identb = _b.ident.to_string();
                                 if identb == "Possession"{
-                                    self.secret = "true".to_string();
+                                    self.secret = true;
                                 }
                                 self.visit_type(&_b.ty);
                             }
                             GenericArgument::Constraint(_c)=>{
                                 let identc = _c.ident.to_string();
                                 if identc == "Possession"{
-                                    self.secret = "true".to_string();
+                                    self.secret = true;
                                 }
                                 for b in _c.bounds.iter(){
                                     match b{
@@ -246,33 +277,33 @@ impl <'ast> Visit <'ast> for Node {
                             }
                             _=>{}
                         }
-                        self.dependentType.push_str(&",".to_string());
+                        self.dependentType_.push_str(&",".to_string());
                     }
-                    self.dependentType.pop();
-                    self.dependentType.push_str(&">".to_string());
+                    self.dependentType_.pop();
+                    self.dependentType_.push_str(&">".to_string());
                 }
                 PathArguments::Parenthesized(_p)=>{
                     let mut inputType = Node::default();
                     inputType.nodeType = "inputType".to_string();
-                    inputType.dependentType.push_str(&"(".to_string());
+                    inputType.dependentType_.push_str(&"(".to_string());
 
                     for inp in _p.inputs.iter(){
                         inputType.visit_type(inp);
-                        inputType.dependentType.push_str(&",".to_string());
+                        inputType.dependentType_.push_str(&",".to_string());
                     }
-                    inputType.dependentType.pop();
-                    inputType.dependentType.push_str(&")".to_string());
+                    inputType.dependentType_.pop();
+                    inputType.dependentType_.push_str(&")".to_string());
 
-                    self.dependentType.push_str(&inputType.dependentType);
+                    self.dependentType_.push_str(&inputType.dependentType_);
 
                     match &_p.output{
                         ReturnType::Type(_, _t)=>{
                             let mut outputType = Node::default();
-                            outputType.nodeType = "type".to_string();
+                            outputType.nodeType = "TypeNode".to_string();
                             outputType.visit_type(_t);
 
-                            self.dependentType.push_str(&"->".to_string());
-                            self.dependentType.push_str(&outputType.dependentType.clone());
+                            self.dependentType_.push_str(&"->".to_string());
+                            self.dependentType_.push_str(&outputType.dependentType_.clone());
                             self.returnType.push(outputType);
                         }
                         _=>{}
@@ -302,11 +333,11 @@ impl <'ast> Visit <'ast> for Node {
                self.value = _ch.value().to_string();
            }
            Lit::Int(_i)=>{
-               self.type_ = "int".to_string();
+               self.type_ = "number".to_string();
                self.value = _i.base10_digits().to_string();
            }
            Lit::Float(_f) =>{
-               self.type_ = "float".to_string();
+               self.type_ = "number".to_string();
                self.value = _f.base10_digits().to_string();
            }
            Lit::Bool(_bo)=>{
@@ -318,7 +349,11 @@ impl <'ast> Visit <'ast> for Node {
     }
 
     fn visit_ident(&mut self, node: &'ast Ident){
-        self.name = node.to_string();
+        let mut nameNode = Node::default();
+        nameNode.nodeType = "NameExpression".to_string();
+        nameNode.name = node.to_string();
+
+        self.nameNode.push(nameNode);
     }
 
     fn visit_member(&mut self, node: &'ast Member){
@@ -330,19 +365,19 @@ impl <'ast> Visit <'ast> for Node {
 
 // //////////////////////////Expressions/////////////////////////////////////
 
-fn visit_expr(&mut self, node: &'ast Expr){
+    fn visit_expr(&mut self, node: &'ast Expr){
 
-    match node {
+        match node {
             Expr::Array(_e)=>{
                 self.nodeType = "array".to_string();
                 self.visit_expr_array(_e);
             }
             Expr::Call(_e)=>{
-                self.nodeType = "Call".to_string();
+                self.nodeType = "FunctionCall".to_string();
                 self.visit_expr_call(_e);
             }
             Expr::MethodCall(_e)=>{
-                self.nodeType = "functionCall".to_string();
+                self.nodeType = "FunctionCall".to_string();
                 self.visit_expr_method_call(_e);
             }
             Expr::Tuple(_e)=>{
@@ -350,25 +385,62 @@ fn visit_expr(&mut self, node: &'ast Expr){
                 self.visit_expr_tuple(_e);
             }
             Expr::Binary(_e)=>{
-                self.nodeType = "binaryExpression".to_string();
+                self.nodeType = "DirectExpression".to_string();
                 self.visit_expr_binary(_e);
             }
             Expr::Unary(_e)=>{
-                self.nodeType = "unaryExpression".to_string();
+                self.nodeType = "DirectExpression".to_string();
                 self.visit_expr_unary(_e);
             }
             Expr::Lit(_e)=>{
-                self.nodeType = "literalExpression".to_string();
+                self.nodeType = "LiteralExpression".to_string();
                 self.visit_expr_lit(_e);
             }
             Expr::If(_e)=>{
-                self.nodeType = "if".to_string();
+                self.nodeType = "If".to_string();
                 self.visit_expr_if(_e);
             }
             Expr::Assign(_e)=>{
-                self.nodeType = "variableAssignment".to_string();
+                self.nodeType = "VariableAssignment".to_string();
                 self.visit_expr_assign(_e);
             }
+            Expr::Field(_e)=>{
+                self.nodeType = "DotExpression".to_string();
+                self.visit_expr_field(_e);
+            }
+            Expr::Index(_e)=>{
+                self.nodeType = "indexExpression".to_string();
+                self.visit_expr_index(_e);
+            }
+            Expr::Range(_e)=>{
+                self.nodeType = "rangeExpression".to_string();
+                self.visit_expr_range(_e);
+            }
+            Expr::ForLoop(_e)=>{
+                self.nodeType = "for".to_string();
+                self.visit_expr_for_loop(_e);
+            }
+            Expr::Return(_e)=>{
+                self.nodeType = "returnExpression".to_string();
+                self.visit_expr_return(_e);
+            }
+            Expr::Paren(_e)=>{
+                self.nodeType = "parenthesisExpression".to_string();
+                self.visit_expr_paren(_e);
+            }
+            Expr::Path(_e)=>{
+
+                self.visit_expr_path(_e);
+            }
+            Expr::Macro(_m)=>{
+                self.nodeType = "macro".to_string();
+                self.visit_expr_macro(_m);
+            }
+            Expr::Block(_e)=>{
+                self.nodeType = "ExpressionBlock".to_string();
+                self.visit_expr_block(_e);
+            }
+
             Expr::Field(_e)=>{
                 self.nodeType = "dotExpression".to_string();
                 self.visit_expr_field(_e);
@@ -411,6 +483,7 @@ fn visit_expr(&mut self, node: &'ast Expr){
 
         left.visit_expr(&*node.left);
         self.operands.push(left);
+        self.arity = String::from("2");
 
         right.visit_expr(&*node.right);
         self.operands.push(right);
@@ -456,22 +529,20 @@ fn visit_expr(&mut self, node: &'ast Expr){
     }
 
     fn visit_expr_path(&mut self, node: &'ast ExprPath){
-        self.name = node.path.segments[0].ident.to_string();
+        self.nodeType = "NameExpression".to_string();
+        for seg in &node.path.segments{
+            self.name.push_str(&seg.ident.to_string());
+        }
     }
 
      fn visit_expr_assign(&mut self, node: &'ast ExprAssign){
-         let mut left = Node::default();
          let mut right = Node::default();
 
-         left.visit_expr(&node.left);
+         self.visit_expr(&node.left);
          right.visit_expr(&node.right);
 
-         left.value = right.value.clone();
-         right.name = left.name.clone();
-
          self.operator = "=".to_string();
-         self.operands.push(left);
-         self.operands.push(right);
+         self.expression.push(right);
 
      }
 
@@ -526,7 +597,7 @@ fn visit_expr(&mut self, node: &'ast Expr){
          match &node.else_branch{
              Some(_else)=>{
                  let (_t,_e) = _else;
-                 else_body.visit_expr(_e);
+                 else_body.visit_expr(_e); //TODO handle else clauses
              }
              None =>{}
          }
@@ -565,7 +636,13 @@ fn visit_expr(&mut self, node: &'ast Expr){
      }
 
      fn visit_expr_macro(&mut self, node: &'ast ExprMacro){ //TODO: check values you can pass to a macro
-         self.name = node.mac.path.segments[0].ident.to_string();
+         let mut nameNode = Node::default();
+         nameNode.nodeType = "NameExpression".to_string();
+
+         for seg in &node.mac.path.segments{
+             nameNode.name.push_str(&seg.ident.to_string());
+         }
+         self.nameNode.push(nameNode);
          self.value = node.mac.tokens.to_string();
      }
 
@@ -610,15 +687,16 @@ fn visit_expr(&mut self, node: &'ast Expr){
      fn visit_expr_method_call(&mut self, node: &'ast ExprMethodCall){
          let mut function = Node::default();
          let mut left = Node::default();
-         let mut right = Node::default();
+         let mut nameNode = Node::default();
          let mut parameters = Node::default();
 
 
          function.nodeType = "dotExpression".to_string();
-         right.name = node.method.to_string();
+         nameNode.nodeType = "NameExpression".to_string();
+         nameNode.name = node.method.to_string();
          left.visit_expr(&node.receiver);
 
-         function.right.push(right);
+         function.nameNode.push(nameNode);
          function.left.push(left);
 
          self.function.push(function);
