@@ -58,7 +58,7 @@ function get_rec_def(recurance, conditions) {
   const [fc, f_c] = math.parse(conditions.split('='));  // f(c)
   const c = fc.args[0];
 
-  // Eg. f     (  n      ) = iff(  n      ,   n      >  1  , "f(n/2)+1",   1    )
+  // Eg. f     (    n    ) = iff(    n    ,     n    >=  1  , "f(n/2)+1",    0   )
   return name+'('+param+') = iff('+param+', '+param+'>='+c+', "'+expr+'", '+f_c+')';
 }
 
@@ -71,7 +71,7 @@ parser.set('iff', function (n, above_base_case, thunk_f, base_val) {
 
 // g and f are supposed to be the same function
 const f = parser.evaluate(get_rec_def('h(n) = h(n/2)+1', 'h(1) = 0'));
-const g = parser.evaluate('g(n) = iff(n, n>1, "g(n/2)+1", 1)');
+const g = parser.evaluate('g(n) = iff(n, n>=1, "g(n/2)+1", 0)');
 
 console.log(f(8));
 console.log(g(8));
