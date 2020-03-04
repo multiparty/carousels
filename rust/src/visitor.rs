@@ -21,7 +21,7 @@ pub fn get_ast_str_from_file(val: &str) -> std::result::Result<String, Box<dyn E
     file.visit_file(&syntax);
 
     match serde_json::to_string_pretty(&file){
-        Ok(_v)=>{Ok(_v.replace("name_","name").replace("type_", "type"))},
+        Ok(_v)=>{Ok(_v)},
         Err(_e)=>{Ok("Error serializing".to_string())},
     }
 
@@ -82,11 +82,20 @@ impl <'ast> Visit <'ast> for Node {
                     inputName.name_ = "self".to_string();
 
                     input.name.push(inputName);
-                    input.type_ = "any".to_string();
+
+                    let mut typeNode = Node::default();
+                    typeNode.nodeType = "TypeNode".to_string();
+                    typeNode.type_ = "any".to_string();
+
+                    input.typeNode.push(typeNode);
                 }
                 FnArg::Typed(_t)=>{
                     input.visit_pat(&_t.pat);
-                    input.visit_type(&_t.ty);
+
+                    let mut typeNode = Node::default();
+                    typeNode.nodeType = "TypeNode".to_string();
+                    typeNode.visit_type(&_t.ty);
+                    input.typeNode.push(typeNode);
                 }
             }
             input.nodeType = "VariableDefinition".to_string();
@@ -117,11 +126,15 @@ impl <'ast> Visit <'ast> for Node {
         let ident = &node.pat; // the variable declared
         match ident{
             Pat::Ident(_p)=>{
-                self.type_  = "variable".to_string();
+                let mut typeNode = Node::default();
+                typeNode.type_  = "variable".to_string();
+                self.typeNode.push(typeNode);
                 self.visit_ident(&_p.ident);
             }
             Pat::Tuple(_t)=>{
-                self.type_ = "tuple".to_string();
+                let mut typeNode = Node::default();
+                typeNode.type_  = "tuple".to_string();
+                self.typeNode.push(typeNode);
 
                 let mut right = Node::default();
                 let mut left = Node::default();
@@ -134,7 +147,12 @@ impl <'ast> Visit <'ast> for Node {
             }
             Pat::Type(_t)=>{
                 self.visit_pat(&_t.pat);
-                self.visit_type(&_t.ty);
+
+                let mut typeNode = Node::default();
+                typeNode.type_  = "variable".to_string();
+                typeNode.visit_type(&_t.ty);
+
+                self.typeNode.push(typeNode);
             }
             _=>{}
         }
@@ -205,7 +223,7 @@ impl <'ast> Visit <'ast> for Node {
             self.dependentType_.push_str(&ident);
 
             if ident == "Possession"{
-                self.secret = "true".to_string();
+                self.secret = true;
             }
 
             if self.type_.is_empty(){
@@ -239,14 +257,14 @@ impl <'ast> Visit <'ast> for Node {
                             GenericArgument::Binding(_b)=>{
                                 let identb = _b.ident.to_string();
                                 if identb == "Possession"{
-                                    self.secret = "true".to_string();
+                                    self.secret = true;
                                 }
                                 self.visit_type(&_b.ty);
                             }
                             GenericArgument::Constraint(_c)=>{
                                 let identc = _c.ident.to_string();
                                 if identc == "Possession"{
-                                    self.secret = "true".to_string();
+                                    self.secret = true;
                                 }
                                 for b in _c.bounds.iter(){
                                     match b{
