@@ -333,11 +333,11 @@ impl <'ast> Visit <'ast> for Node {
                self.value = _ch.value().to_string();
            }
            Lit::Int(_i)=>{
-               self.type_ = "int".to_string();
+               self.type_ = "number".to_string();
                self.value = _i.base10_digits().to_string();
            }
            Lit::Float(_f) =>{
-               self.type_ = "float".to_string();
+               self.type_ = "number".to_string();
                self.value = _f.base10_digits().to_string();
            }
            Lit::Bool(_bo)=>{
@@ -529,13 +529,10 @@ impl <'ast> Visit <'ast> for Node {
     }
 
     fn visit_expr_path(&mut self, node: &'ast ExprPath){
-        let mut nameNode = Node::default();
-        nameNode.nodeType = "nameNode".to_string();
-
+        self.nodeType = "nameNode".to_string();
         for seg in &node.path.segments{
-            nameNode.name.push_str(&seg.ident.to_string());
+            self.name.push_str(&seg.ident.to_string());
         }
-        self.nameNode.push(nameNode);
     }
 
      fn visit_expr_assign(&mut self, node: &'ast ExprAssign){
