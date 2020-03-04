@@ -5,7 +5,8 @@ const ALLOWED_NODES = {
   typing: ['FunctionCall', 'DotExpression', 'NameExpression', 'DirectExpression']
 };
 
-function RuleBook(rules, _type) {
+function RuleBook(analyzer, rules, _type) {
+  this.analyzer = analyzer;
   this.rules = {};
 
   for (let i = 0; i < rules.length; i++) {

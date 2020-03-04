@@ -20,10 +20,7 @@ function Type(dataType, secret, dependentType) {
 }
 Type.prototype.toString = function () { // used for regex matching against cost rules
   const dependentTypeString = this.hasDependentType() ? this.dependentType.toString() : '';
-  const secretString = this.secret ? ',secret:true' : '';
-  const preambleString = this.secret ? 'type:' : '';
-
-  return '<' + preambleString + this.dataType.toLowerCase() + dependentTypeString + secretString + '>';
+  return '<type:' + this.dataType.toLowerCase() + dependentTypeString + ',secret:' + this.secret + '>';
 };
 Type.prototype.hasDependentType = function (prop) {
   return this.dependentType != null && (prop == null || this.dependentType[prop] == null);
@@ -68,9 +65,9 @@ Type.prototype.combine = function (otherType, dependentCombiner) {
       return new Type(TYPE_ENUM.ARRAY, this.secret, new ArrayDependentType(dependentDataType, combinedLength));
     }
 
-    if (this.dataType === TYPE_ENUM.NUMBER) {
+    if (this.dataType === TYPE_ENUM.NUMBER || this.dataType === TYPE_ENUM.BOOLEAN) {
       const combinedValue = dependentCombiner(this.dependentType.value, otherType.dependentType.value);
-      return new Type(TYPE_ENUM.NUMBER, this.secret, new NumberDependentType(combinedValue));
+      return new Type(this.dataType, this.secret, new ValueDependentType(combinedValue));
     }
   }
 
@@ -92,16 +89,16 @@ Type.fromTypeNode = function (pathStr, typeNode, dependentType) {
         parameters = parameters.concat(nestedType.parameters);
         dependentType = new ArrayDependentType(nestedType.type, lengthParameter.mathSymbol);
       } else { // TODO: right now arrays are of numbers by default! remove this default in the future
-        const valueParameter = Parameter.forNumberValue(pathStr + '[dependentType]');
+        const valueParameter = Parameter.forValue(pathStr + '[dependentType]');
         parameters.push(valueParameter);
         dependentType = new ArrayDependentType(new Type(TYPE_ENUM.NUMBER, secret, valueParameter.mathSymbol), lengthParameter.mathSymbol);
       }
     }
 
-    if (type === TYPE_ENUM.NUMBER) {
-      const valueParameter = Parameter.forNumberValue(pathStr);
+    if (type === TYPE_ENUM.NUMBER || type === TYPE_ENUM.BOOLEAN) {
+      const valueParameter = Parameter.forValue(pathStr);
       parameters.push(valueParameter);
-      dependentType = new NumberDependentType(valueParameter.mathSymbol);
+      dependentType = new ValueDependentType(valueParameter.mathSymbol);
     }
   }
 
@@ -112,13 +109,13 @@ Type.fromTypeNode = function (pathStr, typeNode, dependentType) {
 };
 
 // All dependent types must have this interface (constructors can differ)
-function NumberDependentType(value) {
+function ValueDependentType(value) {
   this.value = value;
 }
-NumberDependentType.prototype.compatible = function (dataType) {
-  return dataType === TYPE_ENUM.NUMBER;
+ValueDependentType.prototype.compatible = function (dataType) {
+  return dataType === TYPE_ENUM.NUMBER || dataType === TYPE_ENUM.BOOLEAN;
 };
-NumberDependentType.prototype.toString = function () {
+ValueDependentType.prototype.toString = function () {
   return '<value:' + this.value + '>';
 };
 
@@ -156,7 +153,7 @@ FunctionType.prototype.getDependentParameters = function () {
     let dependentParameter = null;
     if (parameterType.is(TYPE_ENUM.ARRAY)) {
       dependentParameter = parameterType.dependentType.length;
-    } else if (parameterType.is(TYPE_ENUM.NUMBER)) {
+    } else if (parameterType.is(TYPE_ENUM.NUMBER) || parameterType.is(TYPE_ENUM.BOOLEAN)) {
       dependentParameter = parameterType.dependentType.value;
     }
     symbols.push(dependentParameter);
@@ -170,6 +167,6 @@ module.exports = {
   UNIT_TYPE: new Type(TYPE_ENUM.UNIT, false),
   Type: Type,
   FunctionType: FunctionType,
-  NumberDependentType: NumberDependentType,
+  ValueDependentType: ValueDependentType,
   ArrayDependentType: ArrayDependentType
 };

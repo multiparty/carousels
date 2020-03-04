@@ -19,8 +19,8 @@ Parameter.forArrayLength = function (arrayName) {
   const symbol = 'n' + (PARAMETER_COUNTER++);
   return new Parameter(symbol, description);
 };
-Parameter.forNumberValue = function (variableName) {
-  const description = 'The value of number variable "' + variableName + '"';
+Parameter.forValue = function (variableName) {
+  const description = 'The value of variable "' + variableName + '"';
   const symbol = 'v' + (PARAMETER_COUNTER++);
   return new Parameter(symbol, description);
 };

@@ -6,24 +6,16 @@ const emptyArgs = function (_arguments) {
   return _arguments.length === 0 || _arguments[0] == null;
 };
 
-const add = function () {
-  if (emptyArgs(arguments)) {
-    return ZERO;
-  }
-  if (arguments.length === 1) {
-    return arguments[0];
-  }
-  return new mathjs.OperatorNode('+', 'add', Array.from(arguments));
-};
-
-const multiply = function () {
-  if (emptyArgs(arguments)) {
-    return ZERO;
-  }
-  if (arguments.length === 1) {
-    return arguments[0];
-  }
-  return new mathjs.OperatorNode('*', 'multiply', Array.from(arguments));
+const operatorNode = function (operator, description, identity) {
+  return function () {
+    if (emptyArgs(arguments)) {
+      return identity;
+    }
+    if (arguments.length === 1) {
+      return arguments[0];
+    }
+    return new mathjs.OperatorNode(operator, description, Array.from(arguments));
+  };
 };
 
 const max = function () {
@@ -43,8 +35,18 @@ const iff = function (condition, ifVal, elseVal) {
 module.exports = {
   parse: mathjs.parse,
   ZERO: ZERO,
-  add: add,
-  multiply: multiply,
+  add: operatorNode('+', 'add', ZERO),
+  sub: operatorNode('-', 'subtract', ZERO),
+  multiply: operatorNode('*', 'multiply', ZERO),
+  div: operatorNode('/', 'divide', ZERO),
+  gt: operatorNode('>', 'larger', ZERO),
+  lt: operatorNode('<', 'smaller', ZERO),
+  gte: operatorNode('>=', 'largerEq', ZERO),
+  lte: operatorNode('<=', 'smallerEq', ZERO),
+  eq: operatorNode('==', 'equal', ZERO),
+  neq: operatorNode('!=', 'Unequal', ZERO),
+  not: operatorNode('not', 'not', ZERO),
   max: max,
   iff: iff
 };
+// https://mathjs.org/docs/expressions/syntax.html
