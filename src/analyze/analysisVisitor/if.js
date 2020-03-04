@@ -1,9 +1,17 @@
 const carouselsTypes = require('../symbols/types.js');
 const math = require('../math.js');
 
+const ListNodesVisitor = require('../helperVisitors/listNode.js');
+const StringifyVisitor = require('../helperVisitors/stringify.js');
+
+const ALLOWED_IN_CONDITION = ['DirectExpression', 'NameExpression', 'LiteralExpression', 'DotExpression', 'FunctionCall'];
+const listNodesVisitor = new ListNodesVisitor();
+const stringifyVisitor = new StringifyVisitor();
+
 const dependentIfCombiner = function (condition, ifVal, elseVal) {
-  if (condition.isNice) { // TODO
-    return math.iff(condition, ifVal, elseVal);
+  if (listNodesVisitor.containsOnly(condition, ALLOWED_IN_CONDITION)) {
+    const conditionExpressionString = math.parse(stringifyVisitor.start(condition));
+    return math.iff(conditionExpressionString, ifVal, elseVal);
   } else {
     return math.max(ifVal, elseVal);
   }
@@ -23,7 +31,7 @@ const If = function (node, pathStr) {
   // the if and else bodies
   const ifType = ifResult.type;
   const elseType = elseResult.type;
-  const type = ifType.combine(elseType, dependentIfCombiner.bind(this, condition)); // TODO
+  const type = ifType.combine(elseType, dependentIfCombiner.bind(this, condition));
 
   // aggregate children's metrics
   const childrenTypes = {

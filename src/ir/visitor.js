@@ -42,7 +42,7 @@ IRVisitor.prototype.visit = function (node, args) {
   } catch (error) {
     if (!error.__visited) {
       error.message = 'Error occured in carousels while parsing "'
-        + (node.nodeType != null ? node.nodeType : 'Sequence')
+        + (node.nodeType != null ? node.nodeType : (Array.isArray(node) ? 'Sequence' : JSON.stringify(node)))
         + '" node with args "' + args + '"\n'
         + error.message;
       error.__visited = true;

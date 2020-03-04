@@ -111,8 +111,14 @@
             "nodeType": "FunctionCall",
             "function": {
               "nodeType": "DotExpression",
-              "left": "a",
-              "right": "len"
+              "left": {
+                "nodeType": "NameExpression",
+                "name": "a"
+              },
+              "right": {
+                "nodeType": "NameExpression",
+                "name": "len"
+              }
             },
             "parameters": []
           }
@@ -174,20 +180,14 @@
             "nodeType": "FunctionCall",
             "function": {
               "nodeType": "NameExpression",
-              "name":  {
-                "nodeType": "NameExpression",
-                "name": "merge_dedup"
-              }
+              "name": "merge_dedup"
             },
             "parameters": [
               {
                 "nodeType": "FunctionCall",
                 "function": {
                   "nodeType": "NameExpression",
-                  "name":  {
-                    "nodeType": "NameExpression",
-                    "name": "merge_sort_dedup"
-                  }
+                  "name": "merge_sort_dedup"
                 },
                 "parameters": [
                   {
@@ -199,11 +199,11 @@
                     "range": {
                       "nodeType": "RangeExpression",
                       "start": {
-                        "type": "LiteralExpression",
+                        "nodeType": "LiteralExpression",
                         "value": 0
                       },
                       "end": {
-                        "type": "NameExpression",
+                        "nodeType": "NameExpression",
                         "name": "m"
                       }
                     }

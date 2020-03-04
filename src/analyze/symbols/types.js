@@ -74,7 +74,7 @@ Type.prototype.combine = function (otherType, dependentCombiner) {
     }
   }
 
-  return new Type(this.dataType, this.secret);
+  return new Type(this.dataType, this.secret, this.dependentType);
 };
 Type.fromTypeNode = function (pathStr, typeNode, dependentType) {
   const type = typeNode.type.toUpperCase();

@@ -4,7 +4,7 @@ function TemplateVisitor(namedArgs) {
 }
 
 // inherit IRVisitor
-TemplateVisitor.prototype = Object.create(IRVisitor);
+TemplateVisitor.prototype = Object.create(IRVisitor.prototype);
 
 // Override visit functions
 TemplateVisitor.prototype.visitTypeNode = function (node, args) {
