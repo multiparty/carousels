@@ -22,7 +22,7 @@ pub fn get_ast_str_from_file(val: &str) -> std::result::Result<String, Box<dyn E
     file.visit_file(&syntax);
 
     match serde_json::to_string_pretty(&file){
-        Ok(_v)=>{Ok(_v)},
+        Ok(_v)=>{Ok(_v.replace("name_","name").replace("type_", "type"))},
         Err(_e)=>{Ok("Error serializing".to_string())},
     }
 
