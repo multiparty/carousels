@@ -92,7 +92,7 @@ impl <'ast> Visit <'ast> for Node {
         match &node.sig.output {
             ReturnType::Type(_ , _t)=>{
                 let mut returnType = Node::default();
-                returnType.nodeType = "type".to_string();
+                returnType.nodeType = "TypeNode".to_string();
                 returnType.visit_type(_t);
                 self.returnType.push(returnType);
             }
@@ -276,7 +276,7 @@ impl <'ast> Visit <'ast> for Node {
                     match &_p.output{
                         ReturnType::Type(_, _t)=>{
                             let mut outputType = Node::default();
-                            outputType.nodeType = "type".to_string();
+                            outputType.nodeType = "TypeNode".to_string();
                             outputType.visit_type(_t);
 
                             self.dependentType.push_str(&"->".to_string());
@@ -367,7 +367,7 @@ impl <'ast> Visit <'ast> for Node {
                 self.visit_expr_unary(_e);
             }
             Expr::Lit(_e)=>{
-                self.nodeType = "literalExpression".to_string();
+                self.nodeType = "LiteralExpression".to_string();
                 self.visit_expr_lit(_e);
             }
             Expr::If(_e)=>{
@@ -375,11 +375,11 @@ impl <'ast> Visit <'ast> for Node {
                 self.visit_expr_if(_e);
             }
             Expr::Assign(_e)=>{
-                self.nodeType = "variableAssignment".to_string();
+                self.nodeType = "VariableAssignment".to_string();
                 self.visit_expr_assign(_e);
             }
             Expr::Field(_e)=>{
-                self.nodeType = "dotExpression".to_string();
+                self.nodeType = "DotExpression".to_string();
                 self.visit_expr_field(_e);
             }
             Expr::Index(_e)=>{
