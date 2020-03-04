@@ -69,7 +69,7 @@ impl <'ast> Visit <'ast> for Node {
         // println!("{}", format!("{:#?}", &node.block.stmts));
         self.nodeType = "FunctionDefinition".to_string();
 
-        nameNode.nodeType = "nameExpression".to_string();
+        nameNode.nodeType = "NameExpression".to_string();
         nameNode.name = node.sig.ident.to_string();
         self.nameNode.push(nameNode);
 
@@ -78,7 +78,7 @@ impl <'ast> Visit <'ast> for Node {
             match inp{
                 FnArg::Receiver(_r)=>{
                     let mut inputName = Node::default();
-                    inputName.nodeType = "nameExpression".to_string();
+                    inputName.nodeType = "NameExpression".to_string();
                     inputName.name = "self".to_string();
 
                     input.nameNode.push(inputName);
@@ -350,7 +350,7 @@ impl <'ast> Visit <'ast> for Node {
 
     fn visit_ident(&mut self, node: &'ast Ident){
         let mut nameNode = Node::default();
-        nameNode.nodeType = "nameExpression".to_string();
+        nameNode.nodeType = "NameExpression".to_string();
         nameNode.name = node.to_string();
 
         self.nameNode.push(nameNode);
@@ -529,7 +529,7 @@ impl <'ast> Visit <'ast> for Node {
     }
 
     fn visit_expr_path(&mut self, node: &'ast ExprPath){
-        self.nodeType = "nameExpression".to_string();
+        self.nodeType = "NameExpression".to_string();
         for seg in &node.path.segments{
             self.name.push_str(&seg.ident.to_string());
         }
@@ -637,7 +637,7 @@ impl <'ast> Visit <'ast> for Node {
 
      fn visit_expr_macro(&mut self, node: &'ast ExprMacro){ //TODO: check values you can pass to a macro
          let mut nameNode = Node::default();
-         nameNode.nodeType = "nameExpression".to_string();
+         nameNode.nodeType = "NameExpression".to_string();
 
          for seg in &node.mac.path.segments{
              nameNode.name.push_str(&seg.ident.to_string());
@@ -692,7 +692,7 @@ impl <'ast> Visit <'ast> for Node {
 
 
          function.nodeType = "dotExpression".to_string();
-         nameNode.nodeType = "nameExpression".to_string();
+         nameNode.nodeType = "NameExpression".to_string();
          nameNode.name = node.method.to_string();
          left.visit_expr(&node.receiver);
 
