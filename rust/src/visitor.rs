@@ -66,10 +66,14 @@ impl <'ast> Visit <'ast> for Node {
         let input_param = &node.sig.inputs;
         let params = Node::default();
         let returnType = Node::default();
+        let mut nameExpression = Node::default();
 
         // println!("{}", format!("{:#?}", &node.block.stmts));
         self.nodeType = "FunctionDefinition".to_string();
-        self.name = node.sig.ident.to_string();
+
+        nameExpression.nodeType = "NameExpression".to_string();
+        nameExpression.name_ = node.sig.ident.to_string();
+        self.name.push(nameExpression);
         //params.visit_fn_arg(input_param);
         self.parameters.push(params);
 
@@ -77,7 +81,11 @@ impl <'ast> Visit <'ast> for Node {
             let mut input = Node::default();
             match inp{
                 FnArg::Receiver(_r)=>{
-                    input.name = "self".to_string();
+                    let mut inputName = Node::default();
+                    inputName.nodeType = "NameExpression".to_string();
+                    inputName.name_ = "self".to_string();
+
+                    input.name.push(inputName);
                     input.type_ = "any".to_string();
                 }
                 FnArg::Typed(_t)=>{
@@ -326,8 +334,11 @@ impl <'ast> Visit <'ast> for Node {
     }
 
     fn visit_ident(&mut self, node: &'ast Ident){
-        self.nodeType = "NameExpression".to_string();
-        self.name = node.to_string();
+        let mut nameExpression = Node::default();
+        nameExpression.nodeType = "NameExpression".to_string();
+        nameExpression.name_ = node.to_string();
+
+        self.name.push(nameExpression);
     }
 
     fn visit_member(&mut self, node: &'ast Member){
@@ -503,23 +514,23 @@ impl <'ast> Visit <'ast> for Node {
     }
 
     fn visit_expr_path(&mut self, node: &'ast ExprPath){
-        self.nodeType = "NameExpression".to_string();
-        self.name = node.path.segments[0].ident.to_string();
+        let mut nameExpression = Node::default();
+        nameExpression.nodeType = "NameExpression".to_string();
+
+        for seg in &node.path.segments{
+            nameExpression.name_.push_str(&seg.ident.to_string());
+        }
+        self.name.push(nameExpression);
     }
 
      fn visit_expr_assign(&mut self, node: &'ast ExprAssign){
-         let mut left = Node::default();
          let mut right = Node::default();
 
-         left.visit_expr(&node.left);
+         self.visit_expr(&node.left);
          right.visit_expr(&node.right);
 
-         left.value = right.value.clone();
-         right.name = left.name.clone();
-
          self.operator = "=".to_string();
-         self.operands.push(left);
-         self.operands.push(right);
+         self.expression.push(right);
 
      }
 
@@ -613,7 +624,13 @@ impl <'ast> Visit <'ast> for Node {
      }
 
      fn visit_expr_macro(&mut self, node: &'ast ExprMacro){ //TODO: check values you can pass to a macro
-         self.name = node.mac.path.segments[0].ident.to_string();
+         let mut nameExpression = Node::default();
+         nameExpression.nodeType = "NameExpression".to_string();
+
+         for seg in &node.mac.path.segments{
+             nameExpression.name_.push_str(&seg.ident.to_string());
+         }
+         self.name.push(nameExpression);
          self.value = node.mac.tokens.to_string();
      }
 
@@ -658,16 +675,16 @@ impl <'ast> Visit <'ast> for Node {
      fn visit_expr_method_call(&mut self, node: &'ast ExprMethodCall){
          let mut function = Node::default();
          let mut left = Node::default();
-         let mut right = Node::default();
+         let mut nameExpression = Node::default();
          let mut parameters = Node::default();
 
 
          function.nodeType = "dotExpression".to_string();
-         right.name = node.method.to_string();
-         right.nodeType = "NameExpression".to_string();
+         nameExpression.nodeType = "NameExpression".to_string();
+         nameExpression.name_ = node.method.to_string();
          left.visit_expr(&node.receiver);
 
-         function.right.push(right);
+         function.name.push(nameExpression);
          function.left.push(left);
 
          self.function.push(function);
