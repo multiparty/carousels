@@ -11,13 +11,15 @@ use carousels::visitor;
 pub fn main() {
     let filename = "src/old/test_program.rs";
 
-    let file = visitor::get_ast(&filename);
-    match file {
-        Ok(_v)=>{println!("{}", serde_json::to_string(&_v).unwrap());},
-        Err(e) => println!("error parsing : {:?}", e),
-    };
+    /*
+     *let file = visitor::get_ast(&filename);
+     *match file {
+     *    Ok(_v)=>{println!("{}", serde_json::to_string(&_v).unwrap());},
+     *    Err(e) => println!("error parsing : {:?}", e),
+     *};
+     */
 
-    let file_str = visitor::get_ast_str(&filename);
+    let file_str = visitor::get_ast_str_from_file(&filename);
     match file_str {
         Ok(_v)=>{println!("{}", _v);},
         Err(e) => println!("error parsing : {:?}", e),
