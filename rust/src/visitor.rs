@@ -377,7 +377,7 @@ impl <'ast> Visit <'ast> for Node {
                 self.visit_expr_call(_e);
             }
             Expr::MethodCall(_e)=>{
-                self.nodeType = "functionCall".to_string();
+                self.nodeType = "FunctionCall".to_string();
                 self.visit_expr_method_call(_e);
             }
             Expr::Tuple(_e)=>{
