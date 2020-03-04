@@ -235,6 +235,10 @@ impl <'ast> Visit <'ast> for Node {
                     self.nodeType = "macro".to_string();
                     self.visit_expr_macro(_m);
                 }
+                Expr::Block(_e)=>{
+                    self.nodeType = "ExpressionBlock".to_string();
+                    self.visit_expr_block(_e);
+                }
                 _=>{}
             }
 
