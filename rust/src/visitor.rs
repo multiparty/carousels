@@ -162,13 +162,6 @@ impl <'ast> Visit <'ast> for Node {
                 length.visit_expr(&_a.len);
                 self.length.push(length);
             }
-            Type::BareFn(_bf)=>{
-                self.dependentType.push_str(&"fn(".to_string());
-
-                for inp in &_bf.inputs{
-
-                }
-            }
             Type::Path(_p)=>{
                 self.visit_path(&_p.path);
             }
@@ -179,6 +172,11 @@ impl <'ast> Visit <'ast> for Node {
             Type::Reference(_r)=>{
                 self.dependentType.push_str(&"&".to_string());
                 self.visit_type(&_r.elem);
+            }
+            Type::Slice(_s)=>{
+                self.dependentType.push_str(&"[".to_string());
+                self.visit_type(&_s.elem);
+                self.dependentType.push_str(&"]".to_string());
             }
             Type::Verbatim(_v)=>{
                 self.dependentType.push_str(&_v.to_string());
