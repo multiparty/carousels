@@ -19,7 +19,7 @@
     {
       "rule": {
         "nodeType": "DirectExpression",
-        "match": "^<type:number,secret:true>\\+<type:number,secret:true>$"
+        "match": "^<type:(number|boolean)@D,secret:true>\\+<type:(number|boolean)@D,secret:true>$"
       },
       "value": {
         "Online Messages": "0",
@@ -29,7 +29,7 @@
     {
       "rule": {
         "nodeType": "DirectExpression",
-        "match": "^<type:number,secret:true>\\*<type:number,secret:true>$"
+        "match": "^<type:(number|boolean)@D,secret:true>\\*<type:(number|boolean)@D,secret:true>$"
       },
       "value": {
         "Online Messages": "p-1",
@@ -39,7 +39,7 @@
     {
       "rule": {
         "nodeType": "DirectExpression",
-        "match": "^<type:number,secret:true><<type:number,secret:true>$"
+        "match": "^<type:(number|boolean)@D,secret:true><<type:(number|boolean)@D,secret:true>$"
       },
       "value": {
         "Online Messages": "b*(p-1)",

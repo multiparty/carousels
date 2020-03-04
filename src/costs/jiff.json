@@ -29,7 +29,7 @@
     {
       "rule": {
         "nodeType": "FunctionCall",
-        "match": "^<type:number@T,secret:true>\\.smult(<type:number@T,secret:true>@P)$"
+        "match": "^<type:(number|boolean)@D,secret:true>\\.smult(<type:(number|boolean)@D,secret:true>@P)$"
       },
       "value": {
         "Online Messages": "p-1",

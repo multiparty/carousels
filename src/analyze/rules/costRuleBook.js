@@ -2,7 +2,6 @@ const RuleBook = require('./ruleBook.js');
 const math = require('../math.js');
 
 function CostRuleBook(analyzer, rules) {
-  this.analyzer = analyzer;
   const operations = rules.operations.map(function (op) {
     const copy = Object.assign({}, op);
 
@@ -16,7 +15,7 @@ function CostRuleBook(analyzer, rules) {
     return copy;
   });
 
-  RuleBook.call(this, operations, 'costs');
+  RuleBook.call(this, analyzer, operations, 'costs');
 }
 
 // inherit RuleBook

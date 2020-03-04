@@ -34,7 +34,7 @@ function Analyzer(language, code, costs, extraTyping) {
 
   // typing rules
   const typingRules = (extraTyping || []).concat(typings[this.language]);
-  this.typings = new TypingRuleBook(typingRules);
+  this.typings = new TypingRuleBook(this, typingRules);
 
   // costs parsing
   this.costs = new CostRuleBook(this, costs);

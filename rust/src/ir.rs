@@ -16,15 +16,17 @@ pub struct Node{
     #[serde(skip_serializing_if = "String::is_empty")]
     pub type_: String,
     #[serde(skip_serializing_if = "String::is_empty")]
-    pub nodeType: String,
+    pub dependentType: String,
     #[serde(skip_serializing_if = "String::is_empty")]
-    pub returnType: String,
+    pub nodeType: String,
     #[serde(skip_serializing_if = "String::is_empty")]
     pub secret: String,
     #[serde(skip_serializing_if = "String::is_empty")]
     pub arity: String,
     #[serde(skip_serializing_if = "String::is_empty")]
     pub operator: String,
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub returnType: Vec<Node>,
     #[serde(skip_serializing_if = "Vec::is_empty")]
     pub function: Vec<Node>,
     #[serde(skip_serializing_if = "Vec::is_empty")]

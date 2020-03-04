@@ -3,8 +3,8 @@ const carouselTypes = require('../symbols/types.js');
 
 const DEFAULT_TYPE = new carouselTypes.Type(carouselTypes.TYPE_ENUM.ANY, false);
 
-function TypingRuleBook(rules) {
-  RuleBook.call(this, rules, 'typing');
+function TypingRuleBook(analyzer, rules) {
+  RuleBook.call(this, analyzer, rules, 'typing');
 }
 
 // inherit RuleBook
@@ -17,7 +17,7 @@ TypingRuleBook.prototype.applyMatch = function (node, expressionTypeString, args
     return DEFAULT_TYPE;
   }
 
-  return matchedValue(node, args, childrenTypes);
+  return matchedValue.call(this.analyzer, node, args, childrenTypes);
 };
 
 module.exports = TypingRuleBook;

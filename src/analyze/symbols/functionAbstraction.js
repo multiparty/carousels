@@ -46,8 +46,8 @@ FunctionAbstraction.prototype.concretizeDependent = function (parameters) {
     // Expects an array parameter with some length (symbolic or valued)
     if (parameterType.is(carouselsTypes.TYPE_ENUM.ARRAY) && parameterType.hasDependentType('length')) {
       concreteParams.push(parameterType.dependentType.length);
-    } else if (parameterType.is(carouselsTypes.TYPE_ENUM.NUMBER) && parameterType.hasDependentType('value')) {
-      concreteParams.push(parameterType.value.length);
+    } else if (parameterType.hasDependentType('value')) {
+      concreteParams.push(parameterType.dependentType.value);
     } else {
       throw new Error('Function "' + this.functionName + '" called with non-dependent argument "' + parameterType.toString() + '" at position ' + index);
     }
