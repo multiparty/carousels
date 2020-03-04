@@ -10,14 +10,18 @@ const roundMetric = new AbstractMetric('RoundMetric');
 // Override Aggregation
 roundMetric.defaults = {
   TypeNode: math.ZERO,
-  FunctionDefinition: 'body',
+  FunctionDefinition: math.ZERO,
   ReturnStatement: 'expression',
-  VariableDefinition: math.ZERO,
+  VariableDefinition: 'assignment',
   VariableAssignment: 'expression',
   LiteralExpression: math.ZERO,
   ParenthesesExpression: 'expression',
   ArrayExpression: math.ZERO,
   DotExpression: 'left'
+};
+
+roundMetric.store = function (metric) {
+  return metric;
 };
 
 // For Each: body * iterations

@@ -34,6 +34,23 @@ Type.prototype.is = function (dataType) {
 Type.prototype.copyWithDependentType = function (dependentType) {
   return new Type(this.dataType, this.secret, dependentType);
 };
+Type.prototype.conflicts = function (otherType) {
+  if (!(otherType instanceof Type)) {
+    return true;
+  }
+
+  if (this.dataType !== otherType.dataType && otherType.dataType !== TYPE_ENUM.ANY) {
+    return true;
+  }
+
+  if (this.dataType === otherType.datatype && this.dataType === TYPE_ENUM.ARRAY) {
+    if (this.dependentType != null && otherType.dependentType != null) {
+      return this.dependentType.dataType.conflicts(otherType.dependentType.dataType);
+    }
+  }
+
+  return false;
+};
 Type.fromTypeNode = function (pathStr, typeNode, dependentType) {
   const type = typeNode.type.toUpperCase();
   const secret = typeNode.secret;
@@ -121,27 +138,6 @@ FunctionType.prototype.getDependentParameters = function () {
   }
 
   return symbols;
-};
-FunctionType.fromFunctionDefinitionNode = function (pathStr, node) {
-  // figure out return type
-  const returnType = Type.fromTypeNode(pathStr + '[return]', node.returnType);
-
-  // figure out parameter types
-  // array parameters are assigned "fresh" new symbolic parameters as lengths
-  const parametersType = [];
-  let parameters = returnType.parameters;
-  for (let i = 0; i < node.parameters.length; i++) {
-    const paramPathStr = pathStr + '@' + node.parameters[i].name.name;
-    const parameterType = Type.fromTypeNode(paramPathStr, node.parameters[i].type);
-    parameters = parameters.concat(parameterType.parameters);
-    parametersType.push(parameterType.type);
-  }
-
-  // return function type and all the symbolic parameters created for its parameters
-  return {
-    functionType: new FunctionType(null, parametersType, returnType.type),
-    parameters: parameters
-  };
 };
 
 module.exports = {

@@ -9,7 +9,7 @@ function RuleBook(rules) {
     const bookArray = this.rules[rule.nodeType] || [];
     this.rules[rule.rule.nodeType] = bookArray;
 
-    bookArray.push(new Rule(rule.rule.match, rule.value));
+    bookArray.push(new Rule(rule.rule.nodeType, rule.rule.match, rule.value));
   }
 }
 

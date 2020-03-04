@@ -3,10 +3,10 @@ const carouselsTypes = require('../analyze/symbols/types.js');
 module.exports = [
   {
     rule: {
-      nodeType: 'dotExpression',
+      nodeType: 'DotExpression',
       match: '^<array@T>\\.length$'
     },
-    value: function (node, args, children) {
+    value: function (node, pathStr, children) {
       // <array<type: ..., length: n>.length is of type: <number <value: n>>
       const arrayType = children.left;
       if (arrayType.is(carouselsTypes.TYPE_ENUM.ARRAY) && arrayType.hasDependentType('length')) {

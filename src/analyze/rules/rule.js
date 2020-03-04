@@ -1,10 +1,15 @@
+const ALLOWED_NODES = ['FunctionCall', 'DotExpression', 'NameExpression', 'DirectExpression'];
+
 const MACROS = {};
 MACROS['@T'] = '(<.*>)'; // ANY TYPE
 MACROS['@\'P'] = '(' + MACROS['@T'] + ',)*'; // ANY PARAMETERS FOLLOWED BY COMMA IF PARAMETERS EXISTS
 MACROS['@,P'] = '(,' + MACROS['@T'] + ')*'; // ANY PARAMETERS PRECEDED BY COMMA IF PARAMETERS EXISTS
 MACROS['@P'] = '(' + MACROS['@\'P'] + MACROS['@T'] + ')?'; // ANY PARAMETERS WITHOUT LEADING OR TRAILING COMMAS
 
-function Rule(pattern, value) {
+function Rule(nodeType, pattern, value) {
+  if (ALLOWED_NODES.indexOf(nodeType) === -1) {
+    throw new Error('Illegal nodeType "' + nodeType + '" used in rule!')
+  }
   this.pattern = pattern;
   this.value = value;
 

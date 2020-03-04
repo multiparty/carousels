@@ -9,7 +9,9 @@ const Sequence = function (nodes, pathStr) {
   for (let i = 0; i < nodes.length; i++) {
     const node = nodes[i];
     const result = this.visit(node, pathStr);
-    if (result == null) { continue; } // TODO: remove
+    if (result == null) { // TODO
+      continue;
+    }
 
     childrenTypes.push(result.type);
     this.analyzer.mapMetrics(function (metricTitle) {
@@ -22,11 +24,7 @@ const Sequence = function (nodes, pathStr) {
   // aggregate metrics
   let aggregatedType = childrenTypes.length > 0 ? childrenTypes[childrenTypes.length - 1] : carouselsTypes.UNIT_TYPE;
   const aggregatedMetrics = this.analyzer.mapMetrics(function (metricTitle, metricObject) {
-    if (childrenMetrics[metricTitle]) {
-      return metricObject.aggregateSequence(nodes, childrenTypes, childrenMetrics[metricTitle]);
-    } else {
-      return metricObject.initial;
-    }
+    return metricObject.aggregateSequence(nodes, childrenTypes, childrenMetrics[metricTitle]);
   });
 
   // We do not support rules matching sequences in costs: skip

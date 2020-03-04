@@ -13,9 +13,10 @@ const metrics = require('./metrics/metrics.js');
 const IRVisitor = require('../ir/visitor.js');
 const visitorImplementations = [
   require('./visitors/array.js'),
+  require('./visitors/callAndReturn.js'),
   require('./visitors/expression.js'),
   require('./visitors/for.js'),
-  require('./visitors/function.js'),
+  require('./visitors/functionDefinition.js'),
   require('./visitors/if.js'),
   require('./visitors/oblivIf.js'),
   require('./visitors/value.js'),
@@ -94,18 +95,6 @@ Analyzer.prototype.mapMetrics = function (lambda) {
     result[metricTitle] = lambda(metricTitle, this.metrics[metricTitle]);
   }
   return result;
-};
-
-Analyzer.prototype.addScope = function () {
-  const self = this;
-
-  this.variableTypeMap.addScope();
-  this.functionTypeMap.addScope();
-  this.functionReturnAbstractionMap.addScope();
-  this.mapMetrics(function (metric) {
-    self.variableMetricMap[metric].addScope();
-    self.functionMetricAbstractionMap[metric].addScope();
-  });
 };
 
 Analyzer.prototype.removeScope = function () {

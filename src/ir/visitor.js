@@ -1,8 +1,20 @@
 const IR_NODES = require('./ir.js');
 
+const DEBUG = false;
+
+let DEBUG_LOG = function (indent) {
+  let tab = '.';
+  for (let i = 0; i < indent; i++) {
+    tab += '..';
+  }
+  console.log.apply(console, [tab].concat(Array.from(arguments).slice(1)));
+};
+DEBUG_LOG = DEBUG ? DEBUG_LOG : function () {};
+
 // The visitor class
 function IRVisitor(namedArgs) {
   Object.assign(this, namedArgs);
+  this._indent = 0;
 }
 
 // Start visiting
@@ -13,14 +25,20 @@ IRVisitor.prototype.start = function (IRNode, args) {
 IRVisitor.prototype.visit = function (node, args) {
   try {
     if (node == null) {
-      return args;
+      return null;
     }
 
     if (Array.isArray(node)) {
-      return this['visitSequence'](node, args);
+      DEBUG_LOG(this._indent++, 'visit', 'Sequence');
+      const result = this['visitSequence'](node, args);
+      DEBUG_LOG(--this._indent, 'end', 'Sequence');
+      return result;
     }
 
-    return this['visit' + node.nodeType](node, args);
+    DEBUG_LOG(this._indent++, 'visit', node.nodeType);
+    const result = this['visit' + node.nodeType](node, args);
+    DEBUG_LOG(--this._indent, 'end', node.nodeType);
+    return result;
   } catch (error) {
     if (!error.__visited) {
       error.message = 'Error occured in carousels while parsing "'
