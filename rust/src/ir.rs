@@ -10,9 +10,9 @@ pub trait IRNode: std::fmt::Debug { }
 #[derive(serde::Serialize, serde::Deserialize, Debug, Default)]
 pub struct Node{
     #[serde(skip_serializing_if = "String::is_empty")]
-    pub name_: String,
+    pub name: String,
     #[serde(skip_serializing_if = "Vec::is_empty")]
-    pub name: Vec<Node>,
+    pub nameNode: Vec<Node>,
     #[serde(skip_serializing_if = "String::is_empty")]
     pub value: String,
     #[serde(skip_serializing_if = "String::is_empty")]
