@@ -36,10 +36,15 @@ const max = function () {
   return new mathjs.FunctionNode('max', Array.from(arguments));
 };
 
+const iff = function (condition, ifVal, elseVal) {
+  return 'iff(' + condition.toString() + ',' + ifVal.toString() + ',' + elseVal.toString() +')';
+};
+
 module.exports = {
   parse: mathjs.parse,
   ZERO: ZERO,
   add: add,
   multiply: multiply,
-  max: max
+  max: max,
+  iff: iff
 };

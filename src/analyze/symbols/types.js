@@ -51,6 +51,31 @@ Type.prototype.conflicts = function (otherType) {
 
   return false;
 };
+Type.prototype.combine = function (otherType, dependentCombiner) {
+  if (otherType != null && otherType.dataType !== TYPE_ENUM.UNIT) {
+    if (this.secret !== otherType.secret) {
+      throw new Error('Cannot combine secret and non-secret types "' +
+        this.secret.toString() + '" and "' + otherType.toString() + '"!');
+    }
+
+    if (this.dataType !== otherType.dataType) {
+      return new Type(TYPE_ENUM.ANY, this.secret);
+    }
+
+    if (this.dataType === TYPE_ENUM.ARRAY) {
+      const dependentDataType = this.dependentType.dataType.combine(otherType.dependentType.dataType);
+      const combinedLength = dependentCombiner(this.dependentType.length, otherType.dependentType.length);
+      return new Type(TYPE_ENUM.ARRAY, this.secret, new ArrayDependentType(dependentDataType, combinedLength));
+    }
+
+    if (this.dataType === TYPE_ENUM.NUMBER) {
+      const combinedValue = dependentCombiner(this.dependentType.value, otherType.dependentType.value);
+      return new Type(TYPE_ENUM.NUMBER, this.secret, new NumberDependentType(combinedValue));
+    }
+  }
+
+  return new Type(this.dataType, this.secret);
+};
 Type.fromTypeNode = function (pathStr, typeNode, dependentType) {
   const type = typeNode.type.toUpperCase();
   const secret = typeNode.secret;
