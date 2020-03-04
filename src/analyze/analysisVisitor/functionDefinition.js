@@ -2,21 +2,27 @@ const carouselsTypes = require('../symbols/types.js');
 const FunctionAbstraction = require('../symbols/functionAbstraction.js');
 const Parameter = require('../symbols/parameter.js');
 
+const removeScope = function () {
+  this.analyzer.variableTypeMap.removeScope();
+  this.analyzer.functionTypeMap.removeScope();
+  this.analyzer.functionReturnAbstractionMap.removeScope();
+  this.analyzer.variableMetricMap.removeScope();
+  this.analyzer.functionMetricAbstractionMap.removeScope();
+};
+
 // visit children (except body)
 const visitParametersAndReturn = function (analyzer, node, functionPathStr) {
   // add scope to all variable maps
   analyzer.variableTypeMap.addScope();
-  analyzer.mapMetrics(function (metricTitle) {
-    analyzer.variableMetricMap[metricTitle].addScope();
-  });
+  analyzer.variableMetricMap.addScope();
 
   // visit parameters and store results in these arrays
-  const parametersTypes = [];
-  const parametersMetrics = [];
+  const parametersType = [];
+  const parametersMetric = [];
   for (let i = 0; i < node.parameters.length; i++) {
     const parameterResult = this.visit(node.parameters[i], functionPathStr + '@');
-    parametersTypes.push(parameterResult.type);
-    parametersMetrics.push(parameterResult.metrics);
+    parametersType.push(parameterResult.type);
+    parametersMetric.push(parameterResult.metric);
   }
 
   // visit return type
@@ -24,18 +30,14 @@ const visitParametersAndReturn = function (analyzer, node, functionPathStr) {
 
   // return children results in a format that is suitable for the remaining computations
   return {
-    types: {
-      parameters: parametersTypes,
+    type: {
+      parameters: parametersType,
       returnType: returnTypeResult.type
     },
-    metrics: analyzer.mapMetrics(function (metricTitle) {
-      return {
-        parameters: parametersMetrics.map(function (parameterMetric) {
-          return parameterMetric[metricTitle];
-        }),
-        returnType: returnTypeResult.metrics[metricTitle]
-      };
-    })
+    metric: {
+      parameters: parametersMetric,
+      returnType: returnTypeResult.metric
+    }
   };
 };
 
@@ -53,38 +55,34 @@ const createDependentReturnAbstraction = function (analyzer, functionName, funct
 
 // Similar to dependent return abstraction, but for every metric
 const createMetricAbstraction = function (analyzer, node, functionPathStr, parametersDependentParameters) {
-  return function (metricTitle, metric) {
-    const metricParameters = [];
-    for (let i = 0; i < node.parameters.length; i++) {
-      const metricParameter = Parameter.forMetric(functionPathStr + '@' + node.parameters[i].name.name, metricTitle);
-      metricParameters.push(metricParameter);
-      analyzer.variableMetricMap[metricTitle].add(node.parameters[i].name.name, metric.store(metricParameter));
-    }
+  const metricParameters = [];
+  for (let i = 0; i < node.parameters.length; i++) {
+    const metricParameter = Parameter.forMetric(functionPathStr + '@' + node.parameters[i].name.name, analyzer.metricTitle);
+    metricParameters.push(metricParameter);
+    analyzer.variableMetricMap.add(node.parameters[i].name.name, analyzer.metric.store(metricParameter));
+  }
 
-    const abstractionParameters = metricParameters.concat(parametersDependentParameters);
-    const metricAbstraction = new FunctionAbstraction(node.name.name, metricTitle, abstractionParameters);
-    analyzer.functionMetricAbstractionMap[metricTitle].add(node.name.name, metricAbstraction);
-    analyzer.addParameters(metricParameters);
+  const abstractionParameters = metricParameters.concat(parametersDependentParameters);
+  const metricAbstraction = new FunctionAbstraction(node.name.name, analyzer.metricTitle, abstractionParameters);
+  analyzer.functionMetricAbstractionMap.add(node.name.name, metricAbstraction);
+  analyzer.addParameters(metricParameters);
 
-    analyzer.functionMetricAbstractionMap[metricTitle].addScope();
-  };
+  analyzer.functionMetricAbstractionMap.addScope();
 };
 
-// visit the body of the function, put the result in childrenTypes and childrenMetrics
-const visitBody = function (analyzer, node, functionPathStr, childrenTypes, childrenMetrics) {
+// visit the body of the function, put the result in childrenType and childrenMetric
+const visitBody = function (analyzer, node, functionPathStr, childrenType, childrenMetric) {
   const bodyResult = this.visit(node.body, functionPathStr + '#');
-  childrenTypes['body'] = bodyResult.type;
-  analyzer.mapMetrics(function (metricTitle) {
-    childrenMetrics[metricTitle]['body'] = bodyResult.metrics[metricTitle]
-  });
+  childrenType['body'] = bodyResult.type;
+  childrenMetric['body'] = bodyResult.metric;
 };
 
 // If the return type had a dependent type/clause that was expressed via an abstraction
 // find the closed form from the children (body) result and store it as the solution
 // to that abstraction
-const storeClosedFormReturnAbstraction = function (analyzer, functionName, functionType, childrenTypes) {
+const storeClosedFormReturnAbstraction = function (analyzer, functionName, functionType, childrenType) {
   if (functionType.returnType.is(carouselsTypes.TYPE_ENUM.ARRAY)) {
-    const bodyType = childrenTypes['body'];
+    const bodyType = childrenType['body'];
 
     let concreteDependentReturnType;
     if (bodyType.is(carouselsTypes.TYPE_ENUM.ARRAY) && bodyType.hasDependentType('length')) {
@@ -100,25 +98,22 @@ const storeClosedFormReturnAbstraction = function (analyzer, functionName, funct
 
 // Store the closed form metric equation return from visiting the body as the solution
 // to the corresponding metric abstraction
-const storeClosedFormMetricAbstraction = function (analyzer, functionName, childrenMetrics) {
-  return function (metricTitle) {
-    const closedForm = childrenMetrics[metricTitle]['body'];
-    const metricAbstraction = analyzer.functionMetricAbstractionMap[metricTitle].get(functionName);
-    analyzer.abstractionToClosedFormMap[metricAbstraction.mathSymbol.toString()] = closedForm;
-  };
+const storeClosedFormMetricAbstraction = function (analyzer, functionName, bodyMetric) {
+  const metricAbstraction = analyzer.functionMetricAbstractionMap.get(functionName);
+  analyzer.abstractionToClosedFormMap[metricAbstraction.mathSymbol.toString()] = bodyMetric;
 };
 
-// Visit Function Definition and analyze its type and metrics
+// Visit Function Definition and analyze its type and metric
 // High level structures:
 // 1. Visit parameters and return type declaration and build the function type
 // 2. Add symbolic parameters representing any dependent type clause for the function parameters, as well as
-//    symbolic parameters for the metrics of the function parameters.
+//    symbolic parameters for the metric of the function parameters.
 // 3. Create function abstraction expressing the dependent type clause for the function return type (if it exists), as
 //    well as abstraction for the metric of the function body. store abstractions in appropriate maps.
 // 4. Visit body of the function: recursive use of the function is analyzed via the abstraction created above.
 // 5. Take the values resulting from visiting the body, and use them as closed form solution to the abstractions
 //    created above. Store these solutions in an appropriate map.
-// 6. Aggregate metrics using the metric object, and return the final result.
+// 6. Aggregate metric using the metric object, and return the final result.
 const FunctionDefinition = function (node, pathStr) {
   const analyzer = this.analyzer;
 
@@ -127,11 +122,11 @@ const FunctionDefinition = function (node, pathStr) {
   const functionPathStr = pathStr + functionName;
 
   const childrenResult = visitParametersAndReturn.call(this, analyzer, node, functionPathStr);
-  const childrenTypes = childrenResult.types;
-  const childrenMetrics = childrenResult.metrics;
+  const childrenType = childrenResult.type;
+  const childrenMetric = childrenResult.metric;
 
   // Create the function type
-  const functionType = new carouselsTypes.FunctionType(null, childrenTypes.parameters, childrenTypes.returnType);
+  const functionType = new carouselsTypes.FunctionType(null, childrenType.parameters, childrenType.returnType);
   const parametersDependentParameters = analyzer.getParametersBySymbol(functionType.getDependentParameters());
 
   analyzer.functionTypeMap.add(functionName, functionType);
@@ -140,37 +135,34 @@ const FunctionDefinition = function (node, pathStr) {
   // Create return abstraction
   createDependentReturnAbstraction(analyzer, functionName, functionType, parametersDependentParameters);
 
-  // Create metric abstractions for this function
+  // Create metric abstraction for this function
   // e.g. a function g(a: array<length:l>, b: number) => * has
   // number of round = G_rounds(rounds(a), rounds(b), length(a))
   // Map variables to their corresponding metric parameter (a => rounds(a))
-  analyzer.mapMetrics(createMetricAbstraction(analyzer, node, functionPathStr, parametersDependentParameters));
+  createMetricAbstraction(analyzer, node, functionPathStr, parametersDependentParameters);
 
   // Now we have:
   // 1. the function type including all its parameters and return type
   // 2. any symbolic parameters for dependent types of function parameters or return
-  // 3. added bindings of all function parameters to the scope for types and metrics
-  // 4. metrics and dependent return type abstractions for this function, bound to the scope
+  // 3. added bindings of all function parameters to the scope for types and metric
+  // 4. metric and dependent return type abstractions for this function, bound to the scope
   // 5. all scoped maps updated with fresh new scope
   // We are ready to visit the function body
-  visitBody.call(this, analyzer, node, functionPathStr, childrenTypes, childrenMetrics);
+  visitBody.call(this, analyzer, node, functionPathStr, childrenType, childrenMetric);
 
   // The function definition is over, remove its scope
-  analyzer.removeScope();
+  removeScope.call(this);
 
   // Figure out the closed form symbolic equation for any dependent return type
-  storeClosedFormReturnAbstraction(analyzer, functionName, functionType, childrenTypes);
+  storeClosedFormReturnAbstraction(analyzer, functionName, functionType, childrenType);
 
-  // Figure out the closed form symbolic equation for metrics
-  analyzer.mapMetrics(storeClosedFormMetricAbstraction(analyzer, functionName, childrenMetrics));
+  // Figure out the closed form symbolic equation for metric abstraction
+  storeClosedFormMetricAbstraction(analyzer, functionName, childrenMetric['body']);
 
   // Finally, return results
   return {
     type: functionType,
-    metrics: analyzer.mapMetrics(function (metricTitle, metric) {
-      // this is really just a fancy way of saying 0 ...
-      return metric.aggregateFunctionDefinition(node, childrenTypes, childrenMetrics[metricTitle]);
-    })
+    metric: analyzer.metric.aggregateFunctionDefinition(node, childrenType, childrenMetric)
   };
 };
 

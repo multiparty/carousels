@@ -35,7 +35,9 @@
     <pre id="COSTS"></pre>
 
     <h2>Result</h2>
-    <pre id="OUTPUT"></pre>
+    <h3>Parameters</h3> <pre id="parameters"></pre>
+    <h3>Description</h3> <pre id="description"></pre>
+    <h3>Equations</h3> <pre id="eq"></pre>
 </body>
 <script type="text/javascript">
     carousels.promise.then(function () {
@@ -46,10 +48,14 @@
 
             // TODO: remove this
             const IRCode = carousels.parsers.rust(code);
-            document.getElementById('IR').innerHTML = JSON.stringify(IRCode, null, 2);
-            document.getElementById('COSTS').innerHTML = JSON.stringify(costs, null, 2);
+            document.getElementById('IR').textContent = JSON.stringify(IRCode, null, 2);
+            document.getElementById('COSTS').textContent = JSON.stringify(costs, null, 2);
 
-            document.getElementById('OUTPUT').innerHTML = JSON.stringify(carousels.analyze(language, code, costs));
+            const output = carousels.analyze(language, code, costs, costs['metrics'][0]['title']);
+            console.log(output);
+            document.getElementById('parameters').textContent = output.parameters.join('\n');
+            document.getElementById('description').textContent = output.description.join('\n\n');
+            document.getElementById('eq').textContent = output.equations.join('\n\n');
         } catch (err) {
           console.log(err);
         }

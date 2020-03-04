@@ -2,6 +2,7 @@ const IRVisitor = require('../../ir/visitor.js');
 
 function ListNodesVisitor() {
   this.nodes = {};
+  IRVisitor.call(this);
 }
 
 // inherit IRVisitor

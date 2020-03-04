@@ -8,7 +8,7 @@ const CostRuleBook = require('./rules/costRuleBook.js');
 
 const ScopedMap = require('./symbols/scopedMap.js');
 
-const metrics = require('./metrics/metrics.js');
+const metricObjects = require('./metrics/metrics.js');
 
 const IRVisitor = require('../ir/visitor.js');
 const visitorImplementations = [
@@ -36,35 +36,13 @@ function Analyzer(language, code, costs, extraTyping) {
   const typingRules = (extraTyping || []).concat(typings[this.language]);
   this.typings = new TypingRuleBook(this, typingRules);
 
-  // costs parsing
-  this.costs = new CostRuleBook(this, costs);
-
-  // description of every encountered parameters
-  this.parameters = {};
-  for (let i = 0; i < costs['parameters'].length; i++) {
-    const parameter = costs['parameters'][i];
-    this.parameters[parameter['symbol']] = new Parameter(parameter['symbol'], parameter['description']);
-  }
-
   // Scoped tables
   this.variableTypeMap = new ScopedMap();
-  this.variableMetricMap = {};
-
+  this.variableMetricMap = new ScopedMap();
   this.functionTypeMap = new ScopedMap();
   this.functionReturnAbstractionMap = new ScopedMap();
-  this.functionMetricAbstractionMap = {};
+  this.functionMetricAbstractionMap = new ScopedMap();
   this.abstractionToClosedFormMap = {};
-
-  // Metrics tables
-  this.metrics = {};
-  this.metricsDescription = {};
-  for (let i = 0; i < costs.metrics.length; i++) {
-    const metric = costs.metrics[i];
-    this.metricsDescription[metric.title] = metric.description;
-    this.metrics[metric.title] = metrics[metric.type];
-    this.variableMetricMap[metric.title] = new ScopedMap();
-    this.functionMetricAbstractionMap[metric.title] = new ScopedMap();
-  }
 
   // visitor pattern
   this.visitor = new IRVisitor({ analyzer: this });
@@ -86,35 +64,61 @@ Analyzer.prototype.getParametersBySymbol = function (symbols) {
   });
 };
 
-Analyzer.prototype.mapMetrics = function (lambda) {
-  const result = {};
-  for (let metricTitle in this.metrics) {
-    if (!Object.prototype.hasOwnProperty.call(this.metrics, metricTitle)) {
-      continue;
-    }
-    result[metricTitle] = lambda(metricTitle, this.metrics[metricTitle]);
+Analyzer.prototype.analyze = function (costs, metricTitle) {
+  // costs parsing
+  this.costs = new CostRuleBook(this, costs, metricTitle);
+
+  // description of every encountered parameters
+  this.parameters = {};
+  for (let i = 0; i < costs['parameters'].length; i++) {
+    const parameter = costs['parameters'][i];
+    this.parameters[parameter['symbol']] = new Parameter(parameter['symbol'], parameter['description']);
   }
-  return result;
-};
 
-Analyzer.prototype.removeScope = function () {
-  const self = this;
+  // Metric object and title
+  this.metric = null;
+  this.metricTitle = metricTitle;
+  for (let i = 0; i < costs.metrics.length; i++) {
+    const metricEntry = costs.metrics[i];
+    if (metricEntry.title === metricTitle) {
+      this.metric = metricObjects[metricEntry.type];
+    }
+  }
 
-  this.variableTypeMap.removeScope();
-  this.functionTypeMap.removeScope();
-  this.functionReturnAbstractionMap.removeScope();
-  this.mapMetrics(function (metric) {
-    self.variableMetricMap[metric].removeScope();
-    self.functionMetricAbstractionMap[metric].removeScope();
-  });
-};
+  if (this.metric == null) {
+    throw new Error('Unrecognized metric "' + metricTitle + '"!');
+  }
 
-Analyzer.prototype.analyze = function () {
-  const result = this.visitor.start(this.IR, '');
+  // start the visitor pattern
+  this.visitor.start(this.IR, '');
   console.log(this);
-  return this.mapMetrics(function (metricTitle) {
-    return result.metrics[metricTitle].toString();
-  });
+};
+
+Analyzer.prototype.symbolicResult = function () {
+  const equations = [];
+  const description = [];
+
+  console.log(this.functionMetricAbstractionMap.scopes[0]);
+  for (let funcName in this.functionMetricAbstractionMap.scopes[0]) {
+    if (Object.prototype.hasOwnProperty.call(this.functionMetricAbstractionMap.scopes[0], funcName)) {
+      const functionAbstraction = this.functionMetricAbstractionMap.scopes[0][funcName];
+
+      const absStr = functionAbstraction.mathSymbol.toString();
+      equations.push(absStr + ' = ' + this.abstractionToClosedFormMap[absStr].toString());
+      description.push(absStr + ' : ' + functionAbstraction.toString());
+    }
+  }
+
+  const parameters = [];
+  for (let parameter in this.parameters) {
+    parameters.push(this.parameters[parameter]);
+  }
+
+  return {
+    description: description,
+    equations: equations,
+    parameters: parameters
+  };
 };
 
 module.exports = Analyzer;

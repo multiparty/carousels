@@ -1,6 +1,7 @@
 const IRVisitor = require('../../ir/visitor.js');
 
-function TemplateVisitor(namedArgs) {
+function TemplateVisitor() {
+  IRVisitor.call(this);
 }
 
 // inherit IRVisitor

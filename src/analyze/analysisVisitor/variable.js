@@ -3,14 +3,12 @@ const carouselsTypes = require('../symbols/types.js');
 const TypeNode = function (node, pathStr) {
   const typeResult = carouselsTypes.Type.fromTypeNode(pathStr, node);
 
+  // Add any newly created symbolic parameters
   this.analyzer.addParameters(typeResult.parameters);
-  const metrics = this.analyzer.mapMetrics(function (metricTitle, metric) {
-    return metric.aggregateTypeNode(node, typeResult.type, {});
-  });
 
   return {
     type: typeResult.type,
-    metrics: metrics
+    metric: this.analyzer.metric.aggregateTypeNode(node, typeResult.type, {})
   };
 };
 
@@ -23,18 +21,16 @@ const VariableDefinition = function (node, pathStr) {
   let variableAssignmentResult = this.visit(node.assignment, pathStr + variableName + '=');
 
   // initialize types and metric for each child
-  let typeType, assignmentType, typeMetrics;
-  let assignmentMetrics = analyzer.mapMetrics(function (metricTitle, metric) {
-    return metric.initial;
-  });
+  let typeType, assignmentType, typeMetric;
+  let assignmentMetric = analyzer.metric.initial;
 
   // make sure there are no conflicts in types between children
   if (variableAssignmentResult != null) {
     assignmentType = variableAssignmentResult.type;
-    assignmentMetrics = variableAssignmentResult.metrics;
+    assignmentMetric = variableAssignmentResult.metric;
     if (variableTypeResult != null) {
       typeType = variableTypeResult.type;
-      typeMetrics = variableTypeResult.metrics;
+      typeMetric = variableTypeResult.metric;
       if (assignmentType.conflicts(typeType.type)) {
         throw new Error('Types for variable "' + pathStr + variableName + '" from assignment and definition have a conflict:\n' +
           'Assignment Type: ' + assignmentType.toString() + '\n' +
@@ -43,7 +39,7 @@ const VariableDefinition = function (node, pathStr) {
     }
   } else if (variableTypeResult != null) {
     assignmentType = variableTypeResult.type;
-    typeMetrics = variableTypeResult.metrics;
+    typeMetric = variableTypeResult.metric;
   } else {
     throw new Error('Cannot determine type of variable "' + pathStr + variableName + '"');
   }
@@ -51,15 +47,20 @@ const VariableDefinition = function (node, pathStr) {
   // add variable and type to scope
   analyzer.variableTypeMap.add(variableName, assignmentType || typeType);
 
-  // Aggregate metrics
-  const resultMetrics = analyzer.mapMetrics(function (metricTitle, metric) {
-    return metric.aggregateVariableDefinition(node, {type: typeType, assignment: assignmentType},
-      {type: typeMetrics[metricTitle], assignment: assignmentMetrics[metricTitle]});
-  });
+  // Aggregate metric
+  const childrenType = {
+    type: typeType,
+    assignment: assignmentType
+  };
+  const childrenMetric = {
+    type: typeMetric,
+    assignment: assignmentMetric
+  };
 
+  const aggregateMetric = analyzer.metric.aggregateVariableDefinition(node, childrenType, childrenMetric);
   return {
     type: assignmentType || typeType,
-    metrics: resultMetrics
+    metric: aggregateMetric
   };
 };
 
@@ -71,17 +72,16 @@ const VariableAssignment = function (node, pathStr) {
   if (childResult == null) { // TODO
     return null; // null
   }
+
   const variableType = childResult.type;
+  const childMetric = childResult.metric;
 
   analyzer.variableTypeMap.add(variableName, variableType);
-  const metrics = analyzer.mapMetrics(function (metricTitle, metric) {
-    analyzer.variableMetricMap.add(variableName, metric.store(childResult[metricTitle]));
-    return metric.aggregateVariableAssignment(node, {expression: variableType}, {expression: childResult[metricTitle]});
-  });
+  analyzer.variableMetricMap.add(variableName, analyzer.metric.store(childMetric));
 
   return {
     type: variableType,
-    metrics: metrics
+    metric: analyzer.metric.aggregateVariableAssignment(node, {expression: variableType}, {expression: childMetric})
   }
 };
 

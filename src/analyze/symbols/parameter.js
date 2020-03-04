@@ -24,8 +24,8 @@ Parameter.forValue = function (variableName) {
   const symbol = 'v' + (PARAMETER_COUNTER++);
   return new Parameter(symbol, description);
 };
-Parameter.forMetric = function (variableName, metricName) {
-  const description = 'The "' + metricName + '" metric for variable "' + variableName + '"';
+Parameter.forMetric = function (variableName, metricTitle) {
+  const description = 'The "' + metricTitle + '" metric for variable "' + variableName + '"';
   const symbol = 'm' + (PARAMETER_COUNTER++);
   return new Parameter(symbol, description);
 };

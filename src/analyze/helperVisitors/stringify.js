@@ -11,6 +11,7 @@ const indentBlock = function (blockStr) {
 };
 
 function StringifyVisitor() {
+  IRVisitor.call(this);
 }
 
 // inherit IRVisitor
