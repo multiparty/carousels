@@ -1,15 +1,23 @@
 const Rule = require('./rule.js');
 
-function RuleBook(rules) {
+const ALLOWED_NODES = {
+  costs: ['FunctionCall', 'DotExpression', 'NameExpression', 'DirectExpression', 'If', 'OblivIf'],
+  typing: ['FunctionCall', 'DotExpression', 'NameExpression', 'DirectExpression']
+};
+
+function RuleBook(rules, _type) {
   this.rules = {};
 
   for (let i = 0; i < rules.length; i++) {
     const rule = rules[i];
 
-    const bookArray = this.rules[rule.nodeType] || [];
-    this.rules[rule.rule.nodeType] = bookArray;
+    if (ALLOWED_NODES[_type].indexOf(rule.rule.nodeType) === -1) {
+      throw new Error('Illegal nodeType "' + rule.rule.nodeType + '" used in rule!')
+    }
 
+    const bookArray = this.rules[rule.nodeType] || [];
     bookArray.push(new Rule(rule.rule.match, rule.value));
+    this.rules[rule.rule.nodeType] = bookArray;
   }
 }
 

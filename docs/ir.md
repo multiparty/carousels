@@ -15,6 +15,7 @@ These are logical entities that do not correspond to statements/expressions.
 
 1. secret: boolean
 2. type: string
+3. dependentType: TypeNode (optional, for generics)
 
 For now, it is ok for the type string to be either array or number
 

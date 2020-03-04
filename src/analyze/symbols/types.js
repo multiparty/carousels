@@ -34,6 +34,48 @@ Type.prototype.is = function (dataType) {
 Type.prototype.copyWithDependentType = function (dependentType) {
   return new Type(this.dataType, this.secret, dependentType);
 };
+Type.prototype.conflicts = function (otherType) {
+  if (!(otherType instanceof Type)) {
+    return true;
+  }
+
+  if (this.dataType !== otherType.dataType && otherType.dataType !== TYPE_ENUM.ANY) {
+    return true;
+  }
+
+  if (this.dataType === otherType.datatype && this.dataType === TYPE_ENUM.ARRAY) {
+    if (this.dependentType != null && otherType.dependentType != null) {
+      return this.dependentType.dataType.conflicts(otherType.dependentType.dataType);
+    }
+  }
+
+  return false;
+};
+Type.prototype.combine = function (otherType, dependentCombiner) {
+  if (otherType != null && otherType.dataType !== TYPE_ENUM.UNIT) {
+    if (this.secret !== otherType.secret) {
+      throw new Error('Cannot combine secret and non-secret types "' +
+        this.secret.toString() + '" and "' + otherType.toString() + '"!');
+    }
+
+    if (this.dataType !== otherType.dataType) {
+      return new Type(TYPE_ENUM.ANY, this.secret);
+    }
+
+    if (this.dataType === TYPE_ENUM.ARRAY) {
+      const dependentDataType = this.dependentType.dataType.combine(otherType.dependentType.dataType);
+      const combinedLength = dependentCombiner(this.dependentType.length, otherType.dependentType.length);
+      return new Type(TYPE_ENUM.ARRAY, this.secret, new ArrayDependentType(dependentDataType, combinedLength));
+    }
+
+    if (this.dataType === TYPE_ENUM.NUMBER) {
+      const combinedValue = dependentCombiner(this.dependentType.value, otherType.dependentType.value);
+      return new Type(TYPE_ENUM.NUMBER, this.secret, new NumberDependentType(combinedValue));
+    }
+  }
+
+  return new Type(this.dataType, this.secret);
+};
 Type.fromTypeNode = function (pathStr, typeNode, dependentType) {
   const type = typeNode.type.toUpperCase();
   const secret = typeNode.secret;
@@ -121,27 +163,6 @@ FunctionType.prototype.getDependentParameters = function () {
   }
 
   return symbols;
-};
-FunctionType.fromFunctionDefinitionNode = function (pathStr, node) {
-  // figure out return type
-  const returnType = Type.fromTypeNode(pathStr + '[return]', node.returnType);
-
-  // figure out parameter types
-  // array parameters are assigned "fresh" new symbolic parameters as lengths
-  const parametersType = [];
-  let parameters = returnType.parameters;
-  for (let i = 0; i < node.parameters.length; i++) {
-    const paramPathStr = pathStr + '@' + node.parameters[i].name.name;
-    const parameterType = Type.fromTypeNode(paramPathStr, node.parameters[i].type);
-    parameters = parameters.concat(parameterType.parameters);
-    parametersType.push(parameterType.type);
-  }
-
-  // return function type and all the symbolic parameters created for its parameters
-  return {
-    functionType: new FunctionType(null, parametersType, returnType.type),
-    parameters: parameters
-  };
 };
 
 module.exports = {

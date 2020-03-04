@@ -10,16 +10,18 @@ const totalMetric = new AbstractMetric('TotalMetric');
 // Override Aggregation
 totalMetric.defaults = {
   TypeNode: math.ZERO,
-  FunctionDefinition: 'body',
+  FunctionDefinition: math.ZERO,
   ReturnStatement: 'expression',
-  VariableDefinition: math.ZERO,
+  VariableDefinition: 'assignment',
   VariableAssignment: 'expression',
   LiteralExpression: math.ZERO,
   ParenthesesExpression: 'expression',
-  RangeExpression: math.ZERO,
-  SliceExpression: 'array',
   ArrayExpression: math.ZERO,
   DotExpression: 'left'
+};
+
+totalMetric.store = function () {
+  return math.ZERO;
 };
 
 // For Each: body * iterations

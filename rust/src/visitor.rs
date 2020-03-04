@@ -8,10 +8,8 @@ use syn::{ItemFn, Lit, Expr, Local, Member, Type,TypeParamBound, Path, PathArgum
     ExprBinary, ExprForLoop, ExprLit, ExprCall, ExprUnary, ExprRepeat, ExprReturn, ExprRange, ExprParen,
     ExprIf, ExprArray, ExprField, ExprIndex, ExprPath, ExprMacro, Pat, BinOp, Ident, UnOp};
 
-pub fn main(){
 
-}
-pub fn get_ast_str(val: &str) -> std::result::Result<String, Box<dyn Error>> {
+pub fn get_ast_str_from_file(val: &str) -> std::result::Result<String, Box<dyn Error>> {
     let mut file = FileSys::open(val).unwrap();
     let mut content = String::new();
 
@@ -25,6 +23,22 @@ pub fn get_ast_str(val: &str) -> std::result::Result<String, Box<dyn Error>> {
     match serde_json::to_string_pretty(&file){
         Ok(_v)=>{Ok(_v)},
         Err(_e)=>{Ok("Error serializing".to_string())},
+    }
+
+}
+/// for wasm use, returns just a String
+pub fn get_ast_str(val: &str) -> String {
+    let syntax = match syn::parse_file(&val){
+        Ok(v) => v,
+        Err(e) => {return "Error parsing rust code".to_string()},
+    };
+
+    let mut file = Node::default(); //highest node in the AST
+    file.visit_file(&syntax);
+
+    match serde_json::to_string_pretty(&file){
+        Ok(_v)=>{_v},
+        Err(_e)=>{"Error serializing".to_string()},
     }
 
 }

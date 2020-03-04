@@ -45,6 +45,16 @@
         "Online Messages": "b*(p-1)",
         "Online Rounds": "b-1"
       }
+    },
+    {
+      "rule": {
+        "nodeType": "If",
+        "match": "^@T?@T:@T"
+      },
+      "value": {
+        "Online Messages": "p-1",
+        "Online Rounds": "1"
+      }
     }
   ]
 }

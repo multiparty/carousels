@@ -1,7 +1,8 @@
 const RuleBook = require('./ruleBook.js');
 const math = require('../math.js');
 
-function CostRuleBook(rules) {
+function CostRuleBook(analyzer, rules) {
+  this.analyzer = analyzer;
   const operations = rules.operations.map(function (op) {
     const copy = Object.assign({}, op);
 
@@ -15,28 +16,23 @@ function CostRuleBook(rules) {
     return copy;
   });
 
-  RuleBook.call(this, operations);
+  RuleBook.call(this, operations, 'costs');
 }
 
-CostRuleBook.prototype.applyMatch = function (node, expressionTypeString, args, metrics) {
+// inherit RuleBook
+CostRuleBook.prototype = Object.create(RuleBook.prototype);
+
+// Apply matching rule to metrics if found
+CostRuleBook.prototype.applyMatch = function (node, expressionTypeString, metrics) {
   const matchedValue = this.findMatch(node, expressionTypeString);
   if (matchedValue === undefined) {
     return Object.assign({}, metrics);
   }
 
-  const newMetrics = {};
-  for (let metricTitle in metrics) {
-    if (!Object.hasOwnProperty.call(metrics, metricTitle)) {
-      continue;
-    }
-
-    newMetrics[metricTitle] = metrics[metricTitle].addCost(matchedValue);
-  }
-
+  const newMetrics = this.analyzer.mapMetrics(function (metricTitle, metricObject) {
+    return metricObject.addCost(metrics[metricTitle], matchedValue[metricTitle]);
+  });
   return newMetrics;
 };
-
-// inherit RuleBook
-CostRuleBook.prototype = Object.create(RuleBook.prototype);
 
 module.exports = CostRuleBook;

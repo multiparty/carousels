@@ -12,15 +12,16 @@ const metrics = require('./metrics/metrics.js');
 
 const IRVisitor = require('../ir/visitor.js');
 const visitorImplementations = [
-  require('./visitors/array.js'),
-  require('./visitors/expression.js'),
-  require('./visitors/for.js'),
-  require('./visitors/function.js'),
-  require('./visitors/if.js'),
-  require('./visitors/oblivIf.js'),
-  require('./visitors/value.js'),
-  require('./visitors/variable.js'),
-  require('./visitors/sequence.js')
+  require('./analysisVisitor/array.js'),
+  require('./analysisVisitor/callAndReturn.js'),
+  require('./analysisVisitor/expression.js'),
+  require('./analysisVisitor/for.js'),
+  require('./analysisVisitor/functionDefinition.js'),
+  require('./analysisVisitor/if.js'),
+  require('./analysisVisitor/oblivIf.js'),
+  require('./analysisVisitor/value.js'),
+  require('./analysisVisitor/variable.js'),
+  require('./analysisVisitor/sequence.js')
 ];
 
 function Analyzer(language, code, costs, extraTyping) {
@@ -36,7 +37,7 @@ function Analyzer(language, code, costs, extraTyping) {
   this.typings = new TypingRuleBook(typingRules);
 
   // costs parsing
-  this.costs = new CostRuleBook(costs);
+  this.costs = new CostRuleBook(this, costs);
 
   // description of every encountered parameters
   this.parameters = {};
@@ -94,18 +95,6 @@ Analyzer.prototype.mapMetrics = function (lambda) {
     result[metricTitle] = lambda(metricTitle, this.metrics[metricTitle]);
   }
   return result;
-};
-
-Analyzer.prototype.addScope = function () {
-  const self = this;
-
-  this.variableTypeMap.addScope();
-  this.functionTypeMap.addScope();
-  this.functionReturnAbstractionMap.addScope();
-  this.mapMetrics(function (metric) {
-    self.variableMetricMap[metric].addScope();
-    self.functionMetricAbstractionMap[metric].addScope();
-  });
 };
 
 Analyzer.prototype.removeScope = function () {
