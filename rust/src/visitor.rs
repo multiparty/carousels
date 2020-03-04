@@ -15,7 +15,6 @@ pub fn get_ast_str_from_file(val: &str) -> std::result::Result<String, Box<dyn E
     let mut content = String::new();
 
     file.read_to_string(&mut content).unwrap();
-    println!("{}", content);
     let syntax = syn::parse_file(&content)?;
 
     let mut file = Node::default(); //highest node in the AST
@@ -49,7 +48,7 @@ pub fn get_ast(val: &str) -> std::result::Result<Node, Box<dyn Error>> {
     let mut content = String::new();
 
     file.read_to_string(&mut content).unwrap();
-    println!("{}", content);
+    //println!("{}", content);
     let syntax = syn::parse_file(&content)?;
 
     let mut file = Node::default(); //highest node in the AST
@@ -99,6 +98,7 @@ impl <'ast> Visit <'ast> for Node {
                     input.typeNode.push(typeNode);
                 }
             }
+            input.nodeType = "VariableDefinition".to_string();
 
             self.parameters.push(input);
         }
@@ -121,7 +121,7 @@ impl <'ast> Visit <'ast> for Node {
     }
 
     fn visit_local(&mut self, node: &'ast Local){ // Let left = right;
-        self.nodeType = "variableDefinition".to_string();
+        self.nodeType = "VariableDefinition".to_string();
 
         let ident = &node.pat; // the variable declared
         match ident{
