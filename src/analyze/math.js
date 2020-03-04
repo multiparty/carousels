@@ -32,6 +32,49 @@ const iff = function (condition, ifVal, elseVal) {
   return 'iff(' + condition.toString() + ',' + ifVal.toString() + ',' + elseVal.toString() +')';
 };
 
+const evaluate = function (context, expression) {
+  // Set up the parser with lazy evaluation and safe recursion
+  const parser = math.parser();
+  parser.set('iff', function (n, above_base_case, thunk_f, base_val) {
+    parser.set('n', n);
+    return above_base_case ? parser.evaluate(thunk_f) : base_val;
+  });
+
+  if (Array.isArray(context) {
+    // Load all relavant functions into parser
+    context.map(parser.evaluate);
+  } else {
+    parser.scope = context;
+  }
+
+  return {
+    value: parser.evaluate(expression),
+    context: parser.getAll()
+  };
+}
+
+function get_rec_def(recurance, conditions) {
+  const fn = math.parse(recurance);
+  const name = fn.name;
+  const param = fn.params[0];
+  const expr = fn.expr;
+
+  const [fc, f_c] = math.parse(conditions.split('='));  // f(c)
+  const c = fc.args[0];
+
+  // Eg. f     (    n    ) = iff(    n    ,     n    >=  1  , "f(n/2)+1",    0   )
+  return name+'('+param+') = iff('+param+', '+param+'>='+c+', "'+expr+'", '+f_c+')';
+}
+
+const test_evaluate = function () {
+  // g and f are the same function
+  const def_f = get_rec_def('f(n) = f(n/2)+1', 'f(1) = 0');
+  const def_g = 'g(n) = iff(n, n>=1, "g(n/2)+1", 0)';
+  const f_8 = evaluate([def_f, def_g], 'f(8)').value;
+
+  console.log(f_8);
+}
+
 module.exports = {
   parse: mathjs.parse,
   ZERO: ZERO,
