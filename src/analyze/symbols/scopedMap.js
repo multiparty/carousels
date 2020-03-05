@@ -28,5 +28,15 @@ ScopedMap.prototype.get = function (name) {
 
   return this.dVal;
 };
+ScopedMap.prototype.has = function (name) {
+  for (let i = this.scopes.length - 1; i >= 0; i--) {
+    const scope = this.scopes[i];
+    const val = scope[name];
+    if (val != null) {
+      return true;
+    }
+  }
+  return false;
+};
 
 module.exports = ScopedMap;

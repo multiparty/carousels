@@ -18,6 +18,7 @@ function Type(dataType, secret, dependentType) {
     throw new Error('Unexpected dependent type "' + this.dependentType + '" given for non array type "' + this.dataType + '"!');
   }
 }
+Type.prototype._type = true;
 Type.prototype.toString = function () { // used for regex matching against cost rules
   const dependentTypeString = this.hasDependentType() ? this.dependentType.toString() : '';
   return '<type:' + this.dataType.toLowerCase() + dependentTypeString + ',secret:' + this.secret + '>';
@@ -138,6 +139,7 @@ function FunctionType(thisType, parameterTypes, returnType) {
   this.parameterTypes = parameterTypes;
   this.returnType = returnType;
 }
+FunctionType.prototype._functionType = true;
 FunctionType.prototype.toString = function () {
   const thisType = this.thisType != null ? this.thisType.toString() : '';
   const params = this.parameterTypes.map(function (parameterType) {
@@ -162,11 +164,35 @@ FunctionType.prototype.getDependentParameters = function () {
   return symbols;
 };
 
+// SymbolType refers to a Syntactic Code Construct
+function SymbolType(symbol) {
+  this.symbol = symbol;
+}
+SymbolType.prototype._symbolType = true;
+SymbolType.prototype.toString = function () {
+  return this.symbol;
+};
+
+// Range: has a start, end and increment
+function RangeType(startType, endType, incrementType) {
+  this.startType = startType;
+  this.endType = endType;
+  this.incrementType = incrementType;
+}
+RangeType.prototype._rangeType = true;
+RangeType.prototype.toString = function () {
+  return '[' + this.startType.toString() + ':' + this.endType.toString() +
+    (this.incrementType != null ? ':' + this.incrementType.toString() : '') +
+    ']';
+};
+
 module.exports = {
   TYPE_ENUM: TYPE_ENUM,
   UNIT_TYPE: new Type(TYPE_ENUM.UNIT, false),
   Type: Type,
   FunctionType: FunctionType,
+  SymbolType: SymbolType,
+  RangeType: RangeType,
   ValueDependentType: ValueDependentType,
   ArrayDependentType: ArrayDependentType
 };
