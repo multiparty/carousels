@@ -11,9 +11,12 @@
   <link rel="stylesheet" href="https://code.jquery.com/ui/1.10.4/themes/flick/jquery-ui.css">
   <link rel="stylesheet" href="style.css">
 
-  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/6.6.1/math.min.js"></script>
   <script src="../dist/carousels.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/6.6.1/math.min.js"></script>
+  <script src="../src/analyze/math.js"></script>
+
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
   <script src="./plot.js"></script>
 </head>
 
@@ -89,12 +92,12 @@ fn merge_dedup(a: &[Possession], b: &[Possession])
                 </textarea>
               </td> -->
             </tr>
-            <!-- <tr>
+            <tr>
               <td colspan="2">
                 Static analysis results:<br/>
                 <div><pre id="out"></pre></div>
               </td>
-            </tr> -->
+            </tr>
         </div>
         <table>
           Performance:<br/>
@@ -129,6 +132,9 @@ carousels.promise.then(function () {
     let selected_cost = document.getElementById("selected_cost").selectedOptions[0].innerHTML;
     let selected_param = document.getElementById("selected_param").selectedOptions[0].innerHTML;
     plotslider(selected_cost, null, selected_param);
+
+    console.log(output.equations.join('; '));
+    document.getElementById("out").innerHTML = output.equations.join('; ');
   } catch (err) {
     console.log('Error:', err);
   }
