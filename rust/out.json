@@ -1,0 +1,305 @@
+{
+  "nodeType": "FunctionDefinition",
+  "name": [
+    {
+      "nodeType": "NameExpression",
+      "name": "merge_sort_dedup",
+      "secret": false
+    }
+  ],
+  "parameters": [
+    {
+      "nodeType": "VariableDefinition",
+      "name": [
+        {
+          "nodeType": "NameExpression",
+          "name": "a",
+          "secret": false
+        }
+      ],
+      "type": [
+        {
+          "nodeType": "TypeNode",
+          "dependentType_": "&[Possession<T,P>]",
+          "secret": true
+        }
+      ],
+      "secret": false
+    }
+  ],
+  "secret": false,
+  "returnType": [
+    {
+      "nodeType": "TypeNode",
+      "type": "array",
+      "dependentType_": "Vec<Possession<T,P>>",
+      "secret": true
+    }
+  ],
+  "body": [
+    {
+      "nodeType": "VariableDefinition",
+      "name": [
+        {
+          "nodeType": "NameExpression",
+          "name": "n",
+          "secret": false
+        }
+      ],
+      "type": [
+        {
+          "nodeType": "TypeNode",
+          "type": "variable",
+          "secret": false
+        }
+      ],
+      "assignment": [
+        {
+          "nodeType": "VariableAssignment",
+          "name": [
+            {
+              "nodeType": "NameExpression",
+              "name": "n",
+              "secret": false
+            }
+          ],
+          "secret": false,
+          "expression": [
+            {
+              "nodeType": "FunctionCall",
+              "function": [
+                {
+                  "nodeType": "DotExpression",
+                  "secret": false,
+                  "left": [
+                    {
+                      "nodeType": "NameExpression",
+                      "name": "a",
+                      "secret": false
+                    }
+                  ],
+                  "right": [
+                    {
+                      "nodeType": "NameExpression",
+                      "name": "len",
+                      "secret": false
+                    }
+                  ]
+                }
+              ],
+              "secret": false
+            }
+          ]
+        }
+      ],
+      "secret": false
+    },
+    {
+      "nodeType": "If",
+      "secret": false,
+      "condition": [
+        {
+          "nodeType": "DirectExpression",
+          "secret": false,
+          "arity": "2",
+          "operator": ">=",
+          "operands": [
+            {
+              "nodeType": "NameExpression",
+              "name": "n",
+              "secret": false
+            },
+            {
+              "nodeType": "LiteralExpression",
+              "value": "1",
+              "type": "number",
+              "secret": false
+            }
+          ]
+        }
+      ],
+      "ifBody": [
+        {
+          "nodeType": "VariableDefinition",
+          "name": [
+            {
+              "nodeType": "NameExpression",
+              "name": "m",
+              "secret": false
+            }
+          ],
+          "type": [
+            {
+              "nodeType": "TypeNode",
+              "type": "variable",
+              "secret": false
+            }
+          ],
+          "assignment": [
+            {
+              "nodeType": "VariableAssignment",
+              "name": [
+                {
+                  "nodeType": "NameExpression",
+                  "name": "m",
+                  "secret": false
+                }
+              ],
+              "secret": false,
+              "expression": [
+                {
+                  "nodeType": "DirectExpression",
+                  "secret": false,
+                  "arity": "2",
+                  "operator": "/",
+                  "operands": [
+                    {
+                      "nodeType": "NameExpression",
+                      "name": "n",
+                      "secret": false
+                    },
+                    {
+                      "nodeType": "LiteralExpression",
+                      "value": "2",
+                      "type": "number",
+                      "secret": false
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "secret": false
+        },
+        {
+          "nodeType": "FunctionCall",
+          "function": [
+            {
+              "nodeType": "NameExpression",
+              "name": "merge_dedup",
+              "secret": false
+            }
+          ],
+          "parameters": [
+            {
+              "nodeType": "FunctionCall",
+              "function": [
+                {
+                  "nodeType": "NameExpression",
+                  "name": "merge_sort_dedup",
+                  "secret": false
+                }
+              ],
+              "parameters": [
+                {
+                  "nodeType": "SliceExpression",
+                  "secret": false,
+                  "array": [
+                    {
+                      "nodeType": "NameExpression",
+                      "name": "a",
+                      "secret": false
+                    }
+                  ],
+                  "range": [
+                    {
+                      "nodeType": "RangeExpression",
+                      "secret": false,
+                      "start": [
+                        {
+                          "nodeType": "LiteralExpression",
+                          "value": "0",
+                          "type": "number",
+                          "secret": false
+                        }
+                      ],
+                      "end": [
+                        {
+                          "nodeType": "NameExpression",
+                          "name": "m",
+                          "secret": false
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ],
+              "secret": false
+            },
+            {
+              "nodeType": "FunctionCall",
+              "function": [
+                {
+                  "nodeType": "NameExpression",
+                  "name": "merge_sort_dedup",
+                  "secret": false
+                }
+              ],
+              "parameters": [
+                {
+                  "nodeType": "SliceExpression",
+                  "secret": false,
+                  "array": [
+                    {
+                      "nodeType": "NameExpression",
+                      "name": "a",
+                      "secret": false
+                    }
+                  ],
+                  "range": [
+                    {
+                      "nodeType": "RangeExpression",
+                      "secret": false,
+                      "start": [
+                        {
+                          "nodeType": "NameExpression",
+                          "name": "m",
+                          "secret": false
+                        }
+                      ],
+                      "end": [
+                        {
+                          "nodeType": "NameExpression",
+                          "name": "n",
+                          "secret": false
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ],
+              "secret": false
+            }
+          ],
+          "secret": false
+        }
+      ],
+      "elseBody": [
+        {
+          "nodeType": "FunctionCall",
+          "function": [
+            {
+              "nodeType": "DotExpression",
+              "secret": false,
+              "left": [
+                {
+                  "nodeType": "NameExpression",
+                  "name": "a",
+                  "secret": false
+                }
+              ],
+              "right": [
+                {
+                  "nodeType": "NameExpression",
+                  "name": "to_owned",
+                  "secret": false
+                }
+              ]
+            }
+          ],
+          "secret": false
+        }
+      ]
+    }
+  ]
+}

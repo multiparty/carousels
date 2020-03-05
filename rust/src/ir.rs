@@ -10,19 +10,25 @@ pub trait IRNode: std::fmt::Debug { }
 #[derive(serde::Serialize, serde::Deserialize, Debug, Default)]
 pub struct Node{
     #[serde(skip_serializing_if = "String::is_empty")]
-    pub name: String,
+    pub nodeType: String,
     #[serde(skip_serializing_if = "Vec::is_empty")]
     pub nameNode: Vec<Node>,
+    #[serde(skip_serializing_if = "String::is_empty")]
+    pub name: String,
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub function: Vec<Node>,
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub parameters: Vec<Node>,
     #[serde(skip_serializing_if = "String::is_empty")]
     pub value: String,
     #[serde(skip_serializing_if = "String::is_empty")]
     pub type_: String,
     #[serde(skip_serializing_if = "Vec::is_empty")]
     pub typeNode: Vec<Node>,
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub assignment: Vec<Node>,
     #[serde(skip_serializing_if = "String::is_empty")]
     pub dependentType_: String,
-    #[serde(skip_serializing_if = "String::is_empty")]
-    pub nodeType: String,
     pub secret: bool,
     #[serde(skip_serializing_if = "String::is_empty")]
     pub arity: String,
@@ -31,11 +37,9 @@ pub struct Node{
     #[serde(skip_serializing_if = "Vec::is_empty")]
     pub returnType: Vec<Node>,
     #[serde(skip_serializing_if = "Vec::is_empty")]
-    pub function: Vec<Node>,
-    #[serde(skip_serializing_if = "Vec::is_empty")]
-    pub parameters: Vec<Node>,
-    #[serde(skip_serializing_if = "Vec::is_empty")]
     pub array: Vec<Node>,
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub condition: Vec<Node>,
     #[serde(skip_serializing_if = "Vec::is_empty")]
     pub ifBody: Vec<Node>,
     #[serde(skip_serializing_if = "Vec::is_empty")]
@@ -46,8 +50,6 @@ pub struct Node{
     pub right: Vec<Node>,
     #[serde(skip_serializing_if = "Vec::is_empty")]
     pub expression: Vec<Node>,
-    #[serde(skip_serializing_if = "Vec::is_empty")]
-    pub condition: Vec<Node>,
     #[serde(skip_serializing_if = "Vec::is_empty")]
     pub body: Vec<Node>,
     #[serde(skip_serializing_if = "Vec::is_empty")]
