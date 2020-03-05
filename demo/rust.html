@@ -20,7 +20,7 @@
   <script src="./plot.js"></script>
 </head>
 
-<body onload="carousels('selected_cost', 'selected_param', 'preprocessing', 'inp','out');">
+<body onload="plot();">
   <div id="content">
     <div id="title">carousels</div>
     <div id="description">
@@ -63,19 +63,19 @@ fn merge_dedup(a: &[Possession], b: &[Possession])
             <br></br>
             <tr>
               <form>
-                Select a Cost:&nbsp;&nbsp;<select id="selected_cost" onchange="carousels('selected_cost', 'selected_param', 'preprocessing', 'inp','out');">
+                Select a Cost:&nbsp;&nbsp;<select id="selected_cost" onchange="plot();">
                   <option value="onlineMsg" selected="selected">onlineMsg</option>
                   <option value="onlineRounds">onlineRounds</option>
                   <option value="offlineMsg">offlineMsg</option>
                   <option value="offlineRounds">offlineRounds</option>
                 </select>
                 &nbsp;&nbsp;
-                Fix a Parameter:&nbsp;&nbsp;<select id="selected_param" onchange="carousels('selected_cost', 'selected_param', 'preprocessing', 'inp','out');">
+                Fix a Parameter:&nbsp;&nbsp;<select id="selected_param" onchange="plot();">
                   <option value="numbits" selected="selected">numbits</option>
                   <option value="numparties">numparties</option>
                 </select>
                 <div id="checkbx" style="display:none">
-                  <input type="checkbox" id="preprocessing" onchange="carousels('selected_cost', 'selected_param', 'preprocessing', 'inp','out');" checked>Include Pre-Processing costs
+                  <input type="checkbox" id="preprocessing" onchange="plot();" checked>Include Pre-Processing costs
                 </div>
               </form>
               <br/><br/>
@@ -99,6 +99,7 @@ fn merge_dedup(a: &[Possession], b: &[Possession])
               </td>
             </tr>
         </div>
+        <br/>
         <table>
           Performance:<br/>
           <div id="myPlot" style="width:100%; height:100%"></div>
