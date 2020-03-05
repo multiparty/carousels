@@ -131,7 +131,7 @@ impl <'ast> Visit <'ast> for Node {
             Pat::Ident(_p)=>{
                 let mut typeNode = Node::default();
                 typeNode.nodeType = "TypeNode".to_string();
-                typeNode.type_  = "variable".to_string();
+                typeNode.type_  = "any".to_string();
                 self.typeNode.push(typeNode);
 
                 self.visit_ident(&_p.ident);
@@ -160,7 +160,7 @@ impl <'ast> Visit <'ast> for Node {
                 nameNode.name = self.nameNode[0].name.clone();
 
                 let mut typeNode = Node::default();
-                typeNode.type_  = "variable".to_string();
+                typeNode.type_  = "any".to_string();
                 typeNode.visit_type(&_t.ty);
                 self.typeNode.push(typeNode);
             }
@@ -189,7 +189,10 @@ impl <'ast> Visit <'ast> for Node {
         match node{
             Type::Array(_a)=>{
                 self.dependentType_.push_str(&"[".to_string());
+                self.type_ = "array".to_string();
                 self.visit_type(&_a.elem);
+
+                self.type_ = "array".to_string();
                 self.dependentType_.push_str(&"]".to_string());
 
                 let mut length = Node::default();
@@ -210,6 +213,7 @@ impl <'ast> Visit <'ast> for Node {
             }
             Type::Slice(_s)=>{
                 self.dependentType_.push_str(&"[".to_string());
+                self.type_ = "array".to_string();
                 self.visit_type(&_s.elem);
                 self.dependentType_.push_str(&"]".to_string());
             }
@@ -235,7 +239,7 @@ impl <'ast> Visit <'ast> for Node {
             self.dependentType_.push_str(&ident);
 
             if ident == "Possession"{
-                self.secret = true;
+                self.secret = "true".to_string();;
             }
 
             if self.type_.is_empty(){
@@ -269,14 +273,14 @@ impl <'ast> Visit <'ast> for Node {
                             GenericArgument::Binding(_b)=>{
                                 let identb = _b.ident.to_string();
                                 if identb == "Possession"{
-                                    self.secret = true;
+                                    self.secret = "true".to_string();;
                                 }
                                 self.visit_type(&_b.ty);
                             }
                             GenericArgument::Constraint(_c)=>{
                                 let identc = _c.ident.to_string();
                                 if identc == "Possession"{
-                                    self.secret = true;
+                                    self.secret = "true".to_string();;
                                 }
                                 for b in _c.bounds.iter(){
                                     match b{
@@ -724,10 +728,14 @@ impl <'ast> Visit <'ast> for Node {
 
          self.function.push(function);
 
-         for p in node.args.iter(){
-             let mut parameter = Node::default();
-             parameter.visit_expr(p);
-             self.parameters.push(parameter);
+         if node.args.is_empty(){
+             // self.parameters.push(Node::default());
+         }else{
+             for p in node.args.iter(){
+                 let mut parameter = Node::default();
+                 parameter.visit_expr(p);
+                 self.parameters.push(parameter);
+             }
          }
      }
 

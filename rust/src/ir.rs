@@ -17,7 +17,6 @@ pub struct Node{
     pub name: String,
     #[serde(skip_serializing_if = "Vec::is_empty")]
     pub function: Vec<Node>,
-    #[serde(skip_serializing_if = "Vec::is_empty")]
     pub parameters: Vec<Node>,
     #[serde(skip_serializing_if = "String::is_empty")]
     pub value: String,
@@ -29,7 +28,8 @@ pub struct Node{
     pub assignment: Vec<Node>,
     #[serde(skip_serializing_if = "String::is_empty")]
     pub dependentType_: String,
-    pub secret: bool,
+    #[serde(skip_serializing_if = "String::is_empty")]
+    pub secret: String,
     #[serde(skip_serializing_if = "String::is_empty")]
     pub arity: String,
     #[serde(skip_serializing_if = "String::is_empty")]

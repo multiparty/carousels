@@ -4,7 +4,7 @@
     {
       "nodeType": "NameExpression",
       "name": "merge_sort_dedup",
-      "secret": false
+      "parameters": []
     }
   ],
   "parameters": [
@@ -14,26 +14,28 @@
         {
           "nodeType": "NameExpression",
           "name": "a",
-          "secret": false
+          "parameters": []
         }
       ],
+      "parameters": [],
       "type": [
         {
           "nodeType": "TypeNode",
+          "parameters": [],
+          "type": "array",
           "dependentType_": "&[Possession<T,P>]",
-          "secret": true
+          "secret": "true"
         }
-      ],
-      "secret": false
+      ]
     }
   ],
-  "secret": false,
   "returnType": [
     {
       "nodeType": "TypeNode",
+      "parameters": [],
       "type": "array",
       "dependentType_": "Vec<Possession<T,P>>",
-      "secret": true
+      "secret": "true"
     }
   ],
   "body": [
@@ -43,14 +45,15 @@
         {
           "nodeType": "NameExpression",
           "name": "n",
-          "secret": false
+          "parameters": []
         }
       ],
+      "parameters": [],
       "type": [
         {
           "nodeType": "TypeNode",
-          "type": "variable",
-          "secret": false
+          "parameters": [],
+          "type": "any"
         }
       ],
       "assignment": [
@@ -60,60 +63,59 @@
             {
               "nodeType": "NameExpression",
               "name": "n",
-              "secret": false
+              "parameters": []
             }
           ],
-          "secret": false,
+          "parameters": [],
           "expression": [
             {
               "nodeType": "FunctionCall",
               "function": [
                 {
                   "nodeType": "DotExpression",
-                  "secret": false,
+                  "parameters": [],
                   "left": [
                     {
                       "nodeType": "NameExpression",
                       "name": "a",
-                      "secret": false
+                      "parameters": []
                     }
                   ],
                   "right": [
                     {
                       "nodeType": "NameExpression",
                       "name": "len",
-                      "secret": false
+                      "parameters": []
                     }
                   ]
                 }
               ],
-              "secret": false
+              "parameters": []
             }
           ]
         }
-      ],
-      "secret": false
+      ]
     },
     {
       "nodeType": "If",
-      "secret": false,
+      "parameters": [],
       "condition": [
         {
           "nodeType": "DirectExpression",
-          "secret": false,
+          "parameters": [],
           "arity": "2",
           "operator": ">=",
           "operands": [
             {
               "nodeType": "NameExpression",
               "name": "n",
-              "secret": false
+              "parameters": []
             },
             {
               "nodeType": "LiteralExpression",
+              "parameters": [],
               "value": "1",
-              "type": "number",
-              "secret": false
+              "type": "number"
             }
           ]
         }
@@ -125,14 +127,15 @@
             {
               "nodeType": "NameExpression",
               "name": "m",
-              "secret": false
+              "parameters": []
             }
           ],
+          "parameters": [],
           "type": [
             {
               "nodeType": "TypeNode",
-              "type": "variable",
-              "secret": false
+              "parameters": [],
+              "type": "any"
             }
           ],
           "assignment": [
@@ -142,34 +145,33 @@
                 {
                   "nodeType": "NameExpression",
                   "name": "m",
-                  "secret": false
+                  "parameters": []
                 }
               ],
-              "secret": false,
+              "parameters": [],
               "expression": [
                 {
                   "nodeType": "DirectExpression",
-                  "secret": false,
+                  "parameters": [],
                   "arity": "2",
                   "operator": "/",
                   "operands": [
                     {
                       "nodeType": "NameExpression",
                       "name": "n",
-                      "secret": false
+                      "parameters": []
                     },
                     {
                       "nodeType": "LiteralExpression",
+                      "parameters": [],
                       "value": "2",
-                      "type": "number",
-                      "secret": false
+                      "type": "number"
                     }
                   ]
                 }
               ]
             }
-          ],
-          "secret": false
+          ]
         },
         {
           "nodeType": "FunctionCall",
@@ -177,7 +179,7 @@
             {
               "nodeType": "NameExpression",
               "name": "merge_dedup",
-              "secret": false
+              "parameters": []
             }
           ],
           "parameters": [
@@ -187,44 +189,43 @@
                 {
                   "nodeType": "NameExpression",
                   "name": "merge_sort_dedup",
-                  "secret": false
+                  "parameters": []
                 }
               ],
               "parameters": [
                 {
                   "nodeType": "SliceExpression",
-                  "secret": false,
+                  "parameters": [],
                   "array": [
                     {
                       "nodeType": "NameExpression",
                       "name": "a",
-                      "secret": false
+                      "parameters": []
                     }
                   ],
                   "range": [
                     {
                       "nodeType": "RangeExpression",
-                      "secret": false,
+                      "parameters": [],
                       "start": [
                         {
                           "nodeType": "LiteralExpression",
+                          "parameters": [],
                           "value": "0",
-                          "type": "number",
-                          "secret": false
+                          "type": "number"
                         }
                       ],
                       "end": [
                         {
                           "nodeType": "NameExpression",
                           "name": "m",
-                          "secret": false
+                          "parameters": []
                         }
                       ]
                     }
                   ]
                 }
-              ],
-              "secret": false
+              ]
             },
             {
               "nodeType": "FunctionCall",
@@ -232,46 +233,44 @@
                 {
                   "nodeType": "NameExpression",
                   "name": "merge_sort_dedup",
-                  "secret": false
+                  "parameters": []
                 }
               ],
               "parameters": [
                 {
                   "nodeType": "SliceExpression",
-                  "secret": false,
+                  "parameters": [],
                   "array": [
                     {
                       "nodeType": "NameExpression",
                       "name": "a",
-                      "secret": false
+                      "parameters": []
                     }
                   ],
                   "range": [
                     {
                       "nodeType": "RangeExpression",
-                      "secret": false,
+                      "parameters": [],
                       "start": [
                         {
                           "nodeType": "NameExpression",
                           "name": "m",
-                          "secret": false
+                          "parameters": []
                         }
                       ],
                       "end": [
                         {
                           "nodeType": "NameExpression",
                           "name": "n",
-                          "secret": false
+                          "parameters": []
                         }
                       ]
                     }
                   ]
                 }
-              ],
-              "secret": false
+              ]
             }
-          ],
-          "secret": false
+          ]
         }
       ],
       "elseBody": [
@@ -280,24 +279,24 @@
           "function": [
             {
               "nodeType": "DotExpression",
-              "secret": false,
+              "parameters": [],
               "left": [
                 {
                   "nodeType": "NameExpression",
                   "name": "a",
-                  "secret": false
+                  "parameters": []
                 }
               ],
               "right": [
                 {
                   "nodeType": "NameExpression",
                   "name": "to_owned",
-                  "secret": false
+                  "parameters": []
                 }
               ]
             }
           ],
-          "secret": false
+          "parameters": []
         }
       ]
     }
