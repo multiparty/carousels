@@ -55,6 +55,7 @@ const evaluate = function (context, expression) {
 
 module.exports = {
   parse: mathjs.parse,
+  evaluate: evaluate,
   ZERO: ZERO,
   add: operatorNode('+', 'add', ZERO),
   sub: operatorNode('-', 'subtract', ZERO),
