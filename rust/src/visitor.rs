@@ -239,7 +239,7 @@ impl <'ast> Visit <'ast> for Node {
             self.dependentType_.push_str(&ident);
 
             if ident == "Possession"{
-                self.secret = "true".to_string();;
+                self.secret = true;;
             }
 
             if self.type_.is_empty(){
@@ -273,14 +273,14 @@ impl <'ast> Visit <'ast> for Node {
                             GenericArgument::Binding(_b)=>{
                                 let identb = _b.ident.to_string();
                                 if identb == "Possession"{
-                                    self.secret = "true".to_string();;
+                                    self.secret = true;;
                                 }
                                 self.visit_type(&_b.ty);
                             }
                             GenericArgument::Constraint(_c)=>{
                                 let identc = _c.ident.to_string();
                                 if identc == "Possession"{
-                                    self.secret = "true".to_string();;
+                                    self.secret = true;;
                                 }
                                 for b in _c.bounds.iter(){
                                     match b{
