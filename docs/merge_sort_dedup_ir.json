@@ -149,11 +149,6 @@
               "nodeType": "NameExpression",
               "name": "m"
             },
-            "type": {
-              "nodeType": "TypeNode",
-              "secret": false,
-              "type": "number"
-            },
             "assignment": {
               "nodeType": "VariableAssignment",
               "name": {

@@ -1,7 +1,7 @@
 const AbstractMetric = require('../../ir/metric.js');
 
 const math = require('../math.js');
-const loop = require('../loop.js');
+const loop = require('../loops.js');
 
 // Total metric: aggregates cost by adding it across any construct's children
 // Singleton instance of AbstractMetric

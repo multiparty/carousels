@@ -98,7 +98,6 @@ Analyzer.prototype.symbolicResult = function () {
   const equations = [];
   const description = [];
 
-  console.log(this.functionMetricAbstractionMap.scopes[0]);
   for (let funcName in this.functionMetricAbstractionMap.scopes[0]) {
     if (Object.prototype.hasOwnProperty.call(this.functionMetricAbstractionMap.scopes[0], funcName)) {
       const functionAbstraction = this.functionMetricAbstractionMap.scopes[0][funcName];

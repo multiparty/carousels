@@ -54,7 +54,7 @@ module.exports = [
   {
     rule: {
       nodeType: 'DirectExpression',
-      match: '@NB(\\+|-\\*|/|<|>|(<=)|(>=)|(==)|(!=))@NB'
+      match: '@NB(\\+|-|\\*|/|<|>|(<=)|(>=)|(==)|(!=))@NB'
     },
     value: function (node, pathStr, children) {
       const operands = [];
@@ -64,6 +64,7 @@ module.exports = [
       for (let i = 0; i < children.operands.length; i++) {
         secret = secret || children.operands[i].secret;
         if (!children.operands[i].hasDependentType('value')) {
+          console.log(children.operands[i], 'has no value');
           allDependent = false;
         } else {
           operands.push(children.operands[i].dependentType.value);
@@ -75,7 +76,7 @@ module.exports = [
         dependentParameterVal = OPERATOR_MAP[node.operator].apply(math, operands);
       } else {
         const freshParameter = Parameter.forValue(pathStr);
-        this.addParameter(freshParameter);
+        this.addParameters([freshParameter]);
         dependentParameterVal = freshParameter.mathSymbol;
       }
 
@@ -96,7 +97,7 @@ module.exports = [
         dependentParameterVal = math.not(children.operands[0]);
       } else {
         const freshParameter = Parameter.forValue(pathStr);
-        this.addParameter(freshParameter);
+        this.addParameters([freshParameter]);
         dependentParameterVal = freshParameter.mathSymbol;
       }
 

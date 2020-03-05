@@ -35,12 +35,12 @@ const If = function (node, pathStr) {
 
   // aggregate children metric
   const childrenType = {
-    condition:  ifType,//conditionResult.type,
+    condition: conditionResult.type,
     ifBody: ifType,
     elseBody: elseType
   };
   const childrenMetric = {
-    condition: math.parse("1"),//conditionResult.metric, // TODO
+    condition: conditionResult.metric,
     ifBody: ifResult.metric,
     elseBody: elseResult.metric
   };
@@ -48,7 +48,7 @@ const If = function (node, pathStr) {
 
   // find cost in rules and apply it
   const elseTypeStr = elseType ? elseType.toString() : carouselsTypes.UNIT_TYPE.toString();
-  const typeString = ifType.toString()/*conditionResult.type.toString()*/ + '?' + ifType.toString() + ':' + elseTypeStr; // TODO
+  const typeString = conditionResult.type.toString() + '?' + ifType.toString() + ':' + elseTypeStr;
   const finalMetric = this.analyzer.costs.applyMatch(node, typeString, aggregateMetric);
 
   // return results

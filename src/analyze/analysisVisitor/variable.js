@@ -31,7 +31,7 @@ const VariableDefinition = function (node, pathStr) {
     if (variableTypeResult != null) {
       typeType = variableTypeResult.type;
       typeMetric = variableTypeResult.metric;
-      if (assignmentType.conflicts(typeType.type)) {
+      if (assignmentType.conflicts(typeType)) {
         throw new Error('Types for variable "' + pathStr + variableName + '" from assignment and definition have a conflict:\n' +
           'Assignment Type: ' + assignmentType.toString() + '\n' +
           'Definition Type: ' + typeType.toString());

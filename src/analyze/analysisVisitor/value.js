@@ -96,7 +96,7 @@ const LiteralExpression = function (node) {
 
   return {
     type: type,
-    metric: this.analyzer.metric.aggregateLiteralExpression(node, type, null)
+    metric: this.analyzer.metric.aggregateLiteralExpression(node, type, {})
   }
 };
 

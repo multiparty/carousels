@@ -16,7 +16,7 @@ function RuleBook(analyzer, rules, _type) {
       throw new Error('Illegal nodeType "' + rule.rule.nodeType + '" used in rule!')
     }
 
-    const bookArray = this.rules[rule.nodeType] || [];
+    const bookArray = this.rules[rule.rule.nodeType] || [];
     bookArray.push(new Rule(rule.rule.match, rule.value));
     this.rules[rule.rule.nodeType] = bookArray;
   }

@@ -11,7 +11,7 @@ const DirectExpression = function (node, pathStr) {
   const childrenMetric = {operands: []};
 
   for (let i = 0; i < node.operands.length; i++) {
-    const child = this.visit(node.operands[i], pathStr + '[operand' + i +']');
+    const child = this.visit(node.operands[i], pathStr + '[operand' + (i+1) +']');
     childrenType.operands.push(child.type);
     childrenMetric.operands.push(child.metric);
   }

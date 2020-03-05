@@ -24,7 +24,7 @@ Type.prototype.toString = function () { // used for regex matching against cost 
   return '<type:' + this.dataType.toLowerCase() + dependentTypeString + ',secret:' + this.secret + '>';
 };
 Type.prototype.hasDependentType = function (prop) {
-  return this.dependentType != null && (prop == null || this.dependentType[prop] == null);
+  return this.dependentType != null && (prop == null || this.dependentType[prop] != null);
 };
 Type.prototype.is = function (dataType) {
   return this.dataType === dataType;
@@ -117,7 +117,8 @@ ValueDependentType.prototype.compatible = function (dataType) {
   return dataType === TYPE_ENUM.NUMBER || dataType === TYPE_ENUM.BOOLEAN;
 };
 ValueDependentType.prototype.toString = function () {
-  return '<value:' + this.value + '>';
+  const valStr = this.value ? this.value.toString().replace(/\s/g, '') : '';
+  return '<value:' + valStr + '>';
 };
 
 // length: either constant number or Parameter
@@ -129,7 +130,8 @@ ArrayDependentType.prototype.compatible = function (dataType) {
   return dataType === TYPE_ENUM.ARRAY;
 };
 ArrayDependentType.prototype.toString = function () {
-  return '<datatype:' + this.dataType.toString() + ',length:' + this.length + '>';
+  const lenStr = this.length ? this.length.toString().replace(/\s/g, '') : '';
+  return '<datatype:' + this.dataType.toString() + ',length:' + lenStr + '>';
 };
 
 // Function type behaves differently
