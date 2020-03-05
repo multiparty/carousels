@@ -79,18 +79,12 @@ fn merge_dedup(a: &[Possession], b: &[Possession])
                 </div>
               </form>
               <br/><br/>
-              <!-- <td>
-                Cost specification w/o preprocessing:<br/>
-                <textarea id="spec" rows="18">
+              <td>
+                AST:<br/>
+                <textarea id="ir" rows="18">
 
                 </textarea>
               </td>
-              <td>
-                Cost specification w/ preprocessing:<br/>
-                <textarea id="spec_prep" rows="18">
-
-                </textarea>
-              </td> -->
             </tr>
             <tr>
               <td colspan="2">
@@ -122,6 +116,7 @@ carousels.promise.then(function () {
 
     // TODO: remove this
     const IRCode = carousels.parsers.rust(code);
+    document.getElementById("ir").innerHTML = JSON.stringify(IRCode, null, 2);//IRCode.map(JSON.stringify).join('\n\n');
 
     const output = carousels.analyze(language, code, costs, costs['metrics'][0]['title']);
     console.log('output', output);

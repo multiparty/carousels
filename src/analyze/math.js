@@ -53,7 +53,7 @@ const evaluate = function (context, expression) {
   };
 };
 
-module.exports = {
+mathmodule.exports = {
   parse: mathjs.parse,
   evaluate: evaluate,
   ZERO: ZERO,

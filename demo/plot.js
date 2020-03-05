@@ -25,39 +25,14 @@ function linspace(start, end, step){
   return x;
 }
 
-function transpose(matrix){
-  return matrix[0].map((col, i) => matrix.map(row => row[i]));
-}
-
-function parse_values (bbl_result){
-
-  var keys = Object.keys(bbl_result);
-  var p =  [];
-  var names = [];
-  var num_terms = 0;
-
-  for(var i =0; i < keys.length; i++){
-    var temp = carousels.parsePoly(bbl_result[keys[i]]);
-    p.push(temp);
-
-    var len = (Object.keys(temp.terms)[0].replace(',','')).length;
-    num_terms = (num_terms < len)? len: num_terms;
-    names.push(keys[i]);
-  }
-
-  return [p , names, num_terms];
-}
-
-
-function compute_values(p, num_terms){
+function compute_values(context, expressions){
   var ran = linspace(1,size,1);
   var results = [];
 
-  for(var j = 0; j < p.length; j++){
+  for(var j = 0; j < p.length; j++) {
     var res = [];
-    for(var i = 1; i <= size; i++){
-      // console.log(p[j]);
-        res[i-1] = ran.map(function (b){ return polynomium.evaluate(p[j], {"b": b, "n": i});}); // rows n columns b
+    for(var i = 1; i <= size; i++) {
+        // res[i-1] = ran.map(function (b){evaluate(p[j], {"b": b, param + "=" + i});}); // rows n columns b
       if(num_terms <=1){
         res = res[0];
         i = size+1;
@@ -67,48 +42,6 @@ function compute_values(p, num_terms){
   }
   return results;
 }
-
-function plot3d(op_name, names, results){
-  var len = results.length;
-  var traces = [];
-
-  for(var i = 0; i < len; i++){
-    var data = {
-               z: results[i],
-               colorscale: plotly_colorscale[i],
-               name: names[i],
-               type: 'surface'
-            };
-    if(i >= 1){
-      data["showlegend"] = false;
-      data["showscale"] = false;
-    }
-    traces.push(data);
-  }
-
-  var layout = {
-    scene: {
-      xaxis:{title: '#bits', },
-      yaxis:{title: '#parties'},
-      zaxis:{title: op_name},
-      },
-    title: {
-      text:'Cost Analysis',
-      font: {
-        family: 'Open Sans',
-        size: 24
-      },
-      xref: 'paper',
-      x: 0.05,
-    },
-  };
-
-  Plotly.newPlot('myPlot', traces, layout);
-}
-
-
-
-
 
 function plot2d(op_name, names, results){
   // console.log(op_name, names, results);
