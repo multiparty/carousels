@@ -1,7 +1,7 @@
 const AbstractMetric = require('../../ir/metric.js');
 
 const math = require('../math.js');
-const loop = require('../loop.js');
+const loop = require('../loops.js');
 
 // Round metric: aggregates cost along paths in the code dependency graph (through the depth of the circuit)
 // Singleton object instantiated from AbstractMetric
@@ -16,7 +16,6 @@ roundMetric.defaults = {
   VariableAssignment: 'expression',
   LiteralExpression: math.ZERO,
   ParenthesesExpression: 'expression',
-  ArrayExpression: math.ZERO,
   DotExpression: 'left'
 };
 
@@ -80,6 +79,12 @@ roundMetric.aggregateRangeExpression = function (node, childrenType, childrenMet
 // Slice: aggregate the Array and the range
 roundMetric.aggregateSliceExpression = function (node, childrenType, childrenMetric) {
   const total = math.max(childrenMetric.array, childrenMetric.range);
+  return total;
+};
+
+// ArrayExpression: an array constructed from some elements directly
+roundMetric.aggregateArrayExpression = function (node, childrenType, childrenMetric) {
+  const total = math.max.apply(null, childrenMetric);
   return total;
 };
 

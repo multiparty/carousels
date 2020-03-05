@@ -137,7 +137,8 @@
             },
             {
               "nodeType": "LiteralExpression",
-              "value": 1
+              "value": "1",
+              "type": "number"
             }
           ]
         },
@@ -170,7 +171,8 @@
                   },
                   {
                     "nodeType": "LiteralExpression",
-                    "value": 2
+                    "value": "2",
+                    "type": "number"
                   }
                 ]
               }
@@ -200,7 +202,8 @@
                       "nodeType": "RangeExpression",
                       "start": {
                         "nodeType": "LiteralExpression",
-                        "value": 0
+                        "value": "0",
+                        "type": "number"
                       },
                       "end": {
                         "nodeType": "NameExpression",

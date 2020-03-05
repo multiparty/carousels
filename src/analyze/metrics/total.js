@@ -16,7 +16,6 @@ totalMetric.defaults = {
   VariableAssignment: 'expression',
   LiteralExpression: math.ZERO,
   ParenthesesExpression: 'expression',
-  ArrayExpression: math.ZERO,
   DotExpression: 'left'
 };
 
@@ -79,6 +78,12 @@ totalMetric.aggregateRangeExpression = function (node, childrenType, childrenMet
 // Slice: aggregate the Array and the range
 totalMetric.aggregateSliceExpression = function (node, childrenType, childrenMetric) {
   const total = math.add(childrenMetric.array, childrenMetric.range);
+  return total;
+};
+
+// ArrayExpression: an array constructed from some elements directly
+totalMetric.aggregateArrayExpression = function (node, childrenType, childrenMetric) {
+  const total = math.max.add(null, childrenMetric);
   return total;
 };
 
