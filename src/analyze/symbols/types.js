@@ -1,5 +1,6 @@
 const Enum = require('../../utils/enum.js');
 const Parameter = require('./parameter.js');
+const math = require('../math.js');
 
 // Enum containing supported types
 const TYPE_ENUM = new Enum('TYPE_ENUM', 'NUMBER', 'ARRAY', 'BOOLEAN', 'STRING', 'ANY', 'UNIT');
@@ -29,8 +30,9 @@ Type.prototype.hasDependentType = function (prop) {
 Type.prototype.is = function (dataType) {
   return this.dataType === dataType;
 };
-Type.prototype.copyWithDependentType = function (dependentType) {
-  return new Type(this.dataType, this.secret, dependentType);
+Type.prototype.copy = function () {
+  const depCopy = this.dependentType ? this.dependentType.copy() : null;
+  return new Type(this.dataType, this.secret, depCopy);
 };
 Type.prototype.conflicts = function (otherType) {
   if (!(otherType instanceof Type)) {
@@ -53,7 +55,7 @@ Type.prototype.combine = function (otherType, dependentCombiner) {
   if (otherType != null && otherType.dataType !== TYPE_ENUM.UNIT) {
     if (this.secret !== otherType.secret) {
       throw new Error('Cannot combine secret and non-secret types "' +
-        this.secret.toString() + '" and "' + otherType.toString() + '"!');
+        this.toString() + '" and "' + otherType.toString() + '"!');
     }
 
     if (this.dataType !== otherType.dataType) {
@@ -61,7 +63,7 @@ Type.prototype.combine = function (otherType, dependentCombiner) {
     }
 
     if (this.dataType === TYPE_ENUM.ARRAY) {
-      const dependentDataType = this.dependentType.dataType.combine(otherType.dependentType.dataType);
+      const dependentDataType = this.dependentType.dataType.combine(otherType.dependentType.dataType, dependentCombiner);
       const combinedLength = dependentCombiner(this.dependentType.length, otherType.dependentType.length);
       return new Type(TYPE_ENUM.ARRAY, this.secret, new ArrayDependentType(dependentDataType, combinedLength));
     }
@@ -120,6 +122,9 @@ ValueDependentType.prototype.toString = function () {
   const valStr = this.value ? this.value.toString().replace(/\s/g, '') : '';
   return '<value:' + valStr + '>';
 };
+ValueDependentType.prototype.copy = function () {
+  return new ValueDependentType(this.value);
+};
 
 // length: either constant number or Parameter
 function ArrayDependentType(dataType, length) {
@@ -132,6 +137,9 @@ ArrayDependentType.prototype.compatible = function (dataType) {
 ArrayDependentType.prototype.toString = function () {
   const lenStr = this.length ? this.length.toString().replace(/\s/g, '') : '';
   return '<datatype:' + this.dataType.toString() + ',length:' + lenStr + '>';
+};
+ArrayDependentType.prototype.copy = function () {
+  return new ArrayDependentType(this.dataType.copy(), this.length);
 };
 
 // Function type behaves differently
@@ -180,12 +188,31 @@ function RangeType(startType, endType, incrementType) {
   this.startType = startType;
   this.endType = endType;
   this.incrementType = incrementType;
+
+  if (this.incrementType == null) {
+    this.incrementType = new Type(TYPE_ENUM.NUMBER, false, new ValueDependentType(math.parse('1')));
+  }
 }
 RangeType.prototype._rangeType = true;
 RangeType.prototype.toString = function () {
   return '[' + this.startType.toString() + ':' + this.endType.toString() +
     (this.incrementType != null ? ':' + this.incrementType.toString() : '') +
     ']';
+};
+RangeType.prototype.computeSize = function (pathStr) {
+  // If dependent parameters exist, use them!
+  if (this.startType.hasDependentType('value') && this.endType.hasDependentType('value')
+      && this.incrementType.hasDependentType('value')) {
+
+    this.size = math.div(math.sub(this.startType.dependentType.value, this.endType.dependentType.value),
+      this.incrementType.dependentType.value);
+
+    return [];
+  }
+
+  const parameter = Parameter.forRangeSize(pathStr);
+  this.size = parameter.mathSymbol;
+  return [parameter];
 };
 
 module.exports = {

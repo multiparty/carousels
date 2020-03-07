@@ -69,10 +69,6 @@ const VariableAssignment = function (node, pathStr) {
   const analyzer = this.analyzer;
 
   const childResult = this.visit(node.expression, pathStr + '=');
-  if (childResult == null) { // TODO
-    return null; // null
-  }
-
   const variableType = childResult.type;
   const childMetric = childResult.metric;
 

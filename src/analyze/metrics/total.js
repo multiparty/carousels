@@ -25,14 +25,14 @@ totalMetric.store = function () {
 
 // For Each: body * iterations
 totalMetric.aggregateForEach = function (node, childrenType, childrenMetric) {
-  const iterationCount = loop.iterationCount(node, childrenType);
+  const iterationCount = loop.iterationCountForEach(node, childrenType);
   const total = math.multiply(childrenMetric.body, iterationCount);
   return total;
 };
 
 // Regular For: (body + condition + increment) * iterations + condition + initialization (one extra condition evaluation)
 totalMetric.aggregateFor = function (node, childrenType, childrenMetric) {
-  const iterationCount = loop.iterationCount(node, childrenType);
+  const iterationCount = loop.iterationCountFor(node, childrenType);
   const body = math.add(childrenMetric.body, childrenMetric.condition, childrenMetric.increment);
   const bodyIterated = math.multiply(body, iterationCount);
   const total = math.add(bodyIterated, childrenMetric.condition, childrenMetric.initial);

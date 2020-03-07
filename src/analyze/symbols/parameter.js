@@ -13,6 +13,10 @@ function Parameter(symbol, description) {
   USED_PARAMETERS.push(this.mathSymbol);
 }
 
+Parameter.prototype.toString = function () {
+  return this.mathSymbol.toString() + ': ' + this.description;
+};
+
 // static
 Parameter.forArrayLength = function (arrayName) {
   const description = 'The size of array "' + arrayName + '"';
@@ -29,8 +33,10 @@ Parameter.forMetric = function (variableName, metricTitle) {
   const symbol = 'm' + (PARAMETER_COUNTER++);
   return new Parameter(symbol, description);
 };
-Parameter.prototype.toString = function () {
-  return this.mathSymbol.toString() + ': ' + this.description;
+Parameter.forRangeSize = function (rangeName) {
+  const description = 'The size for range "' + rangeName + '"';
+  const symbol = 's' + (PARAMETER_COUNTER++);
+  return new Parameter(symbol, description);
 };
 
 module.exports = Parameter;

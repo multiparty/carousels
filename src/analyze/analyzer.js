@@ -37,9 +37,8 @@ function Analyzer(language, code, costs, extraTyping) {
   this.typings = new TypingRuleBook(this, typingRules);
 
   // Scoped tables
-  this.variableTypeMap = new ScopedMap();
+  this.variableTypeMap = new ScopedMap(); // also functions
   this.variableMetricMap = new ScopedMap();
-  this.functionTypeMap = new ScopedMap();
   this.functionReturnAbstractionMap = new ScopedMap();
   this.functionMetricAbstractionMap = new ScopedMap();
   this.abstractionToClosedFormMap = {};

@@ -49,7 +49,8 @@ const RangeExpression = function (node, pathStr) {
   };
   const childrenMetric = {
     start: startResult.metric,
-    end: endResult.metric
+    end: endResult.metric,
+    increment: this.analyzer.metric.initial
   };
   if (incrementResult) {
     childrenType.increment = incrementResult.type;
@@ -59,6 +60,7 @@ const RangeExpression = function (node, pathStr) {
   // range is not supported for costs or typings: skip
   // find range type
   const type = new carouselsTypes.RangeType(childrenType.start, childrenType.end, childrenType.increment);
+  this.analyzer.addParameters(type.computeSize(pathStr));
 
   // aggregate metric
   const metric = this.analyzer.metric.aggregateRangeExpression(node, childrenType, childrenMetric);

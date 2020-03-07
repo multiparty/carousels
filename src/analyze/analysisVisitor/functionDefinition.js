@@ -4,7 +4,6 @@ const Parameter = require('../symbols/parameter.js');
 
 const removeScope = function () {
   this.analyzer.variableTypeMap.removeScope();
-  this.analyzer.functionTypeMap.removeScope();
   this.analyzer.functionReturnAbstractionMap.removeScope();
   this.analyzer.variableMetricMap.removeScope();
   this.analyzer.functionMetricAbstractionMap.removeScope();
@@ -129,8 +128,7 @@ const FunctionDefinition = function (node, pathStr) {
   const functionType = new carouselsTypes.FunctionType(null, childrenType.parameters, childrenType.returnType);
   const parametersDependentParameters = analyzer.getParametersBySymbol(functionType.getDependentParameters());
 
-  analyzer.functionTypeMap.add(functionName, functionType);
-  analyzer.functionTypeMap.addScope();
+  analyzer.variableTypeMap.addPreviousScope(functionName, functionType);
 
   // Create return abstraction
   createDependentReturnAbstraction(analyzer, functionName, functionType, parametersDependentParameters);

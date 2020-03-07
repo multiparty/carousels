@@ -1,3 +1,5 @@
+const carouselsTypes = require('../symbols/types.js');
+
 const ReturnStatement = function (node, pathStr) {
   const childResult = this.visit(node, pathStr + '[returnExpression]');
 
@@ -10,13 +12,117 @@ const ReturnStatement = function (node, pathStr) {
   };
 };
 
+const localFunctionCall = function (node, parametersType, parametersMetric) {
+  const functionName = node.function.name; // must be a NameExpression for now
+
+  // Figure out return type (including dependent portion)
+  const returnType = this.analyzer.variableTypeMap.get(functionName).returnType.copy();
+  if (returnType.is(carouselsTypes.TYPE_ENUM.ARRAY)) {
+    // Has dependent portion: resolve it via return type abstraction
+    const returnTypeAbstraction = this.analyzer.functionReturnAbstractionMap.get(functionName);
+    returnType.dependentType.length = returnTypeAbstraction.concretizeDependent(parametersType);
+  }
+
+  // Figure out metric via metric abstraction
+  const metricAbstraction = this.analyzer.functionMetricAbstractionMap.get(functionName);
+  const metric = metricAbstraction.concretizeDependent(parametersType, parametersMetric.map(this.analyzer.metric.store));
+
+  // Done
+  return {
+    type: returnType,
+    metric: metric
+  };
+};
+
+const unknownFunctionCall = function (node, parametersSecret, parametersType, parametersMetric, pathStr) {
+  // can be either a name expression or a dot expression
+  const functionResult = this.visit(node.function, pathStr + '[function]');
+  let functionType = functionResult.type;
+  let functionMetric = functionResult.metric;
+
+  // expression string for looking in typings and costs rules
+  let expressionTypeStr = '(' + parametersType.join(',') + ')';
+  if (node.function.nodeType === 'DotExpression') {
+    expressionTypeStr = functionResult.leftType + '.' + functionResult.rightType + expressionTypeStr;
+  } else {
+    expressionTypeStr = node.function.name + expressionTypeStr;
+  }
+
+  // construct children maps
+  const childrenType = {
+    function: functionType,
+    parameters: parametersType,
+    leftType: functionResult.leftType,
+    rightType: functionResult.rightType
+  };
+  const childrenMetric = {
+    function: functionMetric,
+    parameters: parametersMetric
+  };
+
+  // we have several cases:
+  // NameExpression + functionType is not ANY: special function that was found in typings, apply it!
+  // NameExpression + functionType is ANY: did not find the function anywhere, must try to find it in typings
+  // DotExpression + functionType is not ANY: special function that was found in typings, apply it!
+  // DotExpression + functionType is ANY: did not find the function anywhere, must try to find it in typings
+  // functionMetric is never null: defaults to <METRIC>.initial
+  let returnType;
+  if (functionType.is && functionType.is(carouselsTypes.TYPE_ENUM.ANY)) {
+    // find function in typings
+    if (this.analyzer.typings.findMatch(node, expressionTypeStr) !== undefined) {
+      returnType = this.analyzer.typings.applyMatch(node, expressionTypeStr, pathStr, childrenType);
+    } else {
+      // function not found: return type is assumed to be ANY
+      returnType = new carouselsTypes.Type(carouselsTypes.TYPE_ENUM.ANY, parametersSecret);
+    }
+  } else if (functionType instanceof carouselsTypes.FunctionType) {
+    // functionType was already found by visiting node.function
+    // apply it!
+    returnType = functionType.returnType.copy();
+  } else {
+    throw new Error('Cannot resolve type of function for function call "' + JSON.stringify(node.function) +
+      '" properly! Found "' + functionType + '" instead of FunctionType');
+  }
+
+  // Aggregate metric
+  const aggregateMetric = this.analyzer.metric.aggregateFunctionCall(node, childrenType, childrenMetric);
+
+  // find metric in costs
+  const finalMetric = this.analyzer.costs.applyMatch(node, expressionTypeStr, aggregateMetric);
+
+  // done
+  return {
+    type: returnType,
+    metric: finalMetric
+  };
+};
+
 const FunctionCall = function (node, pathStr) {
   const func = node.function;
   const parameters = node.parameters;
 
-  // Two cases: function is a name or a dotExpression
-  let abstractionType, abstractionMetric;
-  if (func.nodeType === 'NameExpression') {
+  // visit children
+  let parametersSecret = false;
+  const parametersType = [];
+  const parametersMetric = [];
+  for (let i = 0; i < parameters.length; i++) {
+    const parameterResult = this.visit(parameters, pathStr + '[param'+i+']');
+    parametersType.push(parameterResult.type);
+    parametersMetric.push(parameterResult.metric);
+    parametersSecret = parametersSecret || parameterResult.type.secret;
+  }
+
+  // If function is defined locally (for now this can only be true if it is a straight up function name):
+  //    we do not look at typings or costs, and use our own abstraction
+  // Else (can be either a function name or a dot expression)
+  //    look at typing and metrics, the expression string looks like:
+  //        <FUNC_NAME>(<param1Type>, <param2Type>, ...)                 for function name
+  //        <thisType>.<FUNC_NAME>(<param1Type>, <param2Type>, ...)      for dot expression
+  const definedLocally = func.nodeType === 'NameExpression' && this.analyzer.variableTypeMap.has(func.name);
+  if (definedLocally) {
+    return localFunctionCall.call(this, node, parametersType, parametersMetric);
+  } else {
+    return unknownFunctionCall.call(this, node, parametersSecret, parametersType, parametersMetric, pathStr);
   }
 };
 

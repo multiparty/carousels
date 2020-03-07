@@ -60,7 +60,8 @@ const DotExpression = function (node, pathStr) {
   };
 
   // Look for match in typing
-  let expressionTypeStr = leftResult.type.toString() + '.' + rightResult.type.toString();
+  const expressionTypeStr = leftResult.type.toString() + '.' + rightResult.type.toString();
+
   const finalType = this.analyzer.typings.applyMatch(node, expressionTypeStr, pathStr,  childrenType);
 
   // Metric aggregation
@@ -71,7 +72,10 @@ const DotExpression = function (node, pathStr) {
 
   return {
     type: finalType,
-    metric: finalMetric
+    metric: finalMetric,
+    // only used if parent is functionCall
+    leftType: leftResult.type,
+    rightType: rightResult.type
   };
 };
 

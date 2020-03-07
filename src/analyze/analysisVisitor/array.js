@@ -1,5 +1,4 @@
 const carouselsTypes = require('../symbols/types.js');
-const ranges = require('../ranges.js');
 
 const ArrayAccess = function (node, pathStr) {
   const arrayResult = this.visit(node.array, pathStr + '[array]');
@@ -50,7 +49,7 @@ const SliceExpression  = function (node, pathStr) {
   }
 
   // find the slice length
-  const sliceLength = ranges.size(this.analyzer, node);
+  const sliceLength = rangeResult.type.size;
 
   // find the dataType inside the slice
   let innerType;

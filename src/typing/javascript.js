@@ -4,7 +4,7 @@ module.exports = [
   {
     rule: {
       nodeType: 'DotExpression',
-      match: '^<array@D>\\.length$'
+      match: '<type:array@D,secret:(true|false)>\\.length'
     },
     value: function (node, pathStr, children) {
       // <array<type: ..., length: n>.length is of type: <number <value: n>>

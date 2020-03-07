@@ -36,8 +36,13 @@ FunctionAbstraction.prototype.concretize = function (concreteParams) {
   return math.parse(this.abstractionName + '(' + concreteParams.join(',') + ')');
 };
 
-FunctionAbstraction.prototype.concretizeDependent = function (parameters) {
+FunctionAbstraction.prototype.concretizeDependent = function (parameters, metrics) {
   let concreteParams = [];
+
+  metrics = metrics ? metrics : [];
+  for (let i = 0; i < metrics.length; i++) {
+    concreteParams.push(metrics[i]);
+  }
 
   for (let i = 0; i < this.parameterIndices; i++) {
     const index = this.parameterIndices[i];

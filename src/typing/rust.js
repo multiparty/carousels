@@ -32,7 +32,7 @@ module.exports = [
   {
     rule: {
       nodeType: 'DotExpression',
-      match: '^<array@D>\\.len$'
+      match: '<type:array@D,secret:(true|false)>\\.len'
     },
     value: function (node, pathStr, children) {
       const arrayType = children.left;
@@ -48,6 +48,15 @@ module.exports = [
 
       const plainNumberType = new carouselsTypes.Type(carouselsTypes.TYPE_ENUM.NUMBER, false);
       return new carouselsTypes.FunctionType(null, [], plainNumberType);
+    }
+  },
+  {
+    rule: {
+      nodeType: 'FunctionCall',
+      match: '@T\\.to_owned\\(\\)'
+    },
+    value: function (node, pathStr, children) {
+      return children.leftType;
     }
   },
   // direct expressions

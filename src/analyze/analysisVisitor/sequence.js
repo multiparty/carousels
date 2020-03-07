@@ -9,9 +9,6 @@ const Sequence = function (nodes, pathStr) {
   for (let i = 0; i < nodes.length; i++) {
     const node = nodes[i];
     const result = this.visit(node, pathStr);
-    if (result == null) { // TODO
-      continue;
-    }
 
     childrenType.push(result.type);
     childrenMetric.push(result.metric);
