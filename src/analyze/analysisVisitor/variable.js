@@ -21,8 +21,7 @@ const VariableDefinition = function (node, pathStr) {
   let variableAssignmentResult = this.visit(node.assignment, pathStr + variableName + '=');
 
   // initialize types and metric for each child
-  let typeType, assignmentType, typeMetric;
-  let assignmentMetric = analyzer.metric.initial;
+  let typeType, assignmentType, typeMetric, assignmentMetric;
 
   // make sure there are no conflicts in types between children
   if (variableAssignmentResult != null) {
@@ -44,9 +43,6 @@ const VariableDefinition = function (node, pathStr) {
     throw new Error('Cannot determine type of variable "' + pathStr + variableName + '"');
   }
 
-  // add variable and type to scope
-  analyzer.variableTypeMap.add(variableName, assignmentType || typeType);
-
   // Aggregate metric
   const childrenType = {
     type: typeType,
@@ -58,6 +54,11 @@ const VariableDefinition = function (node, pathStr) {
   };
 
   const aggregateMetric = analyzer.metric.aggregateVariableDefinition(node, childrenType, childrenMetric);
+
+  // add variable and type to scope
+  analyzer.variableTypeMap.add(variableName, assignmentType || typeType);
+  analyzer.variableMetricMap.add(variableName, analyzer.metric.store(aggregateMetric));
+
   return {
     type: assignmentType || typeType,
     metric: aggregateMetric

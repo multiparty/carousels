@@ -12,8 +12,13 @@ const ReturnStatement = function (node, pathStr) {
   };
 };
 
-const localFunctionCall = function (node, parametersType, parametersMetric) {
+const localFunctionCall = function (node, pathStr) {
   const functionName = node.function.name; // must be a NameExpression for now
+
+  // visit parameters
+  const parametersResult = visitParameters.call(this, node, pathStr);
+  const parametersType = parametersResult.parametersType;
+  const parametersMetric = parametersResult.parametersMetric;
 
   // Figure out return type (including dependent portion)
   const returnType = this.analyzer.variableTypeMap.get(functionName).returnType.copy();
@@ -34,11 +39,17 @@ const localFunctionCall = function (node, parametersType, parametersMetric) {
   };
 };
 
-const unknownFunctionCall = function (node, parametersSecret, parametersType, parametersMetric, pathStr) {
+const unknownFunctionCall = function (node, pathStr) {
   // can be either a name expression or a dot expression
   const functionResult = this.visit(node.function, pathStr + '[function]');
   let functionType = functionResult.type;
   let functionMetric = functionResult.metric;
+
+  // visit parameters
+  const parametersResult = visitParameters.call(this, node, pathStr);
+  const parametersType = parametersResult.parametersType;
+  const parametersMetric = parametersResult.parametersMetric;
+  const parametersSecret = parametersResult.parametersSecret;
 
   // expression string for looking in typings and costs rules
   let expressionTypeStr = '(' + parametersType.join(',') + ')';
@@ -97,20 +108,27 @@ const unknownFunctionCall = function (node, parametersSecret, parametersType, pa
   };
 };
 
-const FunctionCall = function (node, pathStr) {
-  const func = node.function;
-  const parameters = node.parameters;
-
+const visitParameters = function (node, pathStr) {
   // visit children
   let parametersSecret = false;
   const parametersType = [];
   const parametersMetric = [];
-  for (let i = 0; i < parameters.length; i++) {
-    const parameterResult = this.visit(parameters, pathStr + '[param'+i+']');
+  for (let i = 0; i < node.parameters.length; i++) {
+    const parameterResult = this.visit(node.parameters[i], pathStr + '[param'+i+']');
     parametersType.push(parameterResult.type);
     parametersMetric.push(parameterResult.metric);
     parametersSecret = parametersSecret || parameterResult.type.secret;
   }
+
+  return {
+    parametersType: parametersType,
+    parametersMetric: parametersMetric,
+    parametersSecret: parametersSecret
+  };
+};
+
+const FunctionCall = function (node, pathStr) {
+  const func = node.function;
 
   // If function is defined locally (for now this can only be true if it is a straight up function name):
   //    we do not look at typings or costs, and use our own abstraction
@@ -120,9 +138,9 @@ const FunctionCall = function (node, pathStr) {
   //        <thisType>.<FUNC_NAME>(<param1Type>, <param2Type>, ...)      for dot expression
   const definedLocally = func.nodeType === 'NameExpression' && this.analyzer.variableTypeMap.has(func.name);
   if (definedLocally) {
-    return localFunctionCall.call(this, node, parametersType, parametersMetric);
+    return localFunctionCall.call(this, node, pathStr);
   } else {
-    return unknownFunctionCall.call(this, node, parametersSecret, parametersType, parametersMetric, pathStr);
+    return unknownFunctionCall.call(this, node, pathStr);
   }
 };
 

@@ -51,7 +51,7 @@
             document.getElementById('IR').textContent = JSON.stringify(IRCode, null, 2);
             document.getElementById('COSTS').textContent = JSON.stringify(costs, null, 2);
 
-            const output = carousels.analyze(language, code, costs, costs['metrics'][0]['title']);
+            const output = carousels.analyze(language, code, costs, costs['metrics'][1]['title']);
             console.log(output);
             document.getElementById('parameters').textContent = output.parameters.join('\n');
             document.getElementById('description').textContent = output.description.join('\n\n');

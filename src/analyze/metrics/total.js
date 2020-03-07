@@ -12,7 +12,6 @@ totalMetric.defaults = {
   TypeNode: math.ZERO,
   FunctionDefinition: math.ZERO,
   ReturnStatement: 'expression',
-  VariableDefinition: 'assignment',
   VariableAssignment: 'expression',
   LiteralExpression: math.ZERO,
   ParenthesesExpression: 'expression',
@@ -20,6 +19,17 @@ totalMetric.defaults = {
 };
 
 totalMetric.store = function () {
+  return math.ZERO;
+};
+
+// Variable definition: prioritize assignment over declaration
+totalMetric.aggregateVariableDefinition = function (node, childrenType, childrenMetric) {
+  if (childrenMetric.assignment) {
+    return childrenMetric.assignment;
+  }
+  if (childrenMetric.type) {
+    return childrenMetric.type;
+  }
   return math.ZERO;
 };
 

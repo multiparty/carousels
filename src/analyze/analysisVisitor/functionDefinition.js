@@ -58,7 +58,7 @@ const createMetricAbstraction = function (analyzer, node, functionPathStr, param
   for (let i = 0; i < node.parameters.length; i++) {
     const metricParameter = Parameter.forMetric(functionPathStr + '@' + node.parameters[i].name.name, analyzer.metricTitle);
     metricParameters.push(metricParameter);
-    analyzer.variableMetricMap.add(node.parameters[i].name.name, analyzer.metric.store(metricParameter));
+    analyzer.variableMetricMap.add(node.parameters[i].name.name, analyzer.metric.store(metricParameter.mathSymbol));
   }
 
   const abstractionParameters = metricParameters.concat(parametersDependentParameters);

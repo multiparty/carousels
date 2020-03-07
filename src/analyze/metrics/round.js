@@ -12,7 +12,6 @@ roundMetric.defaults = {
   TypeNode: math.ZERO,
   FunctionDefinition: math.ZERO,
   ReturnStatement: 'expression',
-  VariableDefinition: 'assignment',
   VariableAssignment: 'expression',
   LiteralExpression: math.ZERO,
   ParenthesesExpression: 'expression',
@@ -21,6 +20,17 @@ roundMetric.defaults = {
 
 roundMetric.store = function (metric) {
   return metric;
+};
+
+// Variable definition: prioritize assignment over declaration
+roundMetric.aggregateVariableDefinition = function (node, childrenType, childrenMetric) {
+  if (childrenMetric.assignment) {
+    return childrenMetric.assignment;
+  }
+  if (childrenMetric.type) {
+    return childrenMetric.type;
+  }
+  return math.ZERO;
 };
 
 // For Each: body * iterations
@@ -91,7 +101,7 @@ roundMetric.aggregateArrayExpression = function (node, childrenType, childrenMet
 // FunctionCall: aggregate parameters (and this if exists), the added cost of the function itself is factored in separately
 roundMetric.aggregateFunctionCall = function (node, childrenType, childrenMetric) {
   const parameters = math.max.apply(null, childrenMetric.parameters);
-  const total = math.max(parameters, childrenMetric.function); // represents 'this', will be 0 if there is no this!
+  const total = math.max(childrenMetric.function, parameters); // represents 'this', will be 0 if there is no this!
   return total;
 };
 
