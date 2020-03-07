@@ -6,7 +6,7 @@ const ArrayExpression = function (node, pathStr) {
   const childrenType = [];
   const childrenMetric = [];
 
-  let aggType;
+  let aggType = null;
   let aggSecret = false;
   for (let i = 0; i < node.elements; i++) {
     const result = this.visit(node.elements[i], pathStr + '[' + i + ']');
@@ -16,8 +16,8 @@ const ArrayExpression = function (node, pathStr) {
     aggSecret = aggSecret || result.type.secret;
     if (aggType == null) {
       aggType = result.type;
-    } else if (aggType.dataType !== result.type.dataType) {
-      aggType = new carouselsTypes.Type(carouselsTypes.TYPE_ENUM.ANY, aggSecret);
+    } else if (aggType.match(result.type)) {
+      aggType = new carouselsTypes.AnyType(aggSecret);
     }
   }
 
@@ -25,8 +25,7 @@ const ArrayExpression = function (node, pathStr) {
   // array is secret iff at least one element in it is secret
   // array has a specific datatype iff all elements have that type
   aggType.secret = aggSecret;
-  const arrayDependentType = new carouselsTypes.ArrayDependentType(aggType, math.parse(node.elements.length));
-  const type = new carouselsTypes.Type(carouselsTypes.TYPE_ENUM.ARRAY, aggSecret, arrayDependentType);
+  const type = new carouselsTypes.ArrayType(aggSecret, aggType, math.parse(node.elements.length));
 
   // aggregate metric
   const aggregateMetric = this.analyzer.metric.aggregateArrayExpression(node, childrenType, childrenMetric);
@@ -59,37 +58,36 @@ const RangeExpression = function (node, pathStr) {
 
   // range is not supported for costs or typings: skip
   // find range type
-  const type = new carouselsTypes.RangeType(childrenType.start, childrenType.end, childrenType.increment);
-  this.analyzer.addParameters(type.computeSize(pathStr));
+  const rangeResult = new carouselsTypes.RangeType.fromComponents(childrenType.start, childrenType.end, childrenType.increment, pathStr);
+  const rangeType = rangeResult.type;
+  this.analyzer.addParameters(rangeResult.parameters);
 
   // aggregate metric
   const metric = this.analyzer.metric.aggregateRangeExpression(node, childrenType, childrenMetric);
 
   // done
   return {
-    type: type,
+    type: rangeType,
     metric: metric
   };
 };
 
 const LiteralExpression = function (node) {
-  let type, val, dependentType;
+  let type, val;
 
   switch (node.type) {
     case 'number':
       val = math.parse(node.value);
-      dependentType = new carouselsTypes.ValueDependentType(val);
-      type = new carouselsTypes.Type(carouselsTypes.TYPE_ENUM.NUMBER, false, dependentType);
+      type = new carouselsTypes.NumberType(false, val);
       break;
 
     case 'boolean':
       val = math.parse((node.value.trim() === '1' || node.value.toLowerCase().trim() === 'true').toString());
-      dependentType = new carouselsTypes.ValueDependentType(val);
-      type = new carouselsTypes.Type(carouselsTypes.TYPE_ENUM.BOOLEAN, false, dependentType);
+      type = new carouselsTypes.BooleanType(false, val);
       break;
 
     case 'string':
-      type = new carouselsTypes.Type(carouselsTypes.TYPE_ENUM.STRING, false);
+      type = new carouselsTypes.StringType(false);
       break;
 
     default:

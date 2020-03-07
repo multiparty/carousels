@@ -47,7 +47,7 @@ const If = function (node, pathStr) {
   const aggregateMetric = this.analyzer.metric.aggregateIf(node, childrenType, childrenMetric);
 
   // find cost in rules and apply it
-  const elseTypeStr = elseType ? elseType.toString() : carouselsTypes.UNIT_TYPE.toString();
+  const elseTypeStr = elseType ? elseType.toString() : carouselsTypes.UNIT.toString();
   const typeString = conditionResult.type.toString() + '?' + ifType.toString() + ':' + elseTypeStr;
   const finalMetric = this.analyzer.costs.applyMatch(node, typeString, aggregateMetric);
 

@@ -19,7 +19,7 @@ const Sequence = function (nodes, pathStr) {
   // nothing to update in scoped maps: skip
   // return aggregates
   return {
-    type: childrenType.length > 0 ? childrenType[childrenType.length - 1] : carouselsTypes.UNIT_TYPE,
+    type: childrenType.length > 0 ? childrenType[childrenType.length - 1] : carouselsTypes.UNIT,
     metric: this.analyzer.metric.aggregateSequence(nodes, childrenType, childrenMetric)
   }
 };

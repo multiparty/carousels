@@ -1,7 +1,7 @@
 const AbstractMetric = require('../../ir/metric.js');
 
 const math = require('../math.js');
-const loop = require('../loops.js');
+const loops = require('../loops.js');
 
 // Round metric: aggregates cost along paths in the code dependency graph (through the depth of the circuit)
 // Singleton object instantiated from AbstractMetric
@@ -35,14 +35,14 @@ roundMetric.aggregateVariableDefinition = function (node, childrenType, children
 
 // For Each: body * iterations
 roundMetric.aggregateForEach = function (node, childrenType, childrenMetric) {
-  const iterationCount = loop.iterationCountForEach(node, childrenType);
+  const iterationCount = loops.iterationCountForEach(node, childrenType);
   const total = math.multiply(childrenMetric.body, iterationCount);
   return total;
 };
 
 // Regular For: (body + condition + increment) * iterations + condition + initialization (one extra condition evaluation)
 roundMetric.aggregateFor = function (node, childrenType, childrenMetric) {
-  const iterationCount = loop.iterationCountFor(node, childrenType);
+  const iterationCount = loops.iterationCountFor(node, childrenType);
   const body = math.add(childrenMetric.body, childrenMetric.condition, childrenMetric.increment);
   const bodyIterated = math.multiply(body, iterationCount);
   const total = math.add(bodyIterated, childrenMetric.condition, childrenMetric.initial);

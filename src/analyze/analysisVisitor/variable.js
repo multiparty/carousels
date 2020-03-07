@@ -1,7 +1,7 @@
 const carouselsTypes = require('../symbols/types.js');
 
 const TypeNode = function (node, pathStr) {
-  const typeResult = carouselsTypes.Type.fromTypeNode(pathStr, node);
+  const typeResult = carouselsTypes.fromTypeNode(node, pathStr);
 
   // Add any newly created symbolic parameters
   this.analyzer.addParameters(typeResult.parameters);

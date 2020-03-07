@@ -49,9 +49,9 @@ FunctionAbstraction.prototype.concretizeDependent = function (parameters, metric
     const parameterType = parameters[index];
 
     // Expects an array parameter with some length (symbolic or valued)
-    if (parameterType.is(carouselsTypes.TYPE_ENUM.ARRAY) && parameterType.hasDependentType('length')) {
+    if (parameterType.is(carouselsTypes.ENUM.ARRAY)) {
       concreteParams.push(parameterType.dependentType.length);
-    } else if (parameterType.hasDependentType('value')) {
+    } else if (parameterType.is(carouselsTypes.ENUM.NUMBER) || parameterType.is(carouselsTypes.ENUM.BOOLEAN)) {
       concreteParams.push(parameterType.dependentType.value);
     } else {
       throw new Error('Function "' + this.functionName + '" called with non-dependent argument "' + parameterType.toString() + '" at position ' + index);

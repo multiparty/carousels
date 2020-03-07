@@ -23,7 +23,7 @@ const ForEach = function (node, pathStr) {
   // For Each is not supported by cost or typing rules: skip!
   // done
   return {
-    type: carouselsTypes.UNIT_TYPE,
+    type: carouselsTypes.UNIT,
     metric: this.analyzer.metric.aggregateForEach(node, childrenType, childrenMetric)
   };
 };

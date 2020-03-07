@@ -13,13 +13,13 @@ const ArrayAccess = function (node, pathStr) {
     index: indexResult.metric
   };
 
-  // ArrayAccess is not allowed in typings and costs: skip
-  let type;
-  if (arrayResult.type.hasDependentType('dataType')) {
-    type = arrayResult.type.dependentType.dataType;
-  } else {
-    type = new carouselsTypes.Type(carouselsTypes.TYPE_ENUM.ANY, arrayResult.type.secret);
+  // expect that array is of type array
+  if (!arrayResult.type.is(carouselsTypes.ENUM.ARRAY)) {
+    throw new Error('Expected Expression in ArrayAccess to be of type array, found "' + arrayResult.type + '" instead!');
   }
+
+  // ArrayAccess is not allowed in typings and costs: skip
+  let type = arrayResult.type.dependentType.elementsType;
 
   // aggregate metric
   const metric = this.analyzer.metric.aggregateArrayAccess(node, childrenType, childrenMetric);
@@ -44,24 +44,18 @@ const SliceExpression  = function (node, pathStr) {
   };
 
   // figure out type of the resulting slice: it matches the array but with a different size
-  if (!arrayResult.type.is(carouselsTypes.TYPE_ENUM.ARRAY)) {
-    throw new Error('Expected Expression in slice to be of type array, found "' + arrayResult.type + '" instead!');
+  if (!arrayResult.type.is(carouselsTypes.ENUM.ARRAY)) {
+    throw new Error('Expected Expression in SliceExpression to be of type array, found "' + arrayResult.type + '" instead!');
   }
 
   // find the slice length
-  const sliceLength = rangeResult.type.size;
+  const sliceLength = rangeResult.type.dependentType.size;
 
   // find the dataType inside the slice
-  let innerType;
-  if (arrayResult.type.hasDependentType('dataType')) {
-    innerType = arrayResult.type.dependentType.dataType;
-  } else {
-    innerType = new carouselsTypes.Type(carouselsTypes.TYPE_ENUM.ANY, arrayResult.type.secret);
-  }
+  let innerType = arrayResult.type.dependentType.elementsType;
 
   // create slice type
-  const sliceDependentType = new carouselsTypes.ArrayDependentType(innerType, sliceLength);
-  const type = new carouselsTypes.Type(arrayResult.type.dataType, arrayResult.type.secret, sliceDependentType);
+  const type = new carouselsTypes.ArrayType(arrayResult.type.secret, innerType, sliceLength);
 
   // aggregate metric
   const aggregateMetric = this.analyzer.metric.aggregateSliceExpression(node, childrenType, childrenMetric);

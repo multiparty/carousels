@@ -22,7 +22,7 @@ const localFunctionCall = function (node, pathStr) {
 
   // Figure out return type (including dependent portion)
   const returnType = this.analyzer.variableTypeMap.get(functionName).returnType.copy();
-  if (returnType.is(carouselsTypes.TYPE_ENUM.ARRAY)) {
+  if (returnType.is(carouselsTypes.ENUM.ARRAY)) {
     // Has dependent portion: resolve it via return type abstraction
     const returnTypeAbstraction = this.analyzer.functionReturnAbstractionMap.get(functionName);
     returnType.dependentType.length = returnTypeAbstraction.concretizeDependent(parametersType);
@@ -78,13 +78,13 @@ const unknownFunctionCall = function (node, pathStr) {
   // DotExpression + functionType is ANY: did not find the function anywhere, must try to find it in typings
   // functionMetric is never null: defaults to <METRIC>.initial
   let returnType;
-  if (functionType.is && functionType.is(carouselsTypes.TYPE_ENUM.ANY)) {
+  if (functionType.is && functionType.is(carouselsTypes.ENUM.ANY)) {
     // find function in typings
     if (this.analyzer.typings.findMatch(node, expressionTypeStr) !== undefined) {
       returnType = this.analyzer.typings.applyMatch(node, expressionTypeStr, pathStr, childrenType);
     } else {
       // function not found: return type is assumed to be ANY
-      returnType = new carouselsTypes.Type(carouselsTypes.TYPE_ENUM.ANY, parametersSecret);
+      returnType = new carouselsTypes.AnyType(parametersSecret);
     }
   } else if (functionType instanceof carouselsTypes.FunctionType) {
     // functionType was already found by visiting node.function
