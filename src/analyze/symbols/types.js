@@ -135,6 +135,7 @@ function AnyType(secret) {
 function StringType(secret) {
   Type.call(this, TYPE_ENUM.STRING, secret);
 }
+
 NumberType.prototype = Object.create(Type.prototype);
 BooleanType.prototype = Object.create(Type.prototype);
 ArrayType.prototype = Object.create(Type.prototype);
@@ -229,6 +230,34 @@ RangeType.fromComponents = function (startType, endType, incrementType, pathStr)
 // singleton types
 const UNIT_TYPE = new Type(TYPE_ENUM.UNIT, false);
 
+// Function Type stores the function signature
+function FunctionType(thisType, parametersType, returnType) {
+  Type.call(this, TYPE_ENUM.FUNCTION, false, new dependentTypes.FunctionDependentType(thisType, parametersType, returnType));
+}
+FunctionType.prototype = Object.create(Type.prototype);
+
+// SymbolType refers to a Syntactic Code Construct
+function SymbolType(symbol) {
+  Type.call(this, TYPE_ENUM.SYMBOL, false);
+  this.symbol = symbol;
+}
+SymbolType.prototype = Object.create(Type.prototype);
+SymbolType.prototype.toString = function () {
+  return this.symbol;
+};
+SymbolType.prototype.conflicts = function (otherType) {
+  if (!(otherType instanceof SymbolType)) {
+    return true;
+  } else if (this.symbol !== otherType.symbol) {
+    return true;
+  }
+
+  throw new Error('SymbolType does not support .conflicts()!');
+};
+SymbolType.prototype.combine = function () {
+  throw new Error('SymbolType does not support .combine()!');
+};
+
 // expose the dependent type symbols
 dependentTypes = dependentTypes(Type, TYPE_ENUM);
 
@@ -236,14 +265,13 @@ module.exports = {
   ENUM: TYPE_ENUM,
   UNIT: UNIT_TYPE,
   fromTypeNode: Type.fromTypeNode,
-  // TODO: put these as types
-  FunctionType: dependentTypes.FunctionType,
-  SymbolType: dependentTypes.SymbolType,
   // Concrete Type Classes
   NumberType: NumberType,
   BooleanType: BooleanType,
   ArrayType: ArrayType,
   RangeType: RangeType,
   AnyType: AnyType,
-  StringType: StringType
+  StringType: StringType,
+  SymbolType: SymbolType,
+  FunctionType: FunctionType
 };

@@ -45,7 +45,7 @@ const visitParametersAndReturn = function (analyzer, node, functionPathStr) {
 // e.g. a function g(array<length:a>) => array<length:r> has abstraction
 // r = G_return(a)
 const createDependentReturnAbstraction = function (analyzer, functionName, functionType, parametersDependentParameters) {
-  if (functionType.returnType.is(carouselsTypes.ENUM.ARRAY)) {
+  if (functionType.dependentType.returnType.is(carouselsTypes.ENUM.ARRAY)) {
     const returnAbstraction = new FunctionAbstraction(functionName, 'returnAbstraction', parametersDependentParameters);
     analyzer.functionReturnAbstractionMap.add(functionName, returnAbstraction);
   }
@@ -80,14 +80,14 @@ const visitBody = function (analyzer, node, functionPathStr, childrenType, child
 // find the closed form from the children (body) result and store it as the solution
 // to that abstraction
 const storeClosedFormReturnAbstraction = function (analyzer, functionName, functionType, childrenType) {
-  if (functionType.returnType.is(carouselsTypes.ENUM.ARRAY)) {
+  if (functionType.dependentType.returnType.is(carouselsTypes.ENUM.ARRAY)) {
     const bodyType = childrenType['body'];
 
     let concreteDependentReturnType;
     if (bodyType.is(carouselsTypes.ENUM.ARRAY)) {
       concreteDependentReturnType = bodyType.dependentType.length;
     } else {
-      concreteDependentReturnType = functionType.returnType.dependentType.length;
+      concreteDependentReturnType = functionType.dependentType.returnType.dependentType.length;
     }
 
     const returnAbstraction = analyzer.functionReturnAbstractionMap.get(functionName);
@@ -126,7 +126,7 @@ const FunctionDefinition = function (node, pathStr) {
 
   // Create the function type
   const functionType = new carouselsTypes.FunctionType(null, childrenType.parameters, childrenType.returnType);
-  const parametersDependentParameters = analyzer.getParametersBySymbol(functionType.getDependentParameters());
+  const parametersDependentParameters = analyzer.getParametersBySymbol(functionType.dependentType.getDependentParameters());
 
   analyzer.variableTypeMap.addPreviousScope(functionName, functionType);
 

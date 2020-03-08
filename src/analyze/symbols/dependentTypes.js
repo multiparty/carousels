@@ -134,23 +134,63 @@ module.exports = function (Type, TYPE_ENUM) {
     );
   };
 
-  // Function type behaves differently
+  // Function type signature
   // thisType can be null when this is not a method
-  function FunctionType(thisType, parameterTypes, returnType) {
+  function FunctionDependentType(thisType, parameterTypes, returnType) {
+    DependentType.call(this, 'FunctionDependentType', [TYPE_ENUM.FUNCTION]);
     this.thisType = thisType;
     this.parameterTypes = parameterTypes;
     this.returnType = returnType;
+
+    if (this.parameterTypes == null || this.returnType == null) {
+      throw new Error('FunctionDependentType given null parameters!');
+    }
   }
-  FunctionType.prototype._functionType = true;
-  FunctionType.prototype.toString = function () {
+  FunctionDependentType.prototype = Object.create(DependentType.prototype);
+  FunctionDependentType.prototype.toString = function () {
     const thisType = this.thisType != null ? this.thisType.toString() : '';
     const params = this.parameterTypes.map(function (parameterType) {
       return parameterType.toString();
     });
     return '<' + thisType + '(' + params.join(',') + ')=>' + this.returnType.toString() + '>';
   };
-  // instance of Parameter corresponding to dependent types of this.parameterTypes in order
-  FunctionType.prototype.getDependentParameters = function () {
+  FunctionDependentType.prototype.copy = function () {
+    const copyThisType = this.thisType ? this.thisType.copy() : null;
+    const copyParameterTypes = this.parameterTypes.map(function (parameterType) {
+      return parameterType.copy();
+    }) ;
+    const copyReturnType = this.returnType.copy();
+    return new FunctionDependentType(copyThisType, copyParameterTypes, copyReturnType);
+  };
+  FunctionDependentType.prototype.conflicts = function (otherDependentType) {
+    if (!(otherDependentType instanceof FunctionDependentType)) {
+      return true;
+    }
+    if (this.thisType != null && (otherDependentType.thisType == null || this.thisType.conflicts(otherDependentType.thisType))) {
+      return true;
+    }
+    if (this.returnType.conflicts(otherDependentType.returnType)) {
+      return true;
+    }
+    if (this.parameterTypes.length !== otherDependentType.parameterTypes.length) {
+      return true;
+    }
+    for (let i = 0; i < this.parameterTypes.length; i++) {
+      if (this.parameterTypes[i].conflicts(otherDependentType.parameterTypes[i])) {
+        return true;
+      }
+    }
+    return false;
+  };
+  FunctionDependentType.prototype.combine = function () {
+    throw new Error('FunctionDependentType does not support .combine()!');
+  };
+  // [] of dependent type math parameters/symbols of this.parameterTypes in order
+  FunctionDependentType.prototype.getDependentParameters = function () {
+    if (this.thisType != null) {
+      throw new Error('Locally defined methods (with a this parameter) are not currently supported');
+    }
+
     const symbols = [];
     for (let i = 0; i < this.parameterTypes.length; i++) {
       let parameterType = this.parameterTypes[i];
@@ -166,21 +206,10 @@ module.exports = function (Type, TYPE_ENUM) {
     return symbols;
   };
 
-  // SymbolType refers to a Syntactic Code Construct
-  function SymbolType(symbol) {
-    this.symbol = symbol;
-  }
-
-  SymbolType.prototype._symbolType = true;
-  SymbolType.prototype.toString = function () {
-    return this.symbol;
-  };
-
   return {
     ArrayDependentType: ArrayDependentType,
     ValueDependentType: ValueDependentType,
     RangeDependentType: RangeDependentType,
-    FunctionType: FunctionType,
-    SymbolType: SymbolType
+    FunctionDependentType: FunctionDependentType,
   };
 };

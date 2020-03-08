@@ -21,7 +21,7 @@ const localFunctionCall = function (node, pathStr) {
   const parametersMetric = parametersResult.parametersMetric;
 
   // Figure out return type (including dependent portion)
-  const returnType = this.analyzer.variableTypeMap.get(functionName).returnType.copy();
+  const returnType = this.analyzer.variableTypeMap.get(functionName).dependentType.returnType.copy();
   if (returnType.is(carouselsTypes.ENUM.ARRAY)) {
     // Has dependent portion: resolve it via return type abstraction
     const returnTypeAbstraction = this.analyzer.functionReturnAbstractionMap.get(functionName);
@@ -89,7 +89,7 @@ const unknownFunctionCall = function (node, pathStr) {
   } else if (functionType instanceof carouselsTypes.FunctionType) {
     // functionType was already found by visiting node.function
     // apply it!
-    returnType = functionType.returnType.copy();
+    returnType = functionType.dependentType.returnType.copy();
   } else {
     throw new Error('Cannot resolve type of function for function call "' + JSON.stringify(node.function) +
       '" properly! Found "' + functionType + '" instead of FunctionType');
