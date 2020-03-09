@@ -62,8 +62,13 @@ FunctionAbstraction.prototype.concretizeDependent = function (parameters, metric
 };
 
 FunctionAbstraction.prototype.toString = function () {
-  return '<Abstraction ' + this.mathSymbol.toString() + ': ' + (this.abstractionTitle + '\n' +
-    this.parameters.join('\n')).trim() + '>';
+  const mathSymbol = this.mathSymbol.toString().trim();
+  let ws = new Array(mathSymbol.length + 2);
+  ws = ws.fill(' ').join('');
+
+  let str = mathSymbol + ': ' + this.abstractionTitle + ' Abstraction for function ' + this.functionName;
+  str += '\n' + ws + this.parameters.join('\n' + ws);
+  return str;
 };
 
 module.exports = FunctionAbstraction;

@@ -126,7 +126,7 @@ Analyzer.prototype.symbolicResult = function () {
 
       const absStr = functionAbstraction.mathSymbol.toString();
       equations.push(absStr + ' = ' + this.abstractionToClosedFormMap[absStr].toString());
-      description.push(absStr + ' : ' + functionAbstraction.toString());
+      description.push(functionAbstraction.toString());
     }
   }
 

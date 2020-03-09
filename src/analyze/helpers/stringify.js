@@ -23,7 +23,7 @@ function StringifyVisitor(intermediateResults, HTML) {
   this.shouldAnnotate = this.intermediateResults !== null;
   this.annotateNewLine = this.shouldAnnotate ? '\n' : '';
   this.HTML = HTML !== false;
-  this.INDENT = this.HTML ? '&nbsp;&nbsp;&nbsp;&nbsp;' : '  ';
+  this.INDENT = this.HTML ? '&nbsp;&nbsp;' : '  ';
 }
 
 // inherit IRVisitor
@@ -57,8 +57,8 @@ StringifyVisitor.prototype.escape = function (text) {
 StringifyVisitor.prototype.finalizeFormat = function (text) {
   if (this.HTML) {
     text = text.replace(/\n/g, '<br/>');
-    text = '<div style="color: ' + COLORS.plain + '; background-color: ' + COLORS.background + '; padding: 30px; ' +
-      'overflow: scroll; white-space: nowrap;">' + text + '</div>';
+    text = '<div style=\'color: ' + COLORS.plain + '; background-color: ' + COLORS.background + '; padding: 30px; ' +
+      'overflow: scroll; white-space: nowrap; font-family: "Courier New", Courier, monospace\'>' + text + '</div>';
   }
   return text;
 };
@@ -76,6 +76,7 @@ StringifyVisitor.prototype.indent = function (text) {
 };
 
 // Embed annotation into the given code
+const DISPLAY_ATTRIBUTES = ['returnAbstraction', 'metricAbstraction']
 StringifyVisitor.prototype.stringifyAnnotation = function (annotation) {
   // Build the annotation str
   if (annotation.result == null && annotation.error == null) {
@@ -83,9 +84,17 @@ StringifyVisitor.prototype.stringifyAnnotation = function (annotation) {
     return '// {{ null }}';
   } else if (annotation.result != null) {
     // output annotation
-    let type = annotation.result.type.toString();
-    let metric = annotation.result.metric.toString();
-    return '// {{ type: ' + this.escape(type)  + ',\n//' + this.INDENT + this.INDENT + 'metric: ' + this.escape(metric) + ' }}';
+    const type = annotation.result.type.toString();
+    const metric = annotation.result.metric.toString();
+    let str = '// {{ type: ' + this.escape(type)  + ',\n// ' + this.INDENT + ' metric: ' + this.escape(metric);
+    for (let i = 0; i < DISPLAY_ATTRIBUTES.length; i++) {
+      const attr = DISPLAY_ATTRIBUTES[i];
+      if (annotation.result[attr]) {
+        str += '\n// ' + this.INDENT + ' ' + attr + ': ' + this.escape(annotation.result[attr]);
+      }
+    }
+    str += ' }}';
+    return str;
   } else if (annotation.error != null) {
     // error annotation
     this.hasErrored = true;

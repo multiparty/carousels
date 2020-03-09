@@ -27,7 +27,11 @@ const storeClosedFormReturnAbstraction = function (analyzer, functionName, funct
 
     const returnAbstraction = analyzer.functionReturnAbstractionMap.get(functionName);
     analyzer.abstractionToClosedFormMap[returnAbstraction.mathSymbol.toString()] = concreteDependentReturnType;
+
+    return returnAbstraction.mathSymbol.toString() + ' = ' + concreteDependentReturnType.toString();
   }
+
+  return '';
 };
 
 // Store the closed form metric equation return from visiting the body as the solution
@@ -35,6 +39,7 @@ const storeClosedFormReturnAbstraction = function (analyzer, functionName, funct
 const storeClosedFormMetricAbstraction = function (analyzer, functionName, bodyMetric) {
   const metricAbstraction = analyzer.functionMetricAbstractionMap.get(functionName);
   analyzer.abstractionToClosedFormMap[metricAbstraction.mathSymbol.toString()] = bodyMetric;
+  return metricAbstraction.mathSymbol.toString() + ' = ' + bodyMetric.toString();
 };
 
 // Visit Function Definition and analyze its type and metric
@@ -78,10 +83,10 @@ const FunctionDefinition = function (node, pathStr) {
   removeScope.call(this);
 
   // Figure out the closed form symbolic equation for any dependent return type
-  storeClosedFormReturnAbstraction(analyzer, functionName, functionType, bodyResult.type);
+  const returnAbstractionStr = storeClosedFormReturnAbstraction(analyzer, functionName, functionType, bodyResult.type);
 
   // Figure out the closed form symbolic equation for metric abstraction
-  storeClosedFormMetricAbstraction(analyzer, functionName, bodyResult.metric);
+  const metricAbstractionStr = storeClosedFormMetricAbstraction(analyzer, functionName, bodyResult.metric);
 
   // Construct children type and metric maps for aggregation
   const childrenType = {
@@ -106,7 +111,10 @@ const FunctionDefinition = function (node, pathStr) {
   // Finally, return results
   return {
     type: functionType,
-    metric: aggregateMetric
+    metric: aggregateMetric,
+    // only for logging
+    returnAbstraction: returnAbstractionStr,
+    metricAbstraction: metricAbstractionStr
   };
 };
 

@@ -81,9 +81,9 @@
     try {
       analyzer.analyze(costs, metric);
       const output = analyzer.symbolicResult();
-      parametersPre.textContent = output.parameters.join('\n');
-      descriptionPre.textContent = output.description.join('\n');
-      equationsPre.textContent = output.equations.join('\n');
+      parametersPre.textContent = output.parameters.join('\n\n');
+      descriptionPre.textContent = output.description.join('\n\n');
+      equationsPre.textContent = output.equations.join('\n\n');
       console.log(output);
     } catch (err) {
       equationsPre.textContent = err.toString();
