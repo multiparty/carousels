@@ -24,9 +24,12 @@ const visitorImplementations = [
   require('./analysisVisitor/sequence.js')
 ];
 
+const StringifyVisitor = require('./helperVisitors/stringify.js');
+
 function Analyzer(language, code, costs, extraTyping) {
   this.language = language;
   this.code = code;
+  this.intermediateResults = [];
 
   // parse into IR
   const parser = parsers[this.language];
@@ -45,17 +48,30 @@ function Analyzer(language, code, costs, extraTyping) {
 
   // visitor pattern
   this.visitor = new IRVisitor({ analyzer: this });
+  this.visitor.visit = this.storeIntermediateResults.bind(this);
   for (let i = 0; i < visitorImplementations.length; i++) {
     this.visitor.addVisitors(visitorImplementations[i]);
   }
 }
 
+// Stores intermediate results in order of visit!
+Analyzer.prototype.storeIntermediateResults = function (node) {
+  try {
+    const result = IRVisitor.prototype.visit.apply(this.visitor, arguments);
+    this.intermediateResults.push({node: node, result: result});
+    return result;
+  } catch (error) {
+    this.intermediateResults.push({node: node, error: error});
+    throw error;
+  }
+};
+
+// Symbolic parameters management
 Analyzer.prototype.addParameters = function (parameters) {
   for (let i = 0; i < parameters.length; i++) {
     this.parameters[parameters[i].mathSymbol.toString()] = parameters[i];
   }
 };
-
 Analyzer.prototype.getParametersBySymbol = function (symbols) {
   const self = this;
   return symbols.map(function (symbol) {
@@ -63,6 +79,7 @@ Analyzer.prototype.getParametersBySymbol = function (symbols) {
   });
 };
 
+// Main entry point
 Analyzer.prototype.analyze = function (costs, metricTitle) {
   // costs parsing
   this.costs = new CostRuleBook(this, costs, metricTitle);
@@ -93,6 +110,7 @@ Analyzer.prototype.analyze = function (costs, metricTitle) {
   console.log(this);
 };
 
+// Retrieves the symbolic result: this can be plotted or displayed
 Analyzer.prototype.symbolicResult = function () {
   const equations = [];
   const description = [];
@@ -119,4 +137,11 @@ Analyzer.prototype.symbolicResult = function () {
   };
 };
 
+// returns a string with the IR code (pretty formatted) with the metric, typing, and error annotations embedded in it for debugging
+Analyzer.prototype.prettyPrint = function (withAnnotation, HTML) {
+  const debuggingVisitor = new StringifyVisitor(withAnnotation !== false ? this.intermediateResults : null, HTML);
+  return debuggingVisitor.start(this.IR);
+};
+
+// Exports
 module.exports = Analyzer;

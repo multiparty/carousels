@@ -18,11 +18,11 @@ function IRVisitor(namedArgs) {
 }
 
 // Start visiting
-IRVisitor.prototype.start = function (IRNode, args) {
-  return this.visit(IRNode, args);
+IRVisitor.prototype.start = function () {
+  return this.visit.apply(this, arguments);
 };
 
-IRVisitor.prototype.visit = function (node, args) {
+IRVisitor.prototype.visit = function (node) {
   try {
     if (node == null) {
       return null;
@@ -30,20 +30,20 @@ IRVisitor.prototype.visit = function (node, args) {
 
     if (Array.isArray(node)) {
       DEBUG_LOG(this._indent++, 'visit', 'Sequence');
-      const result = this['visitSequence'](node, args);
+      const result = this['visitSequence'].apply(this, arguments);
       DEBUG_LOG(--this._indent, 'end', 'Sequence');
       return result;
     }
 
     DEBUG_LOG(this._indent++, 'visit', node.nodeType);
-    const result = this['visit' + node.nodeType](node, args);
+    const result = this['visit' + node.nodeType].apply(this, arguments);
     DEBUG_LOG(--this._indent, 'end', node.nodeType);
     return result;
   } catch (error) {
     if (!error.__visited) {
-      error.message = 'Error occured in carousels while parsing "'
+      error.message = 'Error occurred in carousels while parsing "'
         + (node.nodeType != null ? node.nodeType : (Array.isArray(node) ? 'Sequence' : JSON.stringify(node)))
-        + '" node with args "' + args + '"\n'
+        + '" node with args "' + arguments + '"\n'
         + error.message;
       error.__visited = true;
     }

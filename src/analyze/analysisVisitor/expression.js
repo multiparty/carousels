@@ -40,15 +40,14 @@ const DotExpression = function (node, pathStr) {
   // visit children
   const leftResult = this.visit(node.left, pathStr + '[.left]');
 
-  let rightResult;
   if (node.right.nodeType !== 'NameExpression') {
-    rightResult = this.visit(node.right, pathStr + '[.right]');
-  } else {
-    rightResult = {
-      type: new carouselsTypes.SymbolType(node.right.name),
-      metric: this.analyzer.metric.initial
-    };
+    throw new Error('Unsupported expression "' + node.right.nodeType + '" to right of the "."!');
   }
+
+  const rightResult = {
+    type: new carouselsTypes.SymbolType(node.right.name),
+    metric: this.analyzer.metric.initial
+  };
 
   const childrenType = {
     left: leftResult.type,

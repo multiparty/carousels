@@ -37,7 +37,7 @@ const VariableDefinition = function (node, pathStr) {
       }
     }
   } else if (variableTypeResult != null) {
-    assignmentType = variableTypeResult.type;
+    typeType = variableTypeResult.type;
     typeMetric = variableTypeResult.metric;
   } else {
     throw new Error('Cannot determine type of variable "' + pathStr + variableName + '"');

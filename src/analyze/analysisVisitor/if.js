@@ -1,12 +1,12 @@
 const carouselsTypes = require('../symbols/types.js');
 const math = require('../math.js');
 
-const ListNodesVisitor = require('../helperVisitors/listNode.js');
+const ListNodesVisitor = require('../helperVisitors/list.js');
 const StringifyVisitor = require('../helperVisitors/stringify.js');
 
 const ALLOWED_IN_CONDITION = ['DirectExpression', 'NameExpression', 'LiteralExpression', 'DotExpression', 'FunctionCall'];
 const listNodesVisitor = new ListNodesVisitor();
-const stringifyVisitor = new StringifyVisitor();
+const stringifyVisitor = new StringifyVisitor(null, false);
 
 const dependentIfCombiner = function (condition, ifVal, elseVal) {
   if (listNodesVisitor.containsOnly(condition, ALLOWED_IN_CONDITION)) {

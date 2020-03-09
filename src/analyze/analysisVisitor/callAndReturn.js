@@ -13,6 +13,8 @@ const ReturnStatement = function (node, pathStr) {
 };
 
 const localFunctionCall = function (node, pathStr) {
+  // For traversing order consistency, not really useful..
+  const functionType = this.visit(node.function, pathStr + '[function]').type;
   const functionName = node.function.name; // must be a NameExpression for now
 
   // visit parameters
@@ -21,7 +23,7 @@ const localFunctionCall = function (node, pathStr) {
   const parametersMetric = parametersResult.parametersMetric;
 
   // Figure out return type (including dependent portion)
-  const returnType = this.analyzer.variableTypeMap.get(functionName).dependentType.returnType.copy();
+  const returnType = functionType.dependentType.returnType.copy();
   if (returnType.is(carouselsTypes.ENUM.ARRAY)) {
     // Has dependent portion: resolve it via return type abstraction
     const returnTypeAbstraction = this.analyzer.functionReturnAbstractionMap.get(functionName);
