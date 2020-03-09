@@ -216,7 +216,7 @@ RangeType.fromComponents = function (startType, endType, incrementType, pathStr)
   }
 
   // Compute range size symbolically
-  let size = math.sub(startType.dependentType.value, endType.dependentType.value);
+  let size = math.sub(endType.dependentType.value, startType.dependentType.value);
   if (incrementType.dependentType.value.toString() !== '1') {
     size = math.div(size, incrementType.dependentType.value);
   }

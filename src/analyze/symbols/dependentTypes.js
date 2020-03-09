@@ -108,9 +108,8 @@ module.exports = function (Type, TYPE_ENUM) {
   }
   RangeDependentType.prototype = Object.create(DependentType.prototype);
   RangeDependentType.prototype.toString = function () {
-    return '<range:[' + this.startType.toString() + ':' + this.endType.toString() +
-      (this.incrementType != null ? ':' + this.incrementType.toString() : '') +
-      '],size:' + this.size + '>';
+    return '<start:' + this.startType.toString() + ',end:' + this.endType.toString() +
+      ',increment:' + this.incrementType.toString() + ',size:' + this.size + '>';
   };
   RangeDependentType.prototype.copy = function () {
     return new RangeDependentType(this.startType.copy(), this.endType.copy(), this.incrementType.copy(), this.size);

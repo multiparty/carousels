@@ -258,13 +258,13 @@ StringifyVisitor.prototype.visitNameExpression = function (node) {
 };
 StringifyVisitor.prototype.visitDirectExpression = function (node) {
   let operator = this.escape(node.operator);
-  let str = '(';
+  let str = '(' + this.annotateNewLine;
   const operands = [];
   for (let i = 0; i < node.operands.length; i++) {
     operands.push(this.annotationIndent(this.visit(node.operands[i])));
   }
   str += operands.join(this.annotateNewLine + ' ' + operator + ' ' + this.annotateNewLine);
-  str += ')';
+  str += this.annotateNewLine + ')';
   return str;
 };
 StringifyVisitor.prototype.visitParenthesesExpression = function (node) {
@@ -275,7 +275,10 @@ StringifyVisitor.prototype.visitArrayAccess = function (node) {
   const arrayResult = this.annotationIndent(this.visit(node.array));
   const indexResult = this.annotationIndent(this.visit(node.index));
   return this.format('comment', '// ARRAY ACCESS') + this.annotateNewLine +
-    arrayResult + this.annotateNewLine + '[' + this.annotateNewLine + indexResult + this.annotateNewLine + ']';
+    arrayResult + this.annotateNewLine +
+    this.annotationIndent('[') + this.annotateNewLine +
+    indexResult + this.annotateNewLine +
+    this.annotationIndent(']');
 };
 StringifyVisitor.prototype.visitRangeExpression = function (node) {
   const startResult = this.annotationIndent(this.visit(node.start));
@@ -319,15 +322,20 @@ StringifyVisitor.prototype.visitFunctionCall = function (node) {
 
   // Comment + name of function
   let str = this.format('comment', '// FUNCTION CALL') + this.annotateNewLine +
-    functionResult + this.annotateNewLine + '(' + this.annotateNewLine;
+    functionResult + this.annotateNewLine;
 
   const parameters = [];
   for (let i = 0; i < node.parameters.length; i++) {
     parameters.push(this.annotationIndent(this.visit(node.parameters[i])));
   }
 
-  str += parameters.join(this.annotateNewLine + ', ' + this.annotateNewLine);
-  str += this.annotateNewLine + ')';
+  if (parameters.length > 0) {
+    str += this.annotationIndent('(') + this.annotateNewLine +
+      parameters.join(this.annotateNewLine + ', ' + this.annotateNewLine) + this.annotateNewLine +
+      this.annotationIndent(')');
+  } else {
+    str += this.annotationIndent('()');
+  }
   return str;
 };
 StringifyVisitor.prototype.visitDotExpression = function (node) {
@@ -336,7 +344,7 @@ StringifyVisitor.prototype.visitDotExpression = function (node) {
 
   return this.format('comment', '// DOT EXPRESSION') + this.annotateNewLine +
     leftResult + this.annotateNewLine +
-    '.' + this.annotateNewLine +
+    this.annotationIndent('.') + this.annotateNewLine +
     rightResult;
 };
 StringifyVisitor.prototype.visitSequence = function (nodes) {
