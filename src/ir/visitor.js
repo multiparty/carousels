@@ -28,22 +28,16 @@ IRVisitor.prototype.visit = function (node) {
       return null;
     }
 
-    if (Array.isArray(node)) {
-      DEBUG_LOG(this._indent++, 'visit', 'Sequence');
-      const result = this['visitSequence'].apply(this, arguments);
-      DEBUG_LOG(--this._indent, 'end', 'Sequence');
-      return result;
-    }
-
-    DEBUG_LOG(this._indent++, 'visit', node.nodeType);
-    const result = this['visit' + node.nodeType].apply(this, arguments);
-    DEBUG_LOG(--this._indent, 'end', node.nodeType);
+    const nodeType = Array.isArray(node) ? 'Sequence' : node.nodeType;
+    DEBUG_LOG(this._indent++, 'visit', nodeType);
+    const result = this['visit' + nodeType].apply(this, arguments);
+    DEBUG_LOG(--this._indent, 'end', nodeType);
     return result;
   } catch (error) {
     if (!error.__visited) {
-      error.message = 'Error occurred in carousels while parsing "'
-        + (node.nodeType != null ? node.nodeType : (Array.isArray(node) ? 'Sequence' : JSON.stringify(node)))
-        + '" node with args "' + arguments + '"\n'
+      error.message = 'Error occurred in carousels:\n'
+        + 'NodeType: ' + (node.nodeType != null ? node.nodeType : (Array.isArray(node) ? 'Sequence' : JSON.stringify(node))) + '\n'
+        + 'arguments: ' + JSON.stringify(Array.from(arguments).slice(1)) + '\n'
         + error.message;
       error.__visited = true;
     }

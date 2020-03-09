@@ -12,19 +12,19 @@ const metricObjects = require('./metrics/metrics.js');
 
 const IRVisitor = require('../ir/visitor.js');
 const visitorImplementations = [
-  require('./analysisVisitor/array.js'),
-  require('./analysisVisitor/callAndReturn.js'),
-  require('./analysisVisitor/expression.js'),
-  require('./analysisVisitor/for.js'),
-  require('./analysisVisitor/functionDefinition.js'),
-  require('./analysisVisitor/if.js'),
-  require('./analysisVisitor/oblivIf.js'),
-  require('./analysisVisitor/value.js'),
-  require('./analysisVisitor/variable.js'),
-  require('./analysisVisitor/sequence.js')
+  require('./analysis/array.js'),
+  require('./analysis/callAndReturn.js'),
+  require('./analysis/expression.js'),
+  require('./analysis/for.js'),
+  require('./analysis/functionDefinition.js'),
+  require('./analysis/if.js'),
+  require('./analysis/oblivIf.js'),
+  require('./analysis/value.js'),
+  require('./analysis/variable.js'),
+  require('./analysis/sequence.js')
 ];
 
-const StringifyVisitor = require('./helperVisitors/stringify.js');
+const StringifyVisitor = require('./helpers/stringify.js');
 
 function Analyzer(language, code, costs, extraTyping) {
   this.language = language;
@@ -48,23 +48,29 @@ function Analyzer(language, code, costs, extraTyping) {
 
   // visitor pattern
   this.visitor = new IRVisitor({ analyzer: this });
-  this.visitor.visit = this.storeIntermediateResults.bind(this);
   for (let i = 0; i < visitorImplementations.length; i++) {
     this.visitor.addVisitors(visitorImplementations[i]);
   }
-}
 
-// Stores intermediate results in order of visit!
-Analyzer.prototype.storeIntermediateResults = function (node) {
-  try {
-    const result = IRVisitor.prototype.visit.apply(this.visitor, arguments);
-    this.intermediateResults.push({node: node, result: result});
-    return result;
-  } catch (error) {
-    this.intermediateResults.push({node: node, error: error});
-    throw error;
-  }
-};
+  // Stores intermediate results/history in order of visit!
+  const self = this;
+  this.visitor.visit = function (node) {
+    try {
+      const result = IRVisitor.prototype.visit.apply(self.visitor, arguments);
+      self.intermediateResults.push({node: node, result: result});
+      return result;
+    } catch (error) {
+      if (!error.__analyzed) {
+        error.__analyzed = true;
+        if (error.__IRNODE) {
+          node = error.__IRNODE;
+        }
+        self.intermediateResults.push({node: node, error: error});
+      }
+      throw error;
+    }
+  };
+}
 
 // Symbolic parameters management
 Analyzer.prototype.addParameters = function (parameters) {
@@ -107,7 +113,6 @@ Analyzer.prototype.analyze = function (costs, metricTitle) {
 
   // start the visitor pattern
   this.visitor.start(this.IR, '');
-  console.log(this);
 };
 
 // Retrieves the symbolic result: this can be plotted or displayed
