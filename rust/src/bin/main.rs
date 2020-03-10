@@ -19,7 +19,7 @@ pub fn main() {
      *};
      */
 
-    let file_str = visitor::get_ast_str_from_file(&filename);
+    let file_str = visitor::file::get_ast_str_from_file(&filename);
     match file_str {
         Ok(_v)=>{println!("{}", _v);},
         Err(e) => println!("error parsing : {:?}", e),

@@ -15,7 +15,6 @@ use wasm_bindgen::prelude::*;
 // use web_sys::console;
 
 pub mod ir;
-use ir::*;
 pub mod visitor;
 
 // When the `wee_alloc` feature is enabled, this uses `wee_alloc` as the global
@@ -34,5 +33,5 @@ pub fn test_wasm_now() -> u32 {
 
 #[wasm_bindgen]
 pub fn get_json_IR(val: &str) -> String {
-    visitor::get_ast_str(val)
+    visitor::file::get_ast_str(val)
 }

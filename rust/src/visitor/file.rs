@@ -1,12 +1,9 @@
-use crate::ir::*;
+use crate::ir::{Program};
 
 use std::fs::File as FileSys;
 use std::io::Read;
 use std::error::Error;
 use syn::visit::{Visit};
-use syn::{ItemFn, Item, Lit, Expr, Local, Member, Type,TypeParamBound, Path, PathArguments, GenericArgument, FnArg, ReturnType, ExprAssign, ExprMethodCall,
-    ExprBinary, ExprForLoop, ExprLit, ExprCall, ExprUnary, ExprRepeat, ExprReturn, ExprRange, ExprParen,
-    ExprIf, ExprArray, ExprField, ExprIndex, ExprPath, ExprMacro, ExprTuple, Pat, BinOp, Ident, UnOp};
 
 static NUMERICTYPES: [&str; 8] = ["u8","u16","u32","u128","u128","u128","i32","i128"];
 
@@ -54,24 +51,5 @@ pub fn get_ast(val: &str) -> std::result::Result<Box<Program>, Box<dyn Error>> {
     let mut file = Box::new(Program::new(Vec::new())); //highest node in the AST
     file.visit_file(&syntax);
     Ok(file)
-
-}
-
-impl <'ast> Visit <'ast> for Program{
-    fn visit_item(&mut self, node: &'ast Item){
-        match node{
-            Item::Fn(_f)=>{
-                let mut name = NameExpression::new("".to_string());
-                let mut ty = TypeNode::new(false, "".to_string());
-                let mut func = FunctionDefinition::new(name, Vec::new(), Vec::new(), ty);
-                func.visit_item_fn(_f);
-                self.body.push(Box::new(func));
-            }
-            _=>{}
-        }
-    }
-}
-
-impl <'ast> Visit <'ast> for FunctionDefinition{
 
 }
