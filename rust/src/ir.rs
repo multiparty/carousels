@@ -47,7 +47,8 @@ struct Program {
 #[ir_node]
 struct TypeNode {
     secret: bool,
-    type_: String
+    type_: String,
+    dependentType: String
 }
 
 // Statements

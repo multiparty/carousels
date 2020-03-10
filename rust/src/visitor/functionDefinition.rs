@@ -10,13 +10,13 @@ impl <'ast> Visit <'ast> for FunctionDefinition{
 
         for inp in &node.sig.inputs{
 
-            let mut name = NameExpression::new("".to_string());
-            let mut ty = TypeNode::new(false, "".to_string());
+            let mut name = NameExpression::new_("");
+            let mut ty = TypeNode::new_("", "");
             let mut param = VariableDefinition::new(name, ty);
 
             match inp{
                 FnArg::Receiver(_r)=>{
-                    param.name.name = "self".to_string();
+                    param.name.name = String::new("self");
                 }
                 FnArg::Typed(_t)=>{
                     param.visit_pat(&_t.pat);

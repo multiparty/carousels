@@ -5,8 +5,6 @@ use std::io::Read;
 use std::error::Error;
 use syn::visit::{Visit};
 
-static NUMERICTYPES: [&str; 8] = ["u8","u16","u32","u128","u128","u128","i32","i128"];
-
 pub fn get_ast_str_from_file(val: &str) -> std::result::Result<String, Box<dyn Error>> {
     let mut file = FileSys::open(val).unwrap();
     let mut content = String::new();
@@ -18,7 +16,7 @@ pub fn get_ast_str_from_file(val: &str) -> std::result::Result<String, Box<dyn E
     file.visit_file(&syntax);
 
     match serde_json::to_string_pretty(&file){
-        Ok(_v)=>{Ok(_v.replace("type_", "type").replace("typeNode","type").replace("name_", "name").replace("nameNode", "name"))},
+        Ok(_v)=>{Ok(_v)},
         Err(_e)=>{Ok("Error serializing".to_string())},
     }
 

@@ -32,7 +32,7 @@ pub fn ir_node(_attr: TokenStream, item: TokenStream) -> TokenStream {
             #(
                 pub #field_name: #field_type,
             )*
-            node_type: String
+            pub node_type: String
         }
 
         #[typetag::serde]
