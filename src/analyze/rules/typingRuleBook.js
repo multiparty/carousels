@@ -1,7 +1,7 @@
 const RuleBook = require('./ruleBook.js');
 const carouselTypes = require('../symbols/types.js');
 
-const DEFAULT_TYPE = new carouselTypes.Type(carouselTypes.TYPE_ENUM.ANY, false);
+const DEFAULT_TYPE = new carouselTypes.AnyType(false);
 
 function TypingRuleBook(analyzer, rules) {
   RuleBook.call(this, analyzer, rules, 'typing');
@@ -17,7 +17,9 @@ TypingRuleBook.prototype.applyMatch = function (node, expressionTypeString, args
     return DEFAULT_TYPE;
   }
 
-  return matchedValue.call(this.analyzer, node, args, childrenTypes);
+  const result = matchedValue.call(this.analyzer, node, args, childrenTypes);
+  this.analyzer.addParameters(result.parameters);
+  return result.type;
 };
 
 module.exports = TypingRuleBook;

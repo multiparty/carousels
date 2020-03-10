@@ -12,7 +12,6 @@ totalMetric.defaults = {
   TypeNode: math.ZERO,
   FunctionDefinition: math.ZERO,
   ReturnStatement: 'expression',
-  VariableDefinition: 'assignment',
   VariableAssignment: 'expression',
   LiteralExpression: math.ZERO,
   ParenthesesExpression: 'expression',
@@ -23,16 +22,27 @@ totalMetric.store = function () {
   return math.ZERO;
 };
 
+// Variable definition: prioritize assignment over declaration
+totalMetric.aggregateVariableDefinition = function (node, childrenType, childrenMetric) {
+  if (childrenMetric.assignment) {
+    return childrenMetric.assignment;
+  }
+  if (childrenMetric.type) {
+    return childrenMetric.type;
+  }
+  return math.ZERO;
+};
+
 // For Each: body * iterations
 totalMetric.aggregateForEach = function (node, childrenType, childrenMetric) {
-  const iterationCount = loop.iterationCount(node, childrenType);
+  const iterationCount = loop.iterationCountForEach(node, childrenType);
   const total = math.multiply(childrenMetric.body, iterationCount);
   return total;
 };
 
 // Regular For: (body + condition + increment) * iterations + condition + initialization (one extra condition evaluation)
 totalMetric.aggregateFor = function (node, childrenType, childrenMetric) {
-  const iterationCount = loop.iterationCount(node, childrenType);
+  const iterationCount = loop.iterationCountFor(node, childrenType);
   const body = math.add(childrenMetric.body, childrenMetric.condition, childrenMetric.increment);
   const bodyIterated = math.multiply(body, iterationCount);
   const total = math.add(bodyIterated, childrenMetric.condition, childrenMetric.initial);

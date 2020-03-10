@@ -18,6 +18,10 @@ const operatorNode = function (operator, description, identity) {
   };
 };
 
+const floorDiv = function (x, y) {
+  return new mathjs.FunctionNode('floor', [operatorNode('/', 'divide', ZERO)(x, y)]);
+};
+
 const max = function () {
   if (emptyArgs(arguments)) {
     return ZERO;
@@ -53,14 +57,14 @@ const evaluate = function (context, expression) {
   };
 };
 
-mathmodule.exports = {
+module.exports = {
   parse: mathjs.parse,
   evaluate: evaluate,
   ZERO: ZERO,
   add: operatorNode('+', 'add', ZERO),
   sub: operatorNode('-', 'subtract', ZERO),
   multiply: operatorNode('*', 'multiply', ZERO),
-  div: operatorNode('/', 'divide', ZERO),
+  div: floorDiv,
   gt: operatorNode('>', 'larger', ZERO),
   lt: operatorNode('<', 'smaller', ZERO),
   gte: operatorNode('>=', 'largerEq', ZERO),

@@ -1,7 +1,7 @@
 const AbstractMetric = require('../../ir/metric.js');
 
 const math = require('../math.js');
-const loop = require('../loops.js');
+const loops = require('../loops.js');
 
 // Round metric: aggregates cost along paths in the code dependency graph (through the depth of the circuit)
 // Singleton object instantiated from AbstractMetric
@@ -12,7 +12,6 @@ roundMetric.defaults = {
   TypeNode: math.ZERO,
   FunctionDefinition: math.ZERO,
   ReturnStatement: 'expression',
-  VariableDefinition: 'assignment',
   VariableAssignment: 'expression',
   LiteralExpression: math.ZERO,
   ParenthesesExpression: 'expression',
@@ -23,16 +22,27 @@ roundMetric.store = function (metric) {
   return metric;
 };
 
+// Variable definition: prioritize assignment over declaration
+roundMetric.aggregateVariableDefinition = function (node, childrenType, childrenMetric) {
+  if (childrenMetric.assignment) {
+    return childrenMetric.assignment;
+  }
+  if (childrenMetric.type) {
+    return childrenMetric.type;
+  }
+  return math.ZERO;
+};
+
 // For Each: body * iterations
 roundMetric.aggregateForEach = function (node, childrenType, childrenMetric) {
-  const iterationCount = loop.iterationCount(node, childrenType);
+  const iterationCount = loops.iterationCountForEach(node, childrenType);
   const total = math.multiply(childrenMetric.body, iterationCount);
   return total;
 };
 
 // Regular For: (body + condition + increment) * iterations + condition + initialization (one extra condition evaluation)
 roundMetric.aggregateFor = function (node, childrenType, childrenMetric) {
-  const iterationCount = loop.iterationCount(node, childrenType);
+  const iterationCount = loops.iterationCountFor(node, childrenType);
   const body = math.add(childrenMetric.body, childrenMetric.condition, childrenMetric.increment);
   const bodyIterated = math.multiply(body, iterationCount);
   const total = math.add(bodyIterated, childrenMetric.condition, childrenMetric.initial);
@@ -91,7 +101,7 @@ roundMetric.aggregateArrayExpression = function (node, childrenType, childrenMet
 // FunctionCall: aggregate parameters (and this if exists), the added cost of the function itself is factored in separately
 roundMetric.aggregateFunctionCall = function (node, childrenType, childrenMetric) {
   const parameters = math.max.apply(null, childrenMetric.parameters);
-  const total = math.max(parameters, childrenMetric.function); // represents 'this', will be 0 if there is no this!
+  const total = math.max(childrenMetric.function, parameters); // represents 'this', will be 0 if there is no this!
   return total;
 };
 

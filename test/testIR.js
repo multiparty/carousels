@@ -1,3 +1,3 @@
-const StringifiyVisitor = require('../src/analyze/helperVisitors/stringify.js');
+const StringifyVisitor = require('../src/analyze/helpers/stringify.js');
 const JSONIR = require('./' + process.argv[2]);
-console.log(new StringifiyVisitor().start(JSONIR));
+console.log(new StringifyVisitor(null, false).start(JSONIR));

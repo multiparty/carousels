@@ -13,13 +13,21 @@ ScopedMap.prototype.add = function (name, val) {
   const index = this.scopes.length - 1;
   this.scopes[index][name] = val;
 };
-ScopedMap.prototype.get = function (name) {
+ScopedMap.prototype.addPreviousScope = function (name, val) {
+  const index = this.scopes.length - 2;
+  this.scopes[index][name] = val;
+};
+ScopedMap.prototype.get = function (name, d) {
   for (let i = this.scopes.length - 1; i >= 0; i--) {
     const scope = this.scopes[i];
     const val = scope[name];
     if (val != null) {
       return val;
     }
+  }
+
+  if (d !== undefined) {
+    return d;
   }
 
   if (this.error) {

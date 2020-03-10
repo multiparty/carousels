@@ -55,6 +55,16 @@
         "Online Messages": "p-1",
         "Online Rounds": "1"
       }
+    },
+    {
+      "rule": {
+        "nodeType": "DotExpression",
+        "match": "<type:array@D,secret:(true|false)>\\.len"
+      },
+      "value": {
+        "Online Messages": "=0",
+        "Online Rounds": "=0"
+      }
     }
   ]
 }

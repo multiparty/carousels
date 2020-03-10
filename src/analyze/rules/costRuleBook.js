@@ -3,7 +3,7 @@ const math = require('../math.js');
 
 function CostRuleBook(analyzer, rules, metricTitle) {
   const operations = rules.operations.map(function (op) {
-    return Object.assign({}, op, {value: math.parse(op.value[metricTitle])});
+    return Object.assign({}, op, {value: op.value[metricTitle]});
   });
   RuleBook.call(this, analyzer, operations, 'costs');
 }
@@ -18,7 +18,11 @@ CostRuleBook.prototype.applyMatch = function (node, expressionTypeString, metric
     return metric;
   }
 
-  return this.analyzer.metric.addCost(metric, matchedValue);
+  if (matchedValue.startsWith('=')) {
+    return math.parse(matchedValue.substring(1));
+  }
+
+  return this.analyzer.metric.addCost(metric, math.parse(matchedValue));
 };
 
 module.exports = CostRuleBook;

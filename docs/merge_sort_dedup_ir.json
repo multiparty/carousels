@@ -3,61 +3,6 @@
     "nodeType": "FunctionDefinition",
     "name": {
       "nodeType": "NameExpression",
-      "name": "merge_dedup"
-    },
-    "parameters": [
-      {
-        "nodeType": "VariableDefinition",
-        "name":  {
-          "nodeType": "NameExpression",
-          "name": "a"
-        },
-        "type": {
-          "nodeType": "TypeNode",
-          "secret": true,
-          "type": "array",
-          "dependentType": {
-            "nodeType": "TypeNode",
-            "secret": true,
-            "type": "number"
-          }
-        }
-      },
-      {
-        "nodeType": "VariableDefinition",
-        "name":  {
-          "nodeType": "NameExpression",
-          "name": "b"
-        },
-        "type": {
-          "nodeType": "TypeNode",
-          "secret": true,
-          "type": "array",
-          "dependentType": {
-            "nodeType": "TypeNode",
-            "secret": true,
-            "type": "number"
-          }
-        }
-      }
-    ],
-    "returnType": {
-      "nodeType": "TypeNode",
-      "secret": true,
-      "type": "array",
-      "dependentType": {
-        "nodeType": "TypeNode",
-        "secret": true,
-        "type": "number"
-      }
-    },
-    "body": [
-    ]
-  },
-  {
-    "nodeType": "FunctionDefinition",
-    "name": {
-      "nodeType": "NameExpression",
       "name": "merge_sort_dedup"
     },
     "parameters": [
@@ -256,6 +201,61 @@
           }
         ]
       }
+    ]
+  },
+  {
+    "nodeType": "FunctionDefinition",
+    "name": {
+      "nodeType": "NameExpression",
+      "name": "merge_dedup"
+    },
+    "parameters": [
+      {
+        "nodeType": "VariableDefinition",
+        "name": {
+          "nodeType": "NameExpression",
+          "name": "a"
+        },
+        "type": {
+          "nodeType": "TypeNode",
+          "secret": true,
+          "type": "array",
+          "dependentType": {
+            "nodeType": "TypeNode",
+            "secret": true,
+            "type": "number"
+          }
+        }
+      },
+      {
+        "nodeType": "VariableDefinition",
+        "name": {
+          "nodeType": "NameExpression",
+          "name": "b"
+        },
+        "type": {
+          "nodeType": "TypeNode",
+          "secret": true,
+          "type": "array",
+          "dependentType": {
+            "nodeType": "TypeNode",
+            "secret": true,
+            "type": "number"
+          }
+        }
+      }
+    ],
+    "returnType": {
+      "nodeType": "TypeNode",
+      "secret": true,
+      "type": "array",
+      "dependentType": {
+        "nodeType": "TypeNode",
+        "secret": true,
+        "type": "number"
+      }
+    },
+    "body": [
     ]
   }
 ]

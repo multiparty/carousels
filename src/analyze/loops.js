@@ -1,7 +1,12 @@
-const iterationCount = function (analyzer, node) {
-  return 1; // TODO
+const iterationCountForEach = function (node, childrenType) {
+  return childrenType.range.size;
+};
+
+const iterationCountFor = function (node, childrenType) {
+  throw new Error('iterationCountFor is not implemented yet!');
 };
 
 module.exports = {
-  iterationCount: iterationCount
+  iterationCountForEach: iterationCountForEach,
+  iterationCountFor: iterationCountFor
 };

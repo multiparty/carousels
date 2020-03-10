@@ -12,21 +12,24 @@ const metricObjects = require('./metrics/metrics.js');
 
 const IRVisitor = require('../ir/visitor.js');
 const visitorImplementations = [
-  require('./analysisVisitor/array.js'),
-  require('./analysisVisitor/callAndReturn.js'),
-  require('./analysisVisitor/expression.js'),
-  require('./analysisVisitor/for.js'),
-  require('./analysisVisitor/functionDefinition.js'),
-  require('./analysisVisitor/if.js'),
-  require('./analysisVisitor/oblivIf.js'),
-  require('./analysisVisitor/value.js'),
-  require('./analysisVisitor/variable.js'),
-  require('./analysisVisitor/sequence.js')
+  require('./analysis/array.js'),
+  require('./analysis/callAndReturn.js'),
+  require('./analysis/expression.js'),
+  require('./analysis/for.js'),
+  require('./analysis/functionDefinition.js'),
+  require('./analysis/if.js'),
+  require('./analysis/oblivIf.js'),
+  require('./analysis/value.js'),
+  require('./analysis/variable.js'),
+  require('./analysis/sequence.js')
 ];
+
+const StringifyVisitor = require('./helpers/stringify.js');
 
 function Analyzer(language, code, costs, extraTyping) {
   this.language = language;
   this.code = code;
+  this.intermediateResults = [];
 
   // parse into IR
   const parser = parsers[this.language];
@@ -37,9 +40,8 @@ function Analyzer(language, code, costs, extraTyping) {
   this.typings = new TypingRuleBook(this, typingRules);
 
   // Scoped tables
-  this.variableTypeMap = new ScopedMap();
+  this.variableTypeMap = new ScopedMap(); // also functions
   this.variableMetricMap = new ScopedMap();
-  this.functionTypeMap = new ScopedMap();
   this.functionReturnAbstractionMap = new ScopedMap();
   this.functionMetricAbstractionMap = new ScopedMap();
   this.abstractionToClosedFormMap = {};
@@ -49,14 +51,33 @@ function Analyzer(language, code, costs, extraTyping) {
   for (let i = 0; i < visitorImplementations.length; i++) {
     this.visitor.addVisitors(visitorImplementations[i]);
   }
+
+  // Stores intermediate results/history in order of visit!
+  const self = this;
+  this.visitor.visit = function (node) {
+    try {
+      const result = IRVisitor.prototype.visit.apply(self.visitor, arguments);
+      self.intermediateResults.push({node: node, result: result});
+      return result;
+    } catch (error) {
+      if (!error.__analyzed) {
+        error.__analyzed = true;
+        if (error.__IRNODE) {
+          node = error.__IRNODE;
+        }
+        self.intermediateResults.push({node: node, error: error});
+      }
+      throw error;
+    }
+  };
 }
 
+// Symbolic parameters management
 Analyzer.prototype.addParameters = function (parameters) {
   for (let i = 0; i < parameters.length; i++) {
     this.parameters[parameters[i].mathSymbol.toString()] = parameters[i];
   }
 };
-
 Analyzer.prototype.getParametersBySymbol = function (symbols) {
   const self = this;
   return symbols.map(function (symbol) {
@@ -64,6 +85,7 @@ Analyzer.prototype.getParametersBySymbol = function (symbols) {
   });
 };
 
+// Main entry point
 Analyzer.prototype.analyze = function (costs, metricTitle) {
   // costs parsing
   this.costs = new CostRuleBook(this, costs, metricTitle);
@@ -91,9 +113,9 @@ Analyzer.prototype.analyze = function (costs, metricTitle) {
 
   // start the visitor pattern
   this.visitor.start(this.IR, '');
-  console.log(this);
 };
 
+// Retrieves the symbolic result: this can be plotted or displayed
 Analyzer.prototype.symbolicResult = function () {
   const equations = [];
   const description = [];
@@ -104,7 +126,7 @@ Analyzer.prototype.symbolicResult = function () {
 
       const absStr = functionAbstraction.mathSymbol.toString();
       equations.push(absStr + ' = ' + this.abstractionToClosedFormMap[absStr].toString());
-      description.push(absStr + ' : ' + functionAbstraction.toString());
+      description.push(functionAbstraction.toString());
     }
   }
 
@@ -120,4 +142,11 @@ Analyzer.prototype.symbolicResult = function () {
   };
 };
 
+// returns a string with the IR code (pretty formatted) with the metric, typing, and error annotations embedded in it for debugging
+Analyzer.prototype.prettyPrint = function (withAnnotation, HTML) {
+  const debuggingVisitor = new StringifyVisitor(withAnnotation !== false ? this.intermediateResults : null, HTML);
+  return debuggingVisitor.start(this.IR);
+};
+
+// Exports
 module.exports = Analyzer;

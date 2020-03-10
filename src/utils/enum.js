@@ -1,8 +1,8 @@
-function Enum() {
-  this.__name = arguments[0];
-  this.__values = Array.from(arguments).slice(1);
-  for (let i = 0; i < arguments.length; i++) {
-    const val = arguments[i];
+function Enum(name, values) {
+  this.__name = name;
+  this.__values = values;
+  for (let i = 0; i < values.length; i++) {
+    const val = values[i];
     this[val] = val;
 
     if (Enum.prototype[val] != null) {
@@ -12,6 +12,7 @@ function Enum() {
 }
 
 Enum.prototype.__name = 'ENUM_NAME';
+Enum.prototype.__values = 'ENUM_VALUES';
 Enum.prototype.__has = function (val) {
   return this.__values.indexOf(val) > -1;
 };

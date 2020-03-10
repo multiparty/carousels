@@ -36,17 +36,22 @@ FunctionAbstraction.prototype.concretize = function (concreteParams) {
   return math.parse(this.abstractionName + '(' + concreteParams.join(',') + ')');
 };
 
-FunctionAbstraction.prototype.concretizeDependent = function (parameters) {
+FunctionAbstraction.prototype.concretizeDependent = function (parameters, metrics) {
   let concreteParams = [];
+
+  metrics = metrics ? metrics : [];
+  for (let i = 0; i < metrics.length; i++) {
+    concreteParams.push(metrics[i]);
+  }
 
   for (let i = 0; i < this.parameterIndices; i++) {
     const index = this.parameterIndices[i];
     const parameterType = parameters[index];
 
     // Expects an array parameter with some length (symbolic or valued)
-    if (parameterType.is(carouselsTypes.TYPE_ENUM.ARRAY) && parameterType.hasDependentType('length')) {
+    if (parameterType.is(carouselsTypes.ENUM.ARRAY)) {
       concreteParams.push(parameterType.dependentType.length);
-    } else if (parameterType.hasDependentType('value')) {
+    } else if (parameterType.is(carouselsTypes.ENUM.NUMBER) || parameterType.is(carouselsTypes.ENUM.BOOLEAN)) {
       concreteParams.push(parameterType.dependentType.value);
     } else {
       throw new Error('Function "' + this.functionName + '" called with non-dependent argument "' + parameterType.toString() + '" at position ' + index);
@@ -57,8 +62,13 @@ FunctionAbstraction.prototype.concretizeDependent = function (parameters) {
 };
 
 FunctionAbstraction.prototype.toString = function () {
-  return '<Abstraction ' + this.mathSymbol.toString() + ': ' + (this.abstractionTitle + '\n' +
-    this.parameters.join('\n')).trim() + '>';
+  const mathSymbol = this.mathSymbol.toString().trim();
+  let ws = new Array(mathSymbol.length + 2);
+  ws = ws.fill(' ').join('');
+
+  let str = mathSymbol + ': ' + this.abstractionTitle + ' Abstraction for function ' + this.functionName;
+  str += '\n' + ws + this.parameters.join('\n' + ws);
+  return str;
 };
 
 module.exports = FunctionAbstraction;
