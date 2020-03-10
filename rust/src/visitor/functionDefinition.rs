@@ -16,7 +16,7 @@ impl <'ast> Visit <'ast> for FunctionDefinition{
 
             match inp{
                 FnArg::Receiver(_r)=>{
-                    param.name.name = String::new("self");
+                    param.name.name = String::from("self");
                 }
                 FnArg::Typed(_t)=>{
                     param.visit_pat(&_t.pat);

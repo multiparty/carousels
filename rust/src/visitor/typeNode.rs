@@ -67,8 +67,7 @@ impl <'ast> Visit <'ast> for TypeNode {
                 if &ident == "Vec" {
                     self.type_ = "array".to_string();
                 }
-                else if &ident == "bool"  || &ident == "str"
-                        || &ident == "char"  {
+                else if &ident == "bool"  || &ident == "str" || &ident == "char"  {
                     self.type_ = ident;
                 }
                 else{
@@ -82,7 +81,6 @@ impl <'ast> Visit <'ast> for TypeNode {
 
             match &ps.arguments{
                 PathArguments::AngleBracketed(_a)=>{
-
                     self.dependentType.push_str("<");
 
                     for _arg in _a.args.iter(){
