@@ -3,7 +3,7 @@
   "name": [
     {
       "nodeType": "NameExpression",
-      "name": "merge_sort_dedup",
+      "name": "merge",
       "parameters": [],
       "secret": false
     }
@@ -14,7 +14,29 @@
       "name": [
         {
           "nodeType": "NameExpression",
-          "name": "a",
+          "name": "left",
+          "parameters": [],
+          "secret": false
+        }
+      ],
+      "parameters": [],
+      "type": [
+        {
+          "nodeType": "TypeNode",
+          "parameters": [],
+          "type": "array",
+          "dependentType_": "&[Possession<T,P>]",
+          "secret": true
+        }
+      ],
+      "secret": false
+    },
+    {
+      "nodeType": "VariableDefinition",
+      "name": [
+        {
+          "nodeType": "NameExpression",
+          "name": "right",
           "parameters": [],
           "secret": false
         }
@@ -48,7 +70,7 @@
       "name": [
         {
           "nodeType": "NameExpression",
-          "name": "n",
+          "name": "out_len",
           "parameters": [],
           "secret": false
         }
@@ -68,7 +90,110 @@
           "name": [
             {
               "nodeType": "NameExpression",
-              "name": "n",
+              "name": "out_len",
+              "parameters": [],
+              "secret": false
+            }
+          ],
+          "parameters": [],
+          "secret": false,
+          "expression": [
+            {
+              "nodeType": "DirectExpression",
+              "parameters": [],
+              "secret": false,
+              "arity": "2",
+              "operator": "+",
+              "operands": [
+                {
+                  "nodeType": "FunctionCall",
+                  "function": [
+                    {
+                      "nodeType": "DotExpression",
+                      "parameters": [],
+                      "secret": false,
+                      "left": [
+                        {
+                          "nodeType": "NameExpression",
+                          "name": "left",
+                          "parameters": [],
+                          "secret": false
+                        }
+                      ],
+                      "right": [
+                        {
+                          "nodeType": "NameExpression",
+                          "name": "len",
+                          "parameters": [],
+                          "secret": false
+                        }
+                      ]
+                    }
+                  ],
+                  "parameters": [],
+                  "secret": false
+                },
+                {
+                  "nodeType": "FunctionCall",
+                  "function": [
+                    {
+                      "nodeType": "DotExpression",
+                      "parameters": [],
+                      "secret": false,
+                      "left": [
+                        {
+                          "nodeType": "NameExpression",
+                          "name": "right",
+                          "parameters": [],
+                          "secret": false
+                        }
+                      ],
+                      "right": [
+                        {
+                          "nodeType": "NameExpression",
+                          "name": "len",
+                          "parameters": [],
+                          "secret": false
+                        }
+                      ]
+                    }
+                  ],
+                  "parameters": [],
+                  "secret": false
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "secret": false
+    },
+    {
+      "nodeType": "VariableDefinition",
+      "name": [
+        {
+          "nodeType": "NameExpression",
+          "name": "out",
+          "parameters": [],
+          "secret": false
+        }
+      ],
+      "parameters": [],
+      "type": [
+        {
+          "nodeType": "TypeNode",
+          "parameters": [],
+          "type": "any",
+          "secret": false
+        }
+      ],
+      "assignment": [
+        {
+          "nodeType": "VariableAssignment",
+          "name": [
+            {
+              "nodeType": "NameExpression",
+              "name": "out",
               "parameters": [],
               "secret": false
             }
@@ -80,28 +205,20 @@
               "nodeType": "FunctionCall",
               "function": [
                 {
-                  "nodeType": "DotExpression",
+                  "nodeType": "NameExpression",
+                  "name": "Vecwith_capacity",
                   "parameters": [],
-                  "secret": false,
-                  "left": [
-                    {
-                      "nodeType": "NameExpression",
-                      "name": "a",
-                      "parameters": [],
-                      "secret": false
-                    }
-                  ],
-                  "right": [
-                    {
-                      "nodeType": "NameExpression",
-                      "name": "len",
-                      "parameters": [],
-                      "secret": false
-                    }
-                  ]
+                  "secret": false
                 }
               ],
-              "parameters": [],
+              "parameters": [
+                {
+                  "nodeType": "NameExpression",
+                  "name": "out_len",
+                  "parameters": [],
+                  "secret": false
+                }
+              ],
               "secret": false
             }
           ]
@@ -110,211 +227,292 @@
       "secret": false
     },
     {
-      "nodeType": "If",
-      "parameters": [],
-      "secret": false,
-      "condition": [
+      "nodeType": "VariableDefinition",
+      "name": [
         {
-          "nodeType": "DirectExpression",
+          "nodeType": "NameExpression",
+          "name": "li",
           "parameters": [],
-          "secret": false,
-          "arity": "2",
-          "operator": ">=",
-          "operands": [
+          "secret": false
+        }
+      ],
+      "parameters": [],
+      "type": [
+        {
+          "nodeType": "TypeNode",
+          "parameters": [],
+          "type": "any",
+          "secret": false
+        }
+      ],
+      "assignment": [
+        {
+          "nodeType": "VariableAssignment",
+          "name": [
             {
               "nodeType": "NameExpression",
-              "name": "n",
+              "name": "li",
               "parameters": [],
               "secret": false
-            },
+            }
+          ],
+          "parameters": [],
+          "secret": false,
+          "expression": [
             {
-              "nodeType": "LiteralExpression",
+              "nodeType": "DirectExpression",
               "parameters": [],
-              "value": "1",
-              "type": "number",
-              "secret": false
+              "secret": false,
+              "arity": "2",
+              "operator": "+",
+              "operands": [
+                {
+                  "nodeType": "NameExpression",
+                  "name": "li",
+                  "parameters": [],
+                  "secret": false
+                },
+                {
+                  "nodeType": "LiteralExpression",
+                  "parameters": [],
+                  "value": "0",
+                  "type": "number",
+                  "secret": false
+                }
+              ]
             }
           ]
         }
       ],
-      "ifBody": [
+      "secret": false
+    },
+    {
+      "nodeType": "VariableDefinition",
+      "name": [
         {
-          "nodeType": "VariableDefinition",
+          "nodeType": "NameExpression",
+          "name": "ri",
+          "parameters": [],
+          "secret": false
+        }
+      ],
+      "parameters": [],
+      "type": [
+        {
+          "nodeType": "TypeNode",
+          "parameters": [],
+          "type": "any",
+          "secret": false
+        }
+      ],
+      "assignment": [
+        {
+          "nodeType": "VariableAssignment",
           "name": [
             {
               "nodeType": "NameExpression",
-              "name": "m",
+              "name": "ri",
               "parameters": [],
               "secret": false
             }
           ],
           "parameters": [],
-          "type": [
+          "secret": false,
+          "expression": [
             {
-              "nodeType": "TypeNode",
-              "parameters": [],
-              "type": "any",
-              "secret": false
-            }
-          ],
-          "assignment": [
-            {
-              "nodeType": "VariableAssignment",
-              "name": [
-                {
-                  "nodeType": "NameExpression",
-                  "name": "m",
-                  "parameters": [],
-                  "secret": false
-                }
-              ],
+              "nodeType": "DirectExpression",
               "parameters": [],
               "secret": false,
-              "expression": [
+              "arity": "2",
+              "operator": "+",
+              "operands": [
                 {
-                  "nodeType": "DirectExpression",
+                  "nodeType": "NameExpression",
+                  "name": "ri",
                   "parameters": [],
-                  "secret": false,
-                  "arity": "2",
-                  "operator": "/",
-                  "operands": [
-                    {
-                      "nodeType": "NameExpression",
-                      "name": "n",
-                      "parameters": [],
-                      "secret": false
-                    },
-                    {
-                      "nodeType": "LiteralExpression",
-                      "parameters": [],
-                      "value": "2",
-                      "type": "number",
-                      "secret": false
-                    }
-                  ]
+                  "secret": false
+                },
+                {
+                  "nodeType": "LiteralExpression",
+                  "parameters": [],
+                  "value": "0",
+                  "type": "number",
+                  "secret": false
                 }
               ]
             }
-          ],
-          "secret": false
-        },
+          ]
+        }
+      ],
+      "secret": false
+    },
+    {
+      "nodeType": "VariableDefinition",
+      "name": [
         {
-          "nodeType": "FunctionCall",
-          "function": [
+          "nodeType": "NameExpression",
+          "name": "left_len",
+          "parameters": [],
+          "secret": false
+        }
+      ],
+      "parameters": [],
+      "type": [
+        {
+          "nodeType": "TypeNode",
+          "parameters": [],
+          "type": "any",
+          "secret": false
+        }
+      ],
+      "assignment": [
+        {
+          "nodeType": "VariableAssignment",
+          "name": [
             {
               "nodeType": "NameExpression",
-              "name": "merge_dedup",
+              "name": "left_len",
               "parameters": [],
               "secret": false
             }
           ],
-          "parameters": [
+          "parameters": [],
+          "secret": false,
+          "expression": [
             {
-              "nodeType": "FunctionCall",
-              "function": [
+              "nodeType": "DirectExpression",
+              "parameters": [],
+              "secret": false,
+              "arity": "2",
+              "operator": "+",
+              "operands": [
                 {
                   "nodeType": "NameExpression",
-                  "name": "merge_sort_dedup",
+                  "name": "left_len",
                   "parameters": [],
                   "secret": false
-                }
-              ],
-              "parameters": [
+                },
                 {
-                  "nodeType": "SliceExpression",
-                  "parameters": [],
-                  "secret": false,
-                  "array": [
+                  "nodeType": "FunctionCall",
+                  "function": [
                     {
-                      "nodeType": "NameExpression",
-                      "name": "a",
-                      "parameters": [],
-                      "secret": false
-                    }
-                  ],
-                  "range": [
-                    {
-                      "nodeType": "RangeExpression",
+                      "nodeType": "DotExpression",
                       "parameters": [],
                       "secret": false,
-                      "start": [
+                      "left": [
                         {
-                          "nodeType": "LiteralExpression",
+                          "nodeType": "NameExpression",
+                          "name": "left",
                           "parameters": [],
-                          "value": "0",
-                          "type": "number",
                           "secret": false
                         }
                       ],
-                      "end": [
+                      "right": [
                         {
                           "nodeType": "NameExpression",
-                          "name": "m",
+                          "name": "len",
                           "parameters": [],
                           "secret": false
                         }
                       ]
                     }
-                  ]
-                }
-              ],
-              "secret": false
-            },
-            {
-              "nodeType": "FunctionCall",
-              "function": [
-                {
-                  "nodeType": "NameExpression",
-                  "name": "merge_sort_dedup",
+                  ],
                   "parameters": [],
                   "secret": false
                 }
-              ],
-              "parameters": [
-                {
-                  "nodeType": "SliceExpression",
-                  "parameters": [],
-                  "secret": false,
-                  "array": [
-                    {
-                      "nodeType": "NameExpression",
-                      "name": "a",
-                      "parameters": [],
-                      "secret": false
-                    }
-                  ],
-                  "range": [
-                    {
-                      "nodeType": "RangeExpression",
-                      "parameters": [],
-                      "secret": false,
-                      "start": [
-                        {
-                          "nodeType": "NameExpression",
-                          "name": "m",
-                          "parameters": [],
-                          "secret": false
-                        }
-                      ],
-                      "end": [
-                        {
-                          "nodeType": "NameExpression",
-                          "name": "n",
-                          "parameters": [],
-                          "secret": false
-                        }
-                      ]
-                    }
-                  ]
-                }
-              ],
-              "secret": false
+              ]
             }
-          ],
+          ]
+        }
+      ],
+      "secret": false
+    },
+    {
+      "nodeType": "VariableDefinition",
+      "name": [
+        {
+          "nodeType": "NameExpression",
+          "name": "right_len",
+          "parameters": [],
           "secret": false
         }
       ],
-      "elseBody": [
+      "parameters": [],
+      "type": [
+        {
+          "nodeType": "TypeNode",
+          "parameters": [],
+          "type": "any",
+          "secret": false
+        }
+      ],
+      "assignment": [
+        {
+          "nodeType": "VariableAssignment",
+          "name": [
+            {
+              "nodeType": "NameExpression",
+              "name": "right_len",
+              "parameters": [],
+              "secret": false
+            }
+          ],
+          "parameters": [],
+          "secret": false,
+          "expression": [
+            {
+              "nodeType": "DirectExpression",
+              "parameters": [],
+              "secret": false,
+              "arity": "2",
+              "operator": "+",
+              "operands": [
+                {
+                  "nodeType": "NameExpression",
+                  "name": "right_len",
+                  "parameters": [],
+                  "secret": false
+                },
+                {
+                  "nodeType": "FunctionCall",
+                  "function": [
+                    {
+                      "nodeType": "DotExpression",
+                      "parameters": [],
+                      "secret": false,
+                      "left": [
+                        {
+                          "nodeType": "NameExpression",
+                          "name": "left",
+                          "parameters": [],
+                          "secret": false
+                        }
+                      ],
+                      "right": [
+                        {
+                          "nodeType": "NameExpression",
+                          "name": "len",
+                          "parameters": [],
+                          "secret": false
+                        }
+                      ]
+                    }
+                  ],
+                  "parameters": [],
+                  "secret": false
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "secret": false
+    },
+    {
+      "nodeType": "ForEach",
+      "parameters": [],
+      "secret": false,
+      "body": [
         {
           "nodeType": "FunctionCall",
           "function": [
@@ -325,7 +523,7 @@
               "left": [
                 {
                   "nodeType": "NameExpression",
-                  "name": "a",
+                  "name": "out",
                   "parameters": [],
                   "secret": false
                 }
@@ -333,17 +531,469 @@
               "right": [
                 {
                   "nodeType": "NameExpression",
-                  "name": "to_owned",
+                  "name": "push",
                   "parameters": [],
                   "secret": false
                 }
               ]
             }
           ],
+          "parameters": [
+            {
+              "nodeType": "If",
+              "parameters": [],
+              "secret": false,
+              "condition": [
+                {
+                  "nodeType": "DirectExpression",
+                  "parameters": [],
+                  "secret": false,
+                  "arity": "2",
+                  "operator": "||",
+                  "operands": [
+                    {
+                      "nodeType": "DirectExpression",
+                      "parameters": [],
+                      "secret": false,
+                      "arity": "2",
+                      "operator": "==",
+                      "operands": [
+                        {
+                          "nodeType": "NameExpression",
+                          "name": "li",
+                          "parameters": [],
+                          "secret": false
+                        },
+                        {
+                          "nodeType": "NameExpression",
+                          "name": "left_len",
+                          "parameters": [],
+                          "secret": false
+                        }
+                      ]
+                    },
+                    {
+                      "nodeType": "DirectExpression",
+                      "parameters": [],
+                      "secret": false,
+                      "arity": "2",
+                      "operator": "&&",
+                      "operands": [
+                        {
+                          "nodeType": "DirectExpression",
+                          "parameters": [],
+                          "secret": false,
+                          "arity": "2",
+                          "operator": "<",
+                          "operands": [
+                            {
+                              "nodeType": "NameExpression",
+                              "name": "ri",
+                              "parameters": [],
+                              "secret": false
+                            },
+                            {
+                              "nodeType": "NameExpression",
+                              "name": "right_len",
+                              "parameters": [],
+                              "secret": false
+                            }
+                          ]
+                        },
+                        {
+                          "nodeType": "DirectExpression",
+                          "parameters": [],
+                          "secret": false,
+                          "arity": "2",
+                          "operator": ">=",
+                          "operands": [
+                            {
+                              "nodeType": "ArrayAccess",
+                              "parameters": [],
+                              "secret": false,
+                              "array": [
+                                {
+                                  "nodeType": "FunctionCall",
+                                  "function": [
+                                    {
+                                      "nodeType": "NameExpression",
+                                      "name": "Oram",
+                                      "parameters": [],
+                                      "secret": false
+                                    }
+                                  ],
+                                  "parameters": [
+                                    {
+                                      "nodeType": "NameExpression",
+                                      "name": "right",
+                                      "parameters": [],
+                                      "secret": false
+                                    }
+                                  ],
+                                  "secret": false
+                                }
+                              ],
+                              "index": [
+                                {
+                                  "nodeType": "NameExpression",
+                                  "name": "ri",
+                                  "parameters": [],
+                                  "secret": false
+                                }
+                              ]
+                            },
+                            {
+                              "nodeType": "ArrayAccess",
+                              "parameters": [],
+                              "secret": false,
+                              "array": [
+                                {
+                                  "nodeType": "FunctionCall",
+                                  "function": [
+                                    {
+                                      "nodeType": "NameExpression",
+                                      "name": "Oram",
+                                      "parameters": [],
+                                      "secret": false
+                                    }
+                                  ],
+                                  "parameters": [
+                                    {
+                                      "nodeType": "NameExpression",
+                                      "name": "left",
+                                      "parameters": [],
+                                      "secret": false
+                                    }
+                                  ],
+                                  "secret": false
+                                }
+                              ],
+                              "index": [
+                                {
+                                  "nodeType": "NameExpression",
+                                  "name": "li",
+                                  "parameters": [],
+                                  "secret": false
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ],
+              "ifBody": [
+                {
+                  "nodeType": "VariableDefinition",
+                  "name": [
+                    {
+                      "nodeType": "NameExpression",
+                      "name": "o",
+                      "parameters": [],
+                      "secret": false
+                    }
+                  ],
+                  "parameters": [],
+                  "type": [
+                    {
+                      "nodeType": "TypeNode",
+                      "parameters": [],
+                      "type": "any",
+                      "secret": false
+                    }
+                  ],
+                  "assignment": [
+                    {
+                      "nodeType": "VariableAssignment",
+                      "name": [
+                        {
+                          "nodeType": "NameExpression",
+                          "name": "o",
+                          "parameters": [],
+                          "secret": false
+                        }
+                      ],
+                      "parameters": [],
+                      "secret": false,
+                      "expression": [
+                        {
+                          "nodeType": "FunctionCall",
+                          "function": [
+                            {
+                              "nodeType": "DotExpression",
+                              "parameters": [],
+                              "secret": false,
+                              "left": [
+                                {
+                                  "nodeType": "ArrayAccess",
+                                  "parameters": [],
+                                  "secret": false,
+                                  "array": [
+                                    {
+                                      "nodeType": "FunctionCall",
+                                      "function": [
+                                        {
+                                          "nodeType": "NameExpression",
+                                          "name": "Oram",
+                                          "parameters": [],
+                                          "secret": false
+                                        }
+                                      ],
+                                      "parameters": [
+                                        {
+                                          "nodeType": "NameExpression",
+                                          "name": "right",
+                                          "parameters": [],
+                                          "secret": false
+                                        }
+                                      ],
+                                      "secret": false
+                                    }
+                                  ],
+                                  "index": [
+                                    {
+                                      "nodeType": "NameExpression",
+                                      "name": "ri",
+                                      "parameters": [],
+                                      "secret": false
+                                    }
+                                  ]
+                                }
+                              ],
+                              "right": [
+                                {
+                                  "nodeType": "NameExpression",
+                                  "name": "clone",
+                                  "parameters": [],
+                                  "secret": false
+                                }
+                              ]
+                            }
+                          ],
+                          "parameters": [],
+                          "secret": false
+                        }
+                      ]
+                    }
+                  ],
+                  "secret": false
+                },
+                {
+                  "nodeType": "VariableAssignment",
+                  "parameters": [],
+                  "assignment": [
+                    {
+                      "nodeType": "NameExpression",
+                      "name": "ri",
+                      "parameters": [],
+                      "secret": false,
+                      "expression": [
+                        {
+                          "nodeType": "DirectExpression",
+                          "parameters": [],
+                          "secret": false,
+                          "arity": "2",
+                          "operator": "+",
+                          "operands": [
+                            {
+                              "nodeType": "NameExpression",
+                              "name": "ri",
+                              "parameters": [],
+                              "secret": false
+                            },
+                            {
+                              "nodeType": "LiteralExpression",
+                              "parameters": [],
+                              "value": "1",
+                              "type": "number",
+                              "secret": false
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ],
+                  "secret": false
+                },
+                {
+                  "nodeType": "NameExpression",
+                  "name": "o",
+                  "parameters": [],
+                  "secret": false
+                }
+              ],
+              "elseBody": [
+                {
+                  "nodeType": "NameExpression",
+                  "name": [
+                    {
+                      "nodeType": "NameExpression",
+                      "name": "o",
+                      "parameters": [],
+                      "secret": false
+                    }
+                  ],
+                  "name": "o",
+                  "parameters": [],
+                  "type": [
+                    {
+                      "nodeType": "TypeNode",
+                      "parameters": [],
+                      "type": "any",
+                      "secret": false
+                    }
+                  ],
+                  "assignment": [
+                    {
+                      "nodeType": "VariableAssignment",
+                      "name": [
+                        {
+                          "nodeType": "NameExpression",
+                          "name": "o",
+                          "parameters": [],
+                          "secret": false
+                        }
+                      ],
+                      "parameters": [],
+                      "secret": false,
+                      "expression": [
+                        {
+                          "nodeType": "FunctionCall",
+                          "function": [
+                            {
+                              "nodeType": "DotExpression",
+                              "parameters": [],
+                              "secret": false,
+                              "left": [
+                                {
+                                  "nodeType": "ArrayAccess",
+                                  "parameters": [],
+                                  "secret": false,
+                                  "array": [
+                                    {
+                                      "nodeType": "FunctionCall",
+                                      "function": [
+                                        {
+                                          "nodeType": "NameExpression",
+                                          "name": "Oram",
+                                          "parameters": [],
+                                          "secret": false
+                                        }
+                                      ],
+                                      "parameters": [
+                                        {
+                                          "nodeType": "NameExpression",
+                                          "name": "left",
+                                          "parameters": [],
+                                          "secret": false
+                                        }
+                                      ],
+                                      "secret": false
+                                    }
+                                  ],
+                                  "index": [
+                                    {
+                                      "nodeType": "NameExpression",
+                                      "name": "li",
+                                      "parameters": [],
+                                      "secret": false
+                                    }
+                                  ]
+                                }
+                              ],
+                              "right": [
+                                {
+                                  "nodeType": "NameExpression",
+                                  "name": "clone",
+                                  "parameters": [],
+                                  "secret": false
+                                }
+                              ]
+                            }
+                          ],
+                          "parameters": [],
+                          "secret": false
+                        }
+                      ]
+                    },
+                    {
+                      "nodeType": "NameExpression",
+                      "name": "li",
+                      "parameters": [],
+                      "secret": false,
+                      "expression": [
+                        {
+                          "nodeType": "DirectExpression",
+                          "parameters": [],
+                          "secret": false,
+                          "arity": "2",
+                          "operator": "+",
+                          "operands": [
+                            {
+                              "nodeType": "NameExpression",
+                              "name": "li",
+                              "parameters": [],
+                              "secret": false
+                            },
+                            {
+                              "nodeType": "LiteralExpression",
+                              "parameters": [],
+                              "value": "1",
+                              "type": "number",
+                              "secret": false
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ],
+                  "secret": false
+                }
+              ]
+            }
+          ],
+          "secret": false
+        }
+      ],
+      "range": [
+        {
+          "nodeType": "RangeExpression",
+          "parameters": [],
+          "secret": false,
+          "start": [
+            {
+              "nodeType": "LiteralExpression",
+              "parameters": [],
+              "value": "0",
+              "type": "number",
+              "secret": false
+            }
+          ],
+          "end": [
+            {
+              "nodeType": "NameExpression",
+              "name": "out_len",
+              "parameters": [],
+              "secret": false
+            }
+          ]
+        }
+      ],
+      "iterator": [
+        {
+          "nodeType": "iterator",
           "parameters": [],
           "secret": false
         }
       ]
+    },
+    {
+      "nodeType": "NameExpression",
+      "name": "out",
+      "parameters": [],
+      "secret": false
     }
   ]
 }

@@ -1,13 +1,32 @@
-fn merge_sort_dedup<T, P: Obliv>(a: &[Possession<T, P>])
+fn merge<T: Debug, P: Obliv>(left: &[Possession<T, P>],
+                             right: &[Possession<T, P>])
 -> Vec<Possession<T, P>>
 where T: Ord + Clone
 {
-    let n = a.len();
-    if n > 1 {
-        let m = n/2;
-        merge_dedup(&merge_sort_dedup(&a[0..m]),
-                    &merge_sort_dedup(&a[m..n]))
-    } else {
-        a.to_owned()
+    let out_len = left.len() + right.len();
+    let mut out = Vec::with_capacity(out_len);
+
+    let mut li = li + 0;
+    let mut ri = ri + 0;
+
+    let left_len = left_len + left.len();
+    let right_len = right_len + left.len();
+
+    for _ in 0..out_len {
+        out.push({
+             if li == left_len ||
+                     ri < right_len &&
+                     Oram(right)[ri] > Oram(left)[li]
+            {
+                let o = Oram(right)[ri].clone();
+                ri = ri + 1;
+                o
+            } else {
+                let o = Oram(left)[li].clone();
+                li = li +1;
+                o
+            }
+        });
     }
+    out
 }
