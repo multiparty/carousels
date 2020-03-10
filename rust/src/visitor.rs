@@ -4,7 +4,7 @@ use std::fs::File as FileSys;
 use std::io::Read;
 use std::error::Error;
 use syn::visit::{Visit};
-use syn::{ItemFn, Lit, Expr, Local, Member, Type,TypeParamBound, Path, PathArguments, GenericArgument, FnArg, ReturnType, ExprAssign, ExprMethodCall,
+use syn::{ItemFn, Item, Lit, Expr, Local, Member, Type,TypeParamBound, Path, PathArguments, GenericArgument, FnArg, ReturnType, ExprAssign, ExprMethodCall,
     ExprBinary, ExprForLoop, ExprLit, ExprCall, ExprUnary, ExprRepeat, ExprReturn, ExprRange, ExprParen,
     ExprIf, ExprArray, ExprField, ExprIndex, ExprPath, ExprMacro, ExprTuple, Pat, BinOp, Ident, UnOp};
 
@@ -58,5 +58,20 @@ pub fn get_ast(val: &str) -> std::result::Result<Box<Program>, Box<dyn Error>> {
 }
 
 impl <'ast> Visit <'ast> for Program{
+    fn visit_item(&mut self, node: &'ast Item){
+        match node{
+            Item::Fn(_f)=>{
+                let mut name = NameExpression::new("".to_string());
+                let mut ty = TypeNode::new(false, "".to_string());
+                let mut func = FunctionDefinition::new(name, Vec::new(), Vec::new(), ty);
+                func.visit_item_fn(_f);
+                self.body.push(Box::new(func));
+            }
+            _=>{}
+        }
+    }
+}
+
+impl <'ast> Visit <'ast> for FunctionDefinition{
 
 }

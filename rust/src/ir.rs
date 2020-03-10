@@ -38,21 +38,21 @@ use ir_node_derive::ir_node;
 pub trait IRNode: std::fmt::Debug { }
 
 #[ir_node]
-pub struct Program {
+struct Program {
     body: Vec<Box<dyn IRNode>>
 }
 
 
 // Logical nodes
 #[ir_node]
-pub struct TypeNode {
+struct TypeNode {
     secret: bool,
     type_: String
 }
 
 // Statements
 #[ir_node]
-pub struct FunctionDefinition {
+struct FunctionDefinition {
     name: NameExpression,
     parameters: Vec<VariableDefinition>,
     body: Vec<Box<dyn IRNode>>,
@@ -60,22 +60,22 @@ pub struct FunctionDefinition {
 }
 
 #[ir_node]
-pub struct ReturnStatement {
+struct ReturnStatement {
     expression: Box<dyn IRNode>
 }
 #[ir_node]
-pub struct VariableDefinition {
+struct VariableDefinition {
     name: NameExpression,
     type_: TypeNode
 }
 #[ir_node]
-pub struct ForEach {
+struct ForEach {
     iterator: VariableDefinition,
     range: RangeExpression,
     body: Vec<Box<dyn IRNode>>
 }
 #[ir_node]
-pub struct For {
+struct For {
     initial: Vec<Box<dyn IRNode>>,
     condition: Box<dyn IRNode>,
     increment: Vec<Box<dyn IRNode>>,
@@ -84,80 +84,80 @@ pub struct For {
 
 // Expressions
 #[ir_node]
-pub struct VariableAssignment {
+struct VariableAssignment {
     name: NameExpression,
     expression: Box<dyn IRNode>
 }
 
 #[ir_node]
-pub struct If {
+struct If {
     condition: Box<dyn IRNode>,
     if_body: Vec<Box<dyn IRNode>>,
     else_body: Vec<Box<dyn IRNode>>
 }
 
 #[ir_node]
-pub struct OblivIf {
+struct OblivIf {
     condition: Box<dyn IRNode>,
     if_body: Vec<Box<dyn IRNode>>,
     else_body: Vec<Box<dyn IRNode>>
 }
 
 #[ir_node]
-pub struct LiteralExpression {
+struct LiteralExpression {
     value: String,
     type_: String // "number", "boolean" or "string"
 }
 
 #[ir_node]
-pub struct NameExpression {
-    name: String
+struct NameExpression {
+    pub name: String
 }
 
 #[ir_node]
-pub struct DirectExpression {
+struct DirectExpression {
     operator: String,
     arity: u32,
     operands: Vec<Box<dyn IRNode>>
 }
 
 #[ir_node]
-pub struct ParenthesesExpression {
+struct ParenthesesExpression {
     expression: Box<dyn IRNode>
 }
 
 #[ir_node]
-pub struct ArrayAccess {
+struct ArrayAccess {
     array: Box<dyn IRNode>,
     index: Box<dyn IRNode>
 }
 
 #[ir_node]
-pub struct RangeExpression {
+struct RangeExpression {
     start: Box<dyn IRNode>,
     end: Box<dyn IRNode>,
     increment: Option<Box<dyn IRNode>>
 }
 
 #[ir_node]
-pub struct SliceExpression {
+struct SliceExpression {
     array: Box<dyn IRNode>,
     index: RangeExpression
 }
 
 #[ir_node]
-pub struct ArrayExpression {
+struct ArrayExpression {
     elements: Vec<Box<dyn IRNode>>
 }
 
 #[ir_node]
-pub struct FunctionCall {
+struct FunctionCall {
     function: Box<dyn IRNode>, // either NameExpression or DotExpression
     parameters: Vec<Box<dyn IRNode>>
 }
 
 #[ir_node]
-pub struct DotExpression {
+struct DotExpression {
     left: Box<dyn IRNode>,
     right: NameExpression
 }

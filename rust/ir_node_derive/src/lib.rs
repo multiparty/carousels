@@ -30,7 +30,7 @@ pub fn ir_node(_attr: TokenStream, item: TokenStream) -> TokenStream {
         #[serde(rename_all = "camelCase")]
         pub struct #name {
             #(
-                #field_name: #field_type,
+                pub #field_name: #field_type,
             )*
             node_type: String
         }
