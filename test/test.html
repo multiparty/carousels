@@ -44,7 +44,7 @@
     <pre id="descriptionPre"></pre> <br/>
 
     <h3>Output</h3>
-    <pre id="equationsPre"></pre> <br/>
+    <pre id="equationsPre" style="width: min-content; min-width: 90%;"></pre> <br/>
 
     <h3>Annotations + Code</h3>
     <div id="annotationPre"></div>
@@ -69,7 +69,7 @@
       language = 'rust',
       code = codePre.textContent,
       costs = carousels.costs.rustBGW,
-      metric = carousels.costs.rustBGW['metrics'][0]['title'],
+      metric = carousels.costs.rustBGW['metrics'][1]['title'],
       extraTyping = null;
 
     const IRCode = carousels.parsers.rust(code);

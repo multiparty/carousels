@@ -14,8 +14,10 @@ const ReturnStatement = function (node, pathStr) {
 
 const localFunctionCall = function (node, pathStr) {
   // For traversing order consistency, not really useful..
-  const functionType = this.visit(node.function, pathStr + '[function]').type;
   const functionName = node.function.name; // must be a NameExpression for now
+  const functionResult = this.visit(node.function, pathStr + '[function]');
+  const functionType = functionResult.type;
+  const functionMetric = functionResult.metric;
 
   // visit parameters
   const parametersResult = visitParameters.call(this, node, pathStr);
@@ -32,12 +34,32 @@ const localFunctionCall = function (node, pathStr) {
 
   // Figure out metric via metric abstraction
   const metricAbstraction = this.analyzer.functionMetricAbstractionMap.get(functionName);
-  const metric = metricAbstraction.concretizeDependent(parametersType, parametersMetric.map(this.analyzer.metric.store));
+  const callMetric = metricAbstraction.concretizeDependent(parametersMetric.map(this.analyzer.metric.store).concat(parametersType));
+
+  // We do not need to look in the typing or cost rules
+  // In a sense, we replaced them with the more accurate return and metric abstractions
+  // We still need to aggregate all the different metrics of the children/components
+
+  // construct children maps
+  const childrenType = {
+    function: functionType,
+    parameters: parametersType,
+    call: returnType
+  };
+
+  const childrenMetric = {
+    function: functionMetric,
+    parameters: parametersMetric,
+    call: callMetric
+  };
+
+  // aggregate
+  const aggregateMetric = this.analyzer.metric.aggregateFunctionCall(node, childrenType, childrenMetric);
 
   // Done
   return {
     type: returnType,
-    metric: metric
+    metric: aggregateMetric
   };
 };
 

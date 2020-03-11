@@ -51,8 +51,8 @@ totalMetric.aggregateFor = function (node, childrenType, childrenMetric) {
 
 // If: only one of the two branches is executed
 totalMetric.aggregateIf = function (node, childrenType, childrenMetric) {
-  const max = math.max(childrenMetric.ifBody, childrenMetric.elseBody);
-  const total = math.add(max, childrenMetric.condition);
+  const bodies = math.iff(childrenType.conditionMath, childrenMetric.ifBody, childrenMetric.elseBody);
+  const total = math.add(bodies, childrenMetric.condition);
   return total;
 };
 
@@ -99,8 +99,21 @@ totalMetric.aggregateArrayExpression = function (node, childrenType, childrenMet
 
 // FunctionCall: aggregate parameters (and this if exists), the added cost of the function itself is factored in separately
 totalMetric.aggregateFunctionCall = function (node, childrenType, childrenMetric) {
-  const parameters = math.add.apply(null, childrenMetric.parameters);
-  const total = math.add(parameters, childrenMetric.function); // represents 'this', will be 0 if there is no this!
+  const allParams = childrenMetric.parameters.slice();
+  if (childrenMetric.function) {
+    // the cost of the function context itself (e.g. the cost of `this`)
+    // for most intents and purposes this is 0
+    allParams.unshift(childrenMetric.function);
+  }
+  if (childrenMetric.call) {
+    // the total cost of the function call, assuming all the paramters and context was already computed and its cost accounted for
+    // this is only given for locally defined functions only
+    // external functions do not provide a call attribute
+    // their added cost is looked up in the costs rules and applied separately
+    allParams.push(childrenMetric.call);
+  }
+
+  const total = math.add.apply(null, allParams);
   return total;
 };
 
