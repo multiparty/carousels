@@ -1,6 +1,6 @@
 use syn::visit::{Visit};
-use syn::{ItemFn, FnArg, ReturnType};
-use crate::ir::{FunctionDefinition, NameExpression, TypeNode, VariableDefinition};
+use syn::{ItemFn, FnArg, ReturnType, Stmt};
+use crate::ir::{IRNode, FunctionDefinition, NameExpression, TypeNode, VariableDefinition, VariableAssignment};
 
 impl <'ast> Visit <'ast> for FunctionDefinition{
 
@@ -9,10 +9,7 @@ impl <'ast> Visit <'ast> for FunctionDefinition{
         self.name.name = node.sig.ident.to_string();
 
         for inp in &node.sig.inputs{
-
-            let mut name = NameExpression::new_("");
-            let mut ty = TypeNode::new_("", "");
-            let mut param = VariableDefinition::new(name, ty);
+            let mut param = VariableDefinition::new(NameExpression::new_(""), TypeNode::new_("", ""), None);
 
             match inp{
                 FnArg::Receiver(_r)=>{
@@ -32,5 +29,25 @@ impl <'ast> Visit <'ast> for FunctionDefinition{
             }
             _=>{}
         }
+
+        for s in &node.block.stmts {
+            self.visit_stmt(s); // call visit_stmt on each statement in the fn body
+        }
     }
+        fn visit_stmt(&mut self, node: &'ast Stmt){
+            match node{
+                Stmt::Item(_i)=>{
+
+                }
+                Stmt::Local(_l)=>{
+
+                }
+                Stmt::Expr(_e)=>{
+
+                }
+                Stmt::Semi(_e, _s)=>{
+
+                }
+            }
+        }
 }
