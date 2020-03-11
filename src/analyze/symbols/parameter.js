@@ -38,5 +38,10 @@ Parameter.forRangeSize = function (rangeName) {
   const symbol = 's' + (PARAMETER_COUNTER++);
   return new Parameter(symbol, description);
 };
+Parameter.forCondition = function (conditionPath) {
+  const description = 'The value of condition "' + conditionPath + '"';
+  const symbol = 'c' + (PARAMETER_COUNTER)++;
+  return new Parameter(symbol, description);
+};
 
 module.exports = Parameter;

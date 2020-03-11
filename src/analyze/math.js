@@ -33,7 +33,7 @@ const max = function () {
 };
 
 const iff = function (condition, ifVal, elseVal) {
-  return 'iff(' + condition.toString() + ',' + ifVal.toString() + ',' + elseVal.toString() +')';
+  return new mathjs.FunctionNode('iff', [condition, ifVal, elseVal]);
 };
 
 const evaluate = function (context, expression) {

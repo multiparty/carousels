@@ -36,17 +36,17 @@ FunctionAbstraction.prototype.concretize = function (concreteParams) {
   return math.parse(this.abstractionName + '(' + concreteParams.join(',') + ')');
 };
 
-FunctionAbstraction.prototype.concretizeDependent = function (parameters, metrics) {
+FunctionAbstraction.prototype.concretizeDependent = function (parameters) {
   let concreteParams = [];
-
-  metrics = metrics ? metrics : [];
-  for (let i = 0; i < metrics.length; i++) {
-    concreteParams.push(metrics[i]);
-  }
-
-  for (let i = 0; i < this.parameterIndices; i++) {
+  for (let i = 0; i < this.parameterIndices.length; i++) {
     const index = this.parameterIndices[i];
     const parameterType = parameters[index];
+
+    // Metric parameters are passed as mathjs expressions directly
+    if (parameterType.isNode) {
+      concreteParams.push(parameterType);
+      continue;
+    }
 
     // Expects an array parameter with some length (symbolic or valued)
     if (parameterType.is(carouselsTypes.ENUM.ARRAY)) {
@@ -57,7 +57,6 @@ FunctionAbstraction.prototype.concretizeDependent = function (parameters, metric
       throw new Error('Function "' + this.functionName + '" called with non-dependent argument "' + parameterType.toString() + '" at position ' + index);
     }
   }
-
   return this.concretize(concreteParams);
 };
 
