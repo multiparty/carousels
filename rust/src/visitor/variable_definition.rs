@@ -4,9 +4,6 @@ use crate::ir::{IRNode, VariableDefinition, VariableAssignment, NameExpression, 
 use crate::visitor::stack::{Stack};
 
 impl <'ast> Visit <'ast> for VariableDefinition{
-    fn visit_pat(&mut self, node: &'ast Pat){
-
-    }
     fn visit_local(&mut self, node: &'ast Local){
 
         match &node.pat{
@@ -22,8 +19,8 @@ impl <'ast> Visit <'ast> for VariableDefinition{
 
         match &node.init{
             Some(_e)=>{
-                let mut name_a = NameExpression::new(self.name.name.clone());
-                let mut expression = Stack::my_visit_expr(&_e.1);
+                let name_a = NameExpression::new(self.name.name.clone());
+                let expression = Stack::my_visit_expr(&_e.1);
                 self.assignment = Some(VariableAssignment::new(name_a, expression));
             }
             None =>{}
