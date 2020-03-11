@@ -47,20 +47,19 @@ struct Error {
     err: String
 }
 
-
 // Logical nodes
 #[ir_node]
 struct TypeNode {
     secret: bool,
     type_: String,
-    dependentType: String
+    dependent_type: String
 }
 
 // Statements
 #[ir_node]
 struct FunctionDefinition {
     name: NameExpression,
-    parameters: Vec<VariableDefinition>,
+    parameters: Vec<Box<dyn IRNode>>,
     body: Vec<Box<dyn IRNode>>,
     return_type: TypeNode
 }
@@ -77,8 +76,8 @@ struct VariableDefinition {
 }
 #[ir_node]
 struct ForEach {
-    iterator: VariableDefinition,
-    range: RangeExpression,
+    iterator: Box<dyn IRNode>,
+    range: Box<dyn IRNode>,
     body: Vec<Box<dyn IRNode>>
 }
 #[ir_node]
@@ -141,15 +140,15 @@ struct ArrayAccess {
 
 #[ir_node]
 struct RangeExpression {
-    start: Box<dyn IRNode>,
-    end: Box<dyn IRNode>,
+    start: Option<Box<dyn IRNode>>,
+    end: Option<Box<dyn IRNode>>,
     increment: Option<Box<dyn IRNode>>
 }
 
 #[ir_node]
 struct SliceExpression {
     array: Box<dyn IRNode>,
-    index: RangeExpression
+    range: Box<dyn IRNode>
 }
 
 #[ir_node]
@@ -166,5 +165,5 @@ struct FunctionCall{
 #[ir_node]
 struct DotExpression {
     left: Box<dyn IRNode>,
-    right: NameExpression
+    right: Box<dyn IRNode>
 }

@@ -24,8 +24,8 @@ pub fn get_ast_str_from_file(val: &str) -> std::result::Result<String, Box<dyn E
 /// for wasm use, returns just a String
 pub fn get_ast_str(val: &str) -> String {
     let syntax = match syn::parse_file(&val){
-        Ok(v) => v,
-        Err(e) => {return "Error parsing rust code".to_string()},
+        Ok(_v) => _v,
+        Err(_e) => {return "Error parsing rust code".to_string()},
     };
 
     let mut file = Box::new(Program::new(Vec::new())); //highest node in the AST
