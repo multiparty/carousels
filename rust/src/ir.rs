@@ -42,6 +42,11 @@ struct Program {
     body: Vec<Box<dyn IRNode>>
 }
 
+#[ir_node]
+struct Error {
+    err: String
+}
+
 
 // Logical nodes
 #[ir_node]
@@ -67,7 +72,8 @@ struct ReturnStatement {
 #[ir_node]
 struct VariableDefinition {
     name: NameExpression,
-    type_: TypeNode
+    type_: TypeNode,
+    assignment: Option<VariableAssignment>
 }
 #[ir_node]
 struct ForEach {
@@ -152,7 +158,7 @@ struct ArrayExpression {
 }
 
 #[ir_node]
-struct FunctionCall {
+struct FunctionCall{
     function: Box<dyn IRNode>, // either NameExpression or DotExpression
     parameters: Vec<Box<dyn IRNode>>
 }
