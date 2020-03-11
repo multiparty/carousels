@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Carousels</title>
+
+    <!-- Math.js and Plotly -->
+    <script type="text/javascript" src="static/math.min.js"></script>
+    <script type="text/javascript" src="static/plotly-latest.min.js"></script>
+
+    <!-- carousels library and plotting code -->
+    <script type="text/javascript" src="../dist/carousels.js"></script>
+
+    <!-- Our UI js and css -->
+    <script type="text/javascript" src="index.js"></script>
+    <script type="text/javascript" src="static/plot.js"></script>
+    <link rel="stylesheet" href="index.css"/>
+
+    <!-- Code mirror -->
+    <script type="text/javascript" src="static/codemirror/codemirror.js"></script>
+    <script type="text/javascript" src="static/codemirror/rust.js"></script>
+    <link rel="stylesheet" href="static/codemirror/codemirror.css"/>
+    <link rel="stylesheet" href="static/codemirror/dracula.css"/>
+</head>
+<body>
+    <h1>Carousels</h1>
+
+    <!-- input controls -->
+    <div id="inputContainer">
+        <div id="inputControlPanel" class="card">
+            <h2>Control Panel</h2> <br/> <br/> <br/>
+            <div class="labels">
+                <label for="protocol">Choose Protocol</label>
+                <label for="metric">Choose Metric</label>
+            </div>
+            <div class="controls">
+                <select id="protocol"></select> <br/>
+                <select id="metric"></select> <br/>
+            </div>
+            <button id="computeButton">Compute</button>
+        </div>
+
+        <!-- input code panel with Codemirror -->
+        <div id="inputCodePanel" class="card">
+            <h2>Input Code</h2> <br/>
+            <div class="CodeMirrorContainer">
+                <textarea id="inputCode">
+fn merge_sort<T: Debug, P: Obliv>(slice: &[Possession<T, P>]) -> Vec<Possession<T, P>> where T: Ord + Clone {
+    if slice.len() == 1 {
+        return slice.to_owned()
+    }
+
+    let mid   = slice.len() / 2;
+    let left  = merge_sort(&slice[0..mid]);
+    let right = merge_sort(&slice[mid..slice.len()]);
+    merge(&left, &right)
+}
+
+fn merge<T: Debug, P: Obliv>(left: &[Possession<T, P>], right: &[Possession<T, P>]) -> Vec<Possession<T, P>> where T: Ord + Clone {
+    let out_len = left.len() + right.len();
+    let mut out = Vec::with_capacity(out_len);
+
+    let mut li = 0;
+    let mut ri = 0;
+
+    let left_len = left.len();
+    let right_len = right.len();
+
+    for _ in 0..out_len {
+        out.push({
+            obliv if li == left_len || ri < right_len && Oram(right)[ri] > Oram(left)[li] {
+                let o = Oram(right)[ri].clone();
+                ri += 1;
+                o
+            } else {
+                let o = Oram(left)[li].clone();
+                li += 1;
+                o
+            }
+        });
+    }
+    out
+}
+                </textarea>
+            </div>
+        </div>
+    </div>
+
+    <!-- output panels -->
+    <div id="outputContainer">
+        <div id="outputControlPanel" class="card">
+            <h2>Plot Control</h2> <br/> <br/> <br/>
+            <div class="labels">
+                <label for="func">Choose Function</label>
+                <label for="xaxis">Choose X-axis</label>
+                <label for="yaxis">Choose Y-axis</label>
+            </div>
+            <div class="controls">
+                <select id="func"> </select> <br/>
+                <select id="xaxis"></select> <br/>
+                <select id="yaxis"></select> <br/>
+            </div>
+            <button id="plotButton">Plot</button>
+        </div>
+
+        <!-- input code panel with Codemirror -->
+        <div id="outputPlotPanel" class="card">
+            <h2>Plot Panel</h2> <br/>
+            <div id="outputText">
+
+            </div>
+            <hr>
+            <div>
+                <div id="outputPlot">
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
