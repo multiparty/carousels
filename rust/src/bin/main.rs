@@ -9,7 +9,9 @@ use carousels::visitor;
 // Use `cargo run --bin main` to compile and run this file
 
 pub fn main() {
-    let filename = "src/old/test_hello.rs";
+    let args: Vec<String> = std::env::args().collect();
+
+    let filename = &args[1];
 
     /*
      *let file = visitor::get_ast(&filename);
