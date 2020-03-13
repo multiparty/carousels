@@ -1,5 +1,5 @@
 use syn::visit::{Visit};
-use syn::{Ident, Pat, ExprPath};
+use syn::{Ident};
 use crate::ir::{NameExpression};
 
 impl <'ast> Visit <'ast> for NameExpression{

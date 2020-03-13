@@ -34,7 +34,7 @@ pub fn test_wasm_now() -> u32 {
 use ir_node_derive::ir_node;
 
 // Abstract trait
-#[typetag::serde(tag = "type_")]
+#[typetag::serde(tag = "serializationTag")]
 pub trait IRNode: std::fmt::Debug { }
 
 #[ir_node]
@@ -52,7 +52,7 @@ struct Error {
 struct TypeNode {
     secret: bool,
     type_: String,
-    dependent_type: String
+    dependent_type: Option<Box<TypeNode>>
 }
 
 // Statements

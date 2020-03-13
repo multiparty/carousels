@@ -1,16 +1,15 @@
 use syn::visit::{Visit};
 use syn::{Expr, Stmt, Pat};
-use ir_node_derive::ir_node;
 use crate::visitor::stack::{Stack};
 
-use crate::ir::{IRNode, TypeNode, VariableDefinition, NameExpression, RangeExpression, Error};
+use crate::ir::{TypeNode, VariableDefinition, NameExpression, RangeExpression};
 
 impl Stack{
     pub fn visit_stmt<'ast>(&mut self, node: &'ast Stmt){
         match node{
             Stmt::Local(_l)=>{
                 let name = NameExpression::new(String::from(""));
-                let ty = TypeNode::new(false, String::from(""), String::from(""));
+                let mut ty = TypeNode::new(false, String::from(""), None);
                 let mut variable_def = VariableDefinition::new(name,ty,None);
 
                 variable_def.visit_local(_l);

@@ -8,7 +8,7 @@ impl <'ast> Visit <'ast> for Program{
         match node{
             Item::Fn(_f)=>{
                 let name = NameExpression::new(String::from(""));
-                let ty = TypeNode::new(false, String::from(""), String::from(""));
+                let ty = TypeNode::new(false, String::from(""),  None);
                 let mut func = FunctionDefinition::new(name, Vec::new(), Vec::new(), ty);
 
                 func.visit_item_fn(_f);

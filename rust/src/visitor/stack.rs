@@ -1,7 +1,5 @@
-use syn::visit::{Visit};
 use syn::{Expr, Stmt, Pat};
-use ir_node_derive::ir_node;
-use crate::ir::{IRNode, TypeNode, VariableDefinition, NameExpression, Error};
+use crate::ir::{IRNode, Error};
 
 pub struct Stack{
     pub visitor: Vec<Box<dyn IRNode>>

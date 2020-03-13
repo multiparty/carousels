@@ -1,11 +1,12 @@
 use syn::visit::{Visit};
-use syn::{Stmt, ItemFn, Lit, Expr, Local, Member, Type,TypeParamBound, Path, PathArguments, GenericArgument, FnArg, ReturnType, ExprAssign, ExprMethodCall,
-    ExprBinary, ExprForLoop, ExprLit, ExprCall, ExprUnary, ExprRepeat, ExprReturn, ExprRange, ExprParen,
-    ExprIf, ExprArray, ExprField, ExprIndex, ExprPath, ExprMacro, ExprTuple, Pat, BinOp, Ident, UnOp};
+use syn::{Lit, Expr, Member, ExprAssign, ExprMethodCall,
+    ExprBinary, ExprForLoop, ExprLit, ExprCall, ExprUnary, ExprReturn, ExprRange, ExprParen,
+    ExprIf, ExprArray, ExprField, ExprIndex, ExprPath, BinOp, UnOp};
 
-use crate::ir::{VariableDefinition, ReturnStatement, ForEach, VariableAssignment, If, OblivIf, LiteralExpression, NameExpression,
+use crate::ir::{ReturnStatement, ForEach, VariableAssignment, If, LiteralExpression, NameExpression,
                 DirectExpression, ParenthesesExpression, ArrayAccess, RangeExpression, SliceExpression,
-                ArrayExpression, FunctionCall, DotExpression, TypeNode};
+                ArrayExpression, FunctionCall, DotExpression};
+                
 use crate::visitor::stack::{Stack};
 
 impl <'ast> Visit <'ast> for Stack{

@@ -1,6 +1,6 @@
 use syn::visit::{Visit};
-use syn::{ItemFn, FnArg, ReturnType, Stmt};
-use crate::ir::{IRNode, FunctionDefinition, NameExpression, TypeNode, VariableDefinition, VariableAssignment};
+use syn::{ItemFn, FnArg, ReturnType};
+use crate::ir::{FunctionDefinition, NameExpression, TypeNode, VariableDefinition};
 use crate::visitor::stack::{Stack};
 
 impl <'ast> Visit <'ast> for FunctionDefinition{
@@ -11,7 +11,9 @@ impl <'ast> Visit <'ast> for FunctionDefinition{
 
         for inp in &node.sig.inputs{
             let mut name = NameExpression::new(String::from(""));
-            let mut ty = TypeNode::new(false, String::from(""), String::from(""));
+
+            let mut dep_type = String::from("");
+            let mut ty = TypeNode::new(false, String::from(""),None);
 
             match inp{
                 FnArg::Receiver(_r)=>{
@@ -19,21 +21,24 @@ impl <'ast> Visit <'ast> for FunctionDefinition{
                 }
                 FnArg::Typed(_t)=>{
                     name.visit_pat(&_t.pat);
-                    ty.visit_type(&_t.ty);
+                    ty.my_visit_type(&_t.ty, &mut dep_type);
+                    ty.dependent_type = Some(Box::new(TypeNode::new(ty.secret, dep_type, None)));
                 }
             }
-            self.parameters.push(Box::new(VariableDefinition::new(name, ty, None)));
-        }
-
-        match &node.sig.output{
-            ReturnType::Type(_ , _t)=>{
-                self.return_type.visit_type(_t);
+                self.parameters.push(Box::new(VariableDefinition::new(name, ty, None)));
             }
-            _=>{}
-        }
 
-        for s in &node.block.stmts {
-            self.body.push(Stack::my_visit_stmts(s)); // call visit_stmt on each statement in the fn body
-        }
+            match &node.sig.output {
+                ReturnType::Type(_ , _t)=>{
+                    let mut dep_type = String::from("");
+                    self.return_type.my_visit_type(_t, &mut dep_type);
+                    self.return_type.dependent_type = Some(Box::new(TypeNode::new(self.return_type.secret, dep_type, None)));
+                }
+                _=>{}
+            }
+
+            for s in &node.block.stmts {
+                self.body.push(Stack::my_visit_stmts(s)); // call visit_stmt on each statement in the fn body
+            }
     }
 }
