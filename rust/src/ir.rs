@@ -91,7 +91,7 @@ struct For {
 // Expressions
 #[ir_node]
 struct VariableAssignment {
-    name: NameExpression,
+    name: Box<dyn IRNode>,
     expression: Box<dyn IRNode>
 }
 

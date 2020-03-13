@@ -85,7 +85,10 @@ impl <'ast> Visit <'ast> for Stack{
                literal_expr.type_ = String::from("bool");
                literal_expr.value = _bo.value.to_string();
            }
-           _=>{}
+           Lit::Verbatim(_v)=>{
+               literal_expr.type_ = String::from("any");
+               literal_expr.value = _v.to_string();
+           }
         }
         self.visitor.push(Box::new(literal_expr));
     }
@@ -102,16 +105,11 @@ impl <'ast> Visit <'ast> for Stack{
 
      fn visit_expr_assign(&mut self, node: &'ast ExprAssign){
 
+         let left = Stack::my_visit_expr(&node.left);
          let expr = Stack::my_visit_expr(&node.right);
          let mut name = NameExpression::new(String::from(""));
 
-         match &*node.left{
-             Expr::Path(_e)=>{
-                 name.visit_expr_path(_e);
-             }
-             _=>{}
-         }
-         let assignment = VariableAssignment::new(name, expr);
+         let assignment = VariableAssignment::new(Box::new(name), expr);
 
          self.visitor.push(Box::new(assignment));
      }

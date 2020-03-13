@@ -9,7 +9,7 @@ use carousels::visitor;
 // Use `cargo run --bin main` to compile and run this file
 
 pub fn main() {
-    let filename = "src/old/test_program.rs";
+    let filename = "src/old/test_hello.rs";
 
     /*
      *let file = visitor::get_ast(&filename);

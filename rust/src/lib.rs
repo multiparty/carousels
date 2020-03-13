@@ -32,6 +32,6 @@ pub fn test_wasm_now() -> u32 {
 }
 
 #[wasm_bindgen]
-pub fn get_json_IR(val: &str) -> String {
+pub fn get_json_ir(val: &str) -> String {
     visitor::file::get_ast_str(val)
 }
