@@ -9,7 +9,7 @@ impl Stack{
         match node{
             Stmt::Local(_l)=>{
                 let name = NameExpression::new(String::from(""));
-                let mut ty = TypeNode::new(false, String::from(""), None);
+                let ty = TypeNode::new(false, String::from(""), None);
                 let mut variable_def = VariableDefinition::new(name,ty,None);
 
                 variable_def.visit_local(_l);

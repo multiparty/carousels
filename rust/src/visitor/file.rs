@@ -1,4 +1,4 @@
-use crate::ir::{Program};
+use crate::visitor::program::{Program};
 
 use std::fs::File as FileSys;
 use std::io::Read;
@@ -12,7 +12,7 @@ pub fn get_ast_str_from_file(val: &str) -> std::result::Result<String, Box<dyn E
     file.read_to_string(&mut content).unwrap();
     let syntax = syn::parse_file(&content)?;
 
-    let mut file = Box::new(Program::new(Vec::new())); //highest node in the AST
+    let mut file = Box::new(Program{body: Vec::new()}); //highest node in the AST
     file.visit_file(&syntax);
 
     match serde_json::to_string_pretty(&file){
@@ -28,7 +28,7 @@ pub fn get_ast_str(val: &str) -> String {
         Err(_e) => {return "Error parsing rust code".to_string()},
     };
 
-    let mut file = Box::new(Program::new(Vec::new())); //highest node in the AST
+    let mut file = Box::new(Program{body: Vec::new()}); //highest node in the AST
     file.visit_file(&syntax);
 
     match serde_json::to_string_pretty(&file){
@@ -46,7 +46,7 @@ pub fn get_ast(val: &str) -> std::result::Result<Box<Program>, Box<dyn Error>> {
     //println!("{}", content);
     let syntax = syn::parse_file(&content)?;
 
-    let mut file = Box::new(Program::new(Vec::new())); //highest node in the AST
+    let mut file = Box::new(Program{body: Vec::new()}); //highest node in the AST
     file.visit_file(&syntax);
     Ok(file)
 

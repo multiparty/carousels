@@ -38,11 +38,6 @@ use ir_node_derive::ir_node;
 pub trait IRNode: std::fmt::Debug { }
 
 #[ir_node]
-struct Program {
-    body: Vec<Box<dyn IRNode>>
-}
-
-#[ir_node]
 struct Error {
     err: String
 }
@@ -99,7 +94,7 @@ struct VariableAssignment {
 struct If {
     condition: Box<dyn IRNode>,
     if_body: Vec<Box<dyn IRNode>>,
-    else_body: Vec<Box<dyn IRNode>>
+    else_body: Option<Vec<Box<dyn IRNode>>>
 }
 
 #[ir_node]

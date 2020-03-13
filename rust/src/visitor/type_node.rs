@@ -1,4 +1,3 @@
-use syn::visit::{Visit};
 use syn::{Type, Path, PathArguments, ReturnType, GenericArgument, TypeParamBound};
 use crate::ir::{TypeNode};
 
@@ -40,7 +39,7 @@ impl TypeNode {
     fn my_visit_path<'ast>(&mut self, node: &'ast Path, dependent_type: &mut String){
 
         match &node.leading_colon{
-            Some(c)=>{dependent_type.push_str("::")}
+            Some(_c)=>{dependent_type.push_str("::")}
             None=>{}
         }
 

@@ -6,7 +6,7 @@ use syn::{Lit, Expr, Member, ExprAssign, ExprMethodCall,
 use crate::ir::{ReturnStatement, ForEach, VariableAssignment, If, LiteralExpression, NameExpression,
                 DirectExpression, ParenthesesExpression, ArrayAccess, RangeExpression, SliceExpression,
                 ArrayExpression, FunctionCall, DotExpression};
-                
+
 use crate::visitor::stack::{Stack};
 
 impl <'ast> Visit <'ast> for Stack{
@@ -101,6 +101,7 @@ impl <'ast> Visit <'ast> for Stack{
             name_expr.name.push_str("::");
         }
         name_expr.name.pop();
+        name_expr.name.pop();
         self.visitor.push(Box::new(name_expr));
     }
 
@@ -108,9 +109,7 @@ impl <'ast> Visit <'ast> for Stack{
 
          let left = Stack::my_visit_expr(&node.left);
          let expr = Stack::my_visit_expr(&node.right);
-         let mut name = NameExpression::new(String::from(""));
-
-         let assignment = VariableAssignment::new(Box::new(name), expr);
+         let assignment = VariableAssignment::new(left, expr);
 
          self.visitor.push(Box::new(assignment));
      }
@@ -154,15 +153,25 @@ impl <'ast> Visit <'ast> for Stack{
      fn visit_expr_if(&mut self, node: &'ast ExprIf){
          let condition = Stack::my_visit_expr(&node.cond);
 
-         let mut if_expr = If::new(condition, Vec::new(), Vec::new());
-         for s in &node.then_branch.stmts {
-             if_expr.if_body.push(Stack::my_visit_stmts(s));
+         let mut if_expr = If::new(condition, Vec::new(), None);
+         for stmt in &node.then_branch.stmts {
+             if_expr.if_body.push(Stack::my_visit_stmts(stmt));
          }
 
          match &node.else_branch{
              Some(_else)=>{
-                 let (_t,_e) = _else;
-                 if_expr.else_body.push(Stack::my_visit_expr(_e)); //TODO handle else clauses
+                 // println!("{}", format!("{:#?}", _else));
+                 let mut else_body = Vec::new();
+
+                 match &*_else.1{
+                     Expr::Block(_b)=>{
+                         for stmt in &_b.block.stmts {
+                            else_body.push(Stack::my_visit_stmts(stmt));
+                         }
+                          if_expr.else_body = Some(else_body);
+                     }
+                     _=>{}
+                 }
              }
              None =>{}
          }
