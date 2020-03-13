@@ -34,7 +34,7 @@ pub fn test_wasm_now() -> u32 {
 use ir_node_derive::ir_node;
 
 // Abstract trait
-#[typetag::serde(tag = "serializationTag")]
+#[typetag::serde(tag = "nodeType")]
 pub trait IRNode: std::fmt::Debug { }
 
 #[ir_node]

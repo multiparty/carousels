@@ -29,6 +29,7 @@ pub fn ir_node(_attr: TokenStream, item: TokenStream) -> TokenStream {
         #[derive(serde::Serialize, serde::Deserialize, std::fmt::Debug)]
         #[serde(rename_all = "camelCase")]
         pub struct #name {
+            #[serde(skip)]
              pub node_type: String,
             #(
                 pub #field_name: #field_type,
