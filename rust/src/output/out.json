@@ -1,0 +1,81 @@
+{
+  "body": [
+    {
+      "type_": "FunctionDefinition",
+      "name": {
+        "name": "main",
+        "nodeType": "NameExpression"
+      },
+      "parameters": [
+        {
+          "type_": "VariableDefinition",
+          "name": {
+            "name": "a",
+            "nodeType": "NameExpression"
+          },
+          "type": {
+            "secret": false,
+            "type": "",
+            "dependentType": "String",
+            "nodeType": "TypeNode"
+          },
+          "assignment": null,
+          "nodeType": "VariableDefinition"
+        },
+        {
+          "type_": "VariableDefinition",
+          "name": {
+            "name": "b",
+            "nodeType": "NameExpression"
+          },
+          "type": {
+            "secret": false,
+            "type": "",
+            "dependentType": "String",
+            "nodeType": "TypeNode"
+          },
+          "assignment": null,
+          "nodeType": "VariableDefinition"
+        }
+      ],
+      "body": [
+        {
+          "type_": "VariableDefinition",
+          "name": {
+            "name": "z",
+            "nodeType": "NameExpression"
+          },
+          "type": {
+            "secret": false,
+            "type": "",
+            "dependentType": "",
+            "nodeType": "TypeNode"
+          },
+          "assignment": {
+            "name": {
+              "type_": "NameExpression",
+              "name": "z",
+              "nodeType": "NameExpression"
+            },
+            "expression": {
+              "type_": "LiteralExpression",
+              "value": "3",
+              "type": "number",
+              "nodeType": "LiteralExpression"
+            },
+            "nodeType": "VariableAssignment"
+          },
+          "nodeType": "VariableDefinition"
+        }
+      ],
+      "returnType": {
+        "secret": false,
+        "type": "",
+        "dependentType": "",
+        "nodeType": "TypeNode"
+      },
+      "nodeType": "FunctionDefinition"
+    }
+  ],
+  "nodeType": "Program"
+}

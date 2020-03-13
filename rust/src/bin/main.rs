@@ -9,8 +9,7 @@ use carousels::visitor;
 // Use `cargo run --bin main` to compile and run this file
 
 pub fn main() {
-    let args: Vec<String> = std::env::args().collect();
-
+    let args: Vec<String> = std::env::args().collect(); // reading coman line values
     let filename = &args[1];
 
     /*
