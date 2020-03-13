@@ -1,7 +1,7 @@
 /* global CodeMirror, carousels */
 var currentOutput = { // hardcoded output
   functions: {
-    'merge_sort': 'F0(n0) = iff(n0, n0 >= 1, "F1(floor(n0 / 2), n0 - floor(n0 / 2)) + F0(floor(n0 / 2)) + F0(n0 - floor(n0 / 2))", 0)',
+    'merge_sort': 'F0(n0) = iff(n0 > 1, F1(floor(n0 / 2), n0 - floor(n0 / 2)) + F0(floor(n0 / 2)) + F0(n0 - floor(n0 / 2)), 0)',
     'merge': 'F1(n1, n2) = (n1 + n2) * (2 * (p - 1) * (b + 1) * (n1 + n2) + (p - 1) * 4 * b)'
   },
   descriptions: [
