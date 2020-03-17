@@ -1,19 +1,25 @@
 [
   {
+    "serializationTag": "FunctionDefinition",
     "nodeType": "FunctionDefinition",
     "name": {
+      "nodeType": "NameExpression",
       "name": "merge"
     },
     "parameters": [
       {
+        "serializationTag": "VariableDefinition",
         "nodeType": "VariableDefinition",
         "name": {
+          "nodeType": "NameExpression",
           "name": "left"
         },
         "type": {
+          "nodeType": "TypeNode",
           "secret": true,
           "type": "array",
           "dependentType": {
+            "nodeType": "TypeNode",
             "secret": true,
             "type": "&[Possession<T,P>]",
             "dependentType": null
@@ -22,14 +28,18 @@
         "assignment": null
       },
       {
+        "serializationTag": "VariableDefinition",
         "nodeType": "VariableDefinition",
         "name": {
+          "nodeType": "NameExpression",
           "name": "right"
         },
         "type": {
+          "nodeType": "TypeNode",
           "secret": true,
           "type": "array",
           "dependentType": {
+            "nodeType": "TypeNode",
             "secret": true,
             "type": "&[Possession<T,P>]",
             "dependentType": null
@@ -40,43 +50,55 @@
     ],
     "body": [
       {
+        "serializationTag": "VariableDefinition",
         "nodeType": "VariableDefinition",
         "name": {
+          "nodeType": "NameExpression",
           "name": "out_len"
         },
         "type": {
+          "nodeType": "TypeNode",
           "secret": false,
           "type": "",
           "dependentType": null
         },
         "assignment": {
+          "nodeType": "VariableAssignment",
           "name": {
+            "serializationTag": "NameExpression",
             "nodeType": "NameExpression",
             "name": "out_len"
           },
           "expression": {
+            "serializationTag": "DirectExpression",
             "nodeType": "DirectExpression",
             "operator": "+",
             "arity": 2,
             "operands": [
               {
+                "serializationTag": "DotExpression",
                 "nodeType": "DotExpression",
                 "left": {
+                  "serializationTag": "NameExpression",
                   "nodeType": "NameExpression",
                   "name": "left"
                 },
                 "right": {
+                  "serializationTag": "NameExpression",
                   "nodeType": "NameExpression",
                   "name": "len"
                 }
               },
               {
+                "serializationTag": "DotExpression",
                 "nodeType": "DotExpression",
                 "left": {
+                  "serializationTag": "NameExpression",
                   "nodeType": "NameExpression",
                   "name": "right"
                 },
                 "right": {
+                  "serializationTag": "NameExpression",
                   "nodeType": "NameExpression",
                   "name": "len"
                 }
@@ -86,28 +108,36 @@
         }
       },
       {
+        "serializationTag": "VariableDefinition",
         "nodeType": "VariableDefinition",
         "name": {
+          "nodeType": "NameExpression",
           "name": "out"
         },
         "type": {
+          "nodeType": "TypeNode",
           "secret": false,
           "type": "",
           "dependentType": null
         },
         "assignment": {
+          "nodeType": "VariableAssignment",
           "name": {
+            "serializationTag": "NameExpression",
             "nodeType": "NameExpression",
             "name": "out"
           },
           "expression": {
+            "serializationTag": "FunctionCall",
             "nodeType": "FunctionCall",
             "function": {
+              "serializationTag": "NameExpression",
               "nodeType": "NameExpression",
               "name": "Vec::with_capacity"
             },
             "parameters": [
               {
+                "serializationTag": "NameExpression",
                 "nodeType": "NameExpression",
                 "name": "out_len"
               }
@@ -116,30 +146,38 @@
         }
       },
       {
+        "serializationTag": "VariableDefinition",
         "nodeType": "VariableDefinition",
         "name": {
+          "nodeType": "NameExpression",
           "name": "li"
         },
         "type": {
+          "nodeType": "TypeNode",
           "secret": false,
           "type": "",
           "dependentType": null
         },
         "assignment": {
+          "nodeType": "VariableAssignment",
           "name": {
+            "serializationTag": "NameExpression",
             "nodeType": "NameExpression",
             "name": "li"
           },
           "expression": {
+            "serializationTag": "DirectExpression",
             "nodeType": "DirectExpression",
             "operator": "+",
             "arity": 2,
             "operands": [
               {
+                "serializationTag": "NameExpression",
                 "nodeType": "NameExpression",
                 "name": "li"
               },
               {
+                "serializationTag": "LiteralExpression",
                 "nodeType": "LiteralExpression",
                 "value": "0",
                 "type": "number"
@@ -149,30 +187,38 @@
         }
       },
       {
+        "serializationTag": "VariableDefinition",
         "nodeType": "VariableDefinition",
         "name": {
+          "nodeType": "NameExpression",
           "name": "ri"
         },
         "type": {
+          "nodeType": "TypeNode",
           "secret": false,
           "type": "",
           "dependentType": null
         },
         "assignment": {
+          "nodeType": "VariableAssignment",
           "name": {
+            "serializationTag": "NameExpression",
             "nodeType": "NameExpression",
             "name": "ri"
           },
           "expression": {
+            "serializationTag": "DirectExpression",
             "nodeType": "DirectExpression",
             "operator": "+",
             "arity": 2,
             "operands": [
               {
+                "serializationTag": "NameExpression",
                 "nodeType": "NameExpression",
                 "name": "ri"
               },
               {
+                "serializationTag": "LiteralExpression",
                 "nodeType": "LiteralExpression",
                 "value": "0",
                 "type": "number"
@@ -182,36 +228,46 @@
         }
       },
       {
+        "serializationTag": "VariableDefinition",
         "nodeType": "VariableDefinition",
         "name": {
+          "nodeType": "NameExpression",
           "name": "left_len"
         },
         "type": {
+          "nodeType": "TypeNode",
           "secret": false,
           "type": "",
           "dependentType": null
         },
         "assignment": {
+          "nodeType": "VariableAssignment",
           "name": {
+            "serializationTag": "NameExpression",
             "nodeType": "NameExpression",
             "name": "left_len"
           },
           "expression": {
+            "serializationTag": "DirectExpression",
             "nodeType": "DirectExpression",
             "operator": "+",
             "arity": 2,
             "operands": [
               {
+                "serializationTag": "NameExpression",
                 "nodeType": "NameExpression",
                 "name": "left_len"
               },
               {
+                "serializationTag": "DotExpression",
                 "nodeType": "DotExpression",
                 "left": {
+                  "serializationTag": "NameExpression",
                   "nodeType": "NameExpression",
                   "name": "left"
                 },
                 "right": {
+                  "serializationTag": "NameExpression",
                   "nodeType": "NameExpression",
                   "name": "len"
                 }
@@ -221,36 +277,46 @@
         }
       },
       {
+        "serializationTag": "VariableDefinition",
         "nodeType": "VariableDefinition",
         "name": {
+          "nodeType": "NameExpression",
           "name": "right_len"
         },
         "type": {
+          "nodeType": "TypeNode",
           "secret": false,
           "type": "",
           "dependentType": null
         },
         "assignment": {
+          "nodeType": "VariableAssignment",
           "name": {
+            "serializationTag": "NameExpression",
             "nodeType": "NameExpression",
             "name": "right_len"
           },
           "expression": {
+            "serializationTag": "DirectExpression",
             "nodeType": "DirectExpression",
             "operator": "+",
             "arity": 2,
             "operands": [
               {
+                "serializationTag": "NameExpression",
                 "nodeType": "NameExpression",
                 "name": "right_len"
               },
               {
+                "serializationTag": "DotExpression",
                 "nodeType": "DotExpression",
                 "left": {
+                  "serializationTag": "NameExpression",
                   "nodeType": "NameExpression",
                   "name": "left"
                 },
                 "right": {
+                  "serializationTag": "NameExpression",
                   "nodeType": "NameExpression",
                   "name": "len"
                 }
@@ -260,19 +326,24 @@
         }
       },
       {
+        "serializationTag": "ForEach",
         "nodeType": "ForEach",
         "iterator": {
+          "serializationTag": "Error",
           "nodeType": "Error",
           "err": "Error poping from visit_expr_stack"
         },
         "range": {
+          "serializationTag": "RangeExpression",
           "nodeType": "RangeExpression",
           "start": {
+            "serializationTag": "LiteralExpression",
             "nodeType": "LiteralExpression",
             "value": "0",
             "type": "number"
           },
           "end": {
+            "serializationTag": "NameExpression",
             "nodeType": "NameExpression",
             "name": "out_len"
           },
@@ -280,102 +351,126 @@
         },
         "body": [
           {
+            "serializationTag": "FunctionCall",
             "nodeType": "FunctionCall",
             "function": {
+              "serializationTag": "DotExpression",
               "nodeType": "DotExpression",
               "left": {
+                "serializationTag": "NameExpression",
                 "nodeType": "NameExpression",
                 "name": "out"
               },
               "right": {
+                "serializationTag": "NameExpression",
                 "nodeType": "NameExpression",
                 "name": "push"
               }
             },
             "parameters": [
               {
+                "serializationTag": "If",
                 "nodeType": "If",
                 "condition": {
+                  "serializationTag": "DirectExpression",
                   "nodeType": "DirectExpression",
                   "operator": "||",
                   "arity": 2,
                   "operands": [
                     {
+                      "serializationTag": "DirectExpression",
                       "nodeType": "DirectExpression",
                       "operator": "==",
                       "arity": 2,
                       "operands": [
                         {
+                          "serializationTag": "NameExpression",
                           "nodeType": "NameExpression",
                           "name": "li"
                         },
                         {
+                          "serializationTag": "NameExpression",
                           "nodeType": "NameExpression",
                           "name": "left_len"
                         }
                       ]
                     },
                     {
+                      "serializationTag": "DirectExpression",
                       "nodeType": "DirectExpression",
                       "operator": "&&",
                       "arity": 2,
                       "operands": [
                         {
+                          "serializationTag": "DirectExpression",
                           "nodeType": "DirectExpression",
                           "operator": "<",
                           "arity": 2,
                           "operands": [
                             {
+                              "serializationTag": "NameExpression",
                               "nodeType": "NameExpression",
                               "name": "ri"
                             },
                             {
+                              "serializationTag": "NameExpression",
                               "nodeType": "NameExpression",
                               "name": "right_len"
                             }
                           ]
                         },
                         {
+                          "serializationTag": "DirectExpression",
                           "nodeType": "DirectExpression",
                           "operator": ">=",
                           "arity": 2,
                           "operands": [
                             {
+                              "serializationTag": "ArrayAccess",
                               "nodeType": "ArrayAccess",
                               "array": {
+                                "serializationTag": "FunctionCall",
                                 "nodeType": "FunctionCall",
                                 "function": {
+                                  "serializationTag": "NameExpression",
                                   "nodeType": "NameExpression",
                                   "name": "Oram"
                                 },
                                 "parameters": [
                                   {
+                                    "serializationTag": "NameExpression",
                                     "nodeType": "NameExpression",
                                     "name": "right"
                                   }
                                 ]
                               },
                               "index": {
+                                "serializationTag": "NameExpression",
                                 "nodeType": "NameExpression",
                                 "name": "ri"
                               }
                             },
                             {
+                              "serializationTag": "ArrayAccess",
                               "nodeType": "ArrayAccess",
                               "array": {
+                                "serializationTag": "FunctionCall",
                                 "nodeType": "FunctionCall",
                                 "function": {
+                                  "serializationTag": "NameExpression",
                                   "nodeType": "NameExpression",
                                   "name": "Oram"
                                 },
                                 "parameters": [
                                   {
+                                    "serializationTag": "NameExpression",
                                     "nodeType": "NameExpression",
                                     "name": "left"
                                   }
                                 ]
                               },
                               "index": {
+                                "serializationTag": "NameExpression",
                                 "nodeType": "NameExpression",
                                 "name": "li"
                               }
@@ -388,43 +483,55 @@
                 },
                 "ifBody": [
                   {
+                    "serializationTag": "VariableDefinition",
                     "nodeType": "VariableDefinition",
                     "name": {
+                      "nodeType": "NameExpression",
                       "name": "o"
                     },
                     "type": {
+                      "nodeType": "TypeNode",
                       "secret": false,
                       "type": "",
                       "dependentType": null
                     },
                     "assignment": {
+                      "nodeType": "VariableAssignment",
                       "name": {
+                        "serializationTag": "NameExpression",
                         "nodeType": "NameExpression",
                         "name": "o"
                       },
                       "expression": {
+                        "serializationTag": "DotExpression",
                         "nodeType": "DotExpression",
                         "left": {
+                          "serializationTag": "ArrayAccess",
                           "nodeType": "ArrayAccess",
                           "array": {
+                            "serializationTag": "FunctionCall",
                             "nodeType": "FunctionCall",
                             "function": {
+                              "serializationTag": "NameExpression",
                               "nodeType": "NameExpression",
                               "name": "Oram"
                             },
                             "parameters": [
                               {
+                                "serializationTag": "NameExpression",
                                 "nodeType": "NameExpression",
                                 "name": "right"
                               }
                             ]
                           },
                           "index": {
+                            "serializationTag": "NameExpression",
                             "nodeType": "NameExpression",
                             "name": "ri"
                           }
                         },
                         "right": {
+                          "serializationTag": "NameExpression",
                           "nodeType": "NameExpression",
                           "name": "clone"
                         }
@@ -432,21 +539,26 @@
                     }
                   },
                   {
+                    "serializationTag": "VariableAssignment",
                     "nodeType": "VariableAssignment",
                     "name": {
+                      "serializationTag": "NameExpression",
                       "nodeType": "NameExpression",
                       "name": "ri"
                     },
                     "expression": {
+                      "serializationTag": "DirectExpression",
                       "nodeType": "DirectExpression",
                       "operator": "+",
                       "arity": 2,
                       "operands": [
                         {
+                          "serializationTag": "NameExpression",
                           "nodeType": "NameExpression",
                           "name": "ri"
                         },
                         {
+                          "serializationTag": "LiteralExpression",
                           "nodeType": "LiteralExpression",
                           "value": "1",
                           "type": "number"
@@ -455,49 +567,62 @@
                     }
                   },
                   {
+                    "serializationTag": "NameExpression",
                     "nodeType": "NameExpression",
                     "name": "o"
                   }
                 ],
                 "elseBody": [
                   {
+                    "serializationTag": "VariableDefinition",
                     "nodeType": "VariableDefinition",
                     "name": {
+                      "nodeType": "NameExpression",
                       "name": "o"
                     },
                     "type": {
+                      "nodeType": "TypeNode",
                       "secret": false,
                       "type": "",
                       "dependentType": null
                     },
                     "assignment": {
+                      "nodeType": "VariableAssignment",
                       "name": {
+                        "serializationTag": "NameExpression",
                         "nodeType": "NameExpression",
                         "name": "o"
                       },
                       "expression": {
+                        "serializationTag": "DotExpression",
                         "nodeType": "DotExpression",
                         "left": {
+                          "serializationTag": "ArrayAccess",
                           "nodeType": "ArrayAccess",
                           "array": {
+                            "serializationTag": "FunctionCall",
                             "nodeType": "FunctionCall",
                             "function": {
+                              "serializationTag": "NameExpression",
                               "nodeType": "NameExpression",
                               "name": "Oram"
                             },
                             "parameters": [
                               {
+                                "serializationTag": "NameExpression",
                                 "nodeType": "NameExpression",
                                 "name": "left"
                               }
                             ]
                           },
                           "index": {
+                            "serializationTag": "NameExpression",
                             "nodeType": "NameExpression",
                             "name": "li"
                           }
                         },
                         "right": {
+                          "serializationTag": "NameExpression",
                           "nodeType": "NameExpression",
                           "name": "clone"
                         }
@@ -505,21 +630,26 @@
                     }
                   },
                   {
+                    "serializationTag": "VariableAssignment",
                     "nodeType": "VariableAssignment",
                     "name": {
+                      "serializationTag": "NameExpression",
                       "nodeType": "NameExpression",
                       "name": "li"
                     },
                     "expression": {
+                      "serializationTag": "DirectExpression",
                       "nodeType": "DirectExpression",
                       "operator": "+",
                       "arity": 2,
                       "operands": [
                         {
+                          "serializationTag": "NameExpression",
                           "nodeType": "NameExpression",
                           "name": "li"
                         },
                         {
+                          "serializationTag": "LiteralExpression",
                           "nodeType": "LiteralExpression",
                           "value": "1",
                           "type": "number"
@@ -528,6 +658,7 @@
                     }
                   },
                   {
+                    "serializationTag": "NameExpression",
                     "nodeType": "NameExpression",
                     "name": "o"
                   }
@@ -538,14 +669,17 @@
         ]
       },
       {
+        "serializationTag": "NameExpression",
         "nodeType": "NameExpression",
         "name": "out"
       }
     ],
     "returnType": {
+      "nodeType": "TypeNode",
       "secret": true,
       "type": "array",
       "dependentType": {
+        "nodeType": "TypeNode",
         "secret": true,
         "type": "Vec<Possession<T,P>>",
         "dependentType": null
