@@ -229,10 +229,9 @@ impl <'ast> Visit <'ast> for Stack{
          let dot_expr = DotExpression::new(left, Box::new(right));
 
          let mut function_call = FunctionCall::new(Box::new(dot_expr), Vec::new());
-         if !node.args.is_empty(){
-             for p in node.args.iter(){
-                 function_call.parameters.push(Stack::my_visit_expr(p));
-             }
+
+         for p in node.args.iter(){
+             function_call.parameters.push(Stack::my_visit_expr(p));
          }
          self.visitor.push(Box::new(function_call));
      }
