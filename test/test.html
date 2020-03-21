@@ -8,8 +8,8 @@
 <body>
     <h2>Input Code</h2>
     <pre id="codePre">
-        fn merge_sort_dedup<T, P: Obliv>(a: &[Possession<T, P>])
-        -> Vec<Possession<T, P>>
+        fn merge_sort_dedup&lt;T, P: Obliv>(a: &amp;[Possession&lt;T, P>])
+        -> Vec&lt;Possession&lt;T, P>>
         where T: Ord + Clone
         {
             let n = a.len();
@@ -22,8 +22,8 @@
             }
         }
 
-        fn merge_dedup<T, P: Obliv>(a: &[Possession<T, P>], b: &[Possession<T, P>])
-        -> Vec<Possession<T, P>>
+        fn merge_dedup&lt;T, P: Obliv>(a: &[Possession&lt;T, P>], b: &amp;[Possession&lt;T, P>])
+        -> Vec&lt;Possession&lt;T, P>>
         where T: Ord + Clone
         { }
     </pre> <br/>

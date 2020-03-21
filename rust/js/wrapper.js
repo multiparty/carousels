@@ -29,7 +29,7 @@ const parseWrapper = function (code) {
     code = code.replace(pattern, replace);
   }
 
-  return WASMParser.test_wasm_now(code);
+  return WASMParser.get_json_ir(code);
 };
 
 module.exports = {

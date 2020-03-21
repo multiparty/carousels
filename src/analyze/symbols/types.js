@@ -163,6 +163,7 @@ BooleanType.fromTypeNode = function (typeNode, pathStr) {
 ArrayType.fromTypeNode = function (typeNode, pathStr) {
   const secret = typeNode.secret;
   const lengthParameter = Parameter.forArrayLength(pathStr);
+  delete typeNode['dependentType']; // TODO: this ignores un-parsable types insides array in IR
   let nested = Type.fromTypeNode(typeNode.dependentType, pathStr + '[elementsType]');
   if (nested.type == null) { // Default array are of numbers!
     nested.type = NumberType.fromTypeNode({secret: typeNode.secret}, pathStr + '[elementsType]');

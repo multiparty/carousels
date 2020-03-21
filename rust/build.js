@@ -27,13 +27,10 @@ const string = buffer.toString('base64');
 
 let generatedBundle = `
 // Generated Code
-// will add wasm_bindgen to global scope
-require('./${FILES.WASM_INDEX}');
+// will add wasm_bindgen to this scope
+${fs.readFileSync(path.join(wasmPath, FILES.WASM_INDEX)).toString()}
 
-// remove wasm_bindgen from global scope, make it only accessible in this file
-const wasm_bindgen = window.wasm_bindgen;
-delete window['wasm_bindgen'];
-
+// wasm_bindgen is now available as a local variable
 const wasmBinary = (function (base64String) {
   var raw = window.atob(base64String);
   var rawLength = raw.length;
@@ -46,7 +43,11 @@ const wasmBinary = (function (base64String) {
 })('${string}');
 
 const wasmModule = new WebAssembly.Module(wasmBinary);
-const wasmPromise = wasm_bindgen(wasmModule);
+const wasmPromise = wasm_bindgen(wasmModule).then(function () {
+  // our JS code should use the wrapped versions of exposed API,
+  // not the internal wasm one
+  return wasm_bindgen;
+});
 
 module.exports = wasmPromise;
 // End of Generated Code
