@@ -166,7 +166,7 @@ ArrayType.fromTypeNode = function (typeNode, pathStr) {
   delete typeNode['dependentType']; // TODO: this ignores un-parsable types insides array in IR
   let nested = Type.fromTypeNode(typeNode.dependentType, pathStr + '[elementsType]');
   if (nested.type == null) { // Default array are of numbers!
-    nested.type = NumberType.fromTypeNode({secret: typeNode.secret}, pathStr + '[elementsType]');
+    nested = NumberType.fromTypeNode({secret: typeNode.secret}, pathStr + '[elementsType]');
   }
 
   return {
