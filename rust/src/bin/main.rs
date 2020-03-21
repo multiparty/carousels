@@ -1,5 +1,8 @@
 use carousels::visitor;
 
+use std::fs::File as FileSys;
+use std::io::Read;
+
 // This is not the entry point to our Rust-WASM library
 //
 // This file will not be compiled to WASM.
@@ -9,20 +12,25 @@ use carousels::visitor;
 // Use `cargo run --bin main` to compile and run this file
 
 pub fn main() {
-    let args: Vec<String> = std::env::args().collect(); // reading coman line values
-    let filename = &args[1];
+    // reading command line argument
+    let args: Vec<String> = std::env::args().collect();
+    let filename = &args[1]; // input file
 
-    /*
-     *let file = visitor::get_ast(&filename);
-     *match file {
-     *    Ok(_v)=>{println!("{}", serde_json::to_string(&_v).unwrap());},
-     *    Err(e) => println!("error parsing : {:?}", e),
-     *};
-     */
+    // read content of input file
+    let mut file = FileSys::open(filename).unwrap();
+    let mut content = String::new();
+    file.read_to_string(&mut content).unwrap();
 
-    let file_str = visitor::file::get_ast_str_from_file(&filename);
-    match file_str {
-        Ok(_v)=>{println!("{}", _v);},
-        Err(e) => println!("error parsing : {:?}", e),
-    };
+    // parse input code into IRNode
+    let ir_node = visitor::file::get_ast(&content).unwrap();
+
+    // pretty print
+    match serde_json::to_string_pretty(&ir_node) {
+        Ok(v) => {
+            println!("{}", v);
+        },
+        Err(e) => {
+            println!("{}", e);
+        }
+    }
 }

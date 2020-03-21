@@ -1,53 +1,13 @@
 use crate::visitor::program::{Program};
-
-use std::fs::File as FileSys;
-use std::io::Read;
 use std::error::Error;
+use std::result::Result;
 use syn::visit::{Visit};
 
-pub fn get_ast_str_from_file(val: &str) -> std::result::Result<String, Box<dyn Error>> {
-    let mut file = FileSys::open(val).unwrap();
-    let mut content = String::new();
+// Entry point to our visitor pattern
+pub fn get_ast(code: &str) -> Result<Program, Box<dyn Error>> {
+    let syntax = syn::parse_file(&code)?;
 
-    file.read_to_string(&mut content).unwrap();
-    let syntax = syn::parse_file(&content)?;
-
-    let mut file = Box::new(Program{body: Vec::new()}); //highest node in the AST
-    file.visit_file(&syntax);
-
-    match serde_json::to_string_pretty(&file){
-        Ok(_v)=>{Ok(_v)},
-        Err(_e)=>{Ok("Error serializing".to_string())},
-    }
-
-}
-/// for wasm use, returns just a String
-pub fn get_ast_str(val: &str) -> String {
-    let syntax = match syn::parse_file(&val){
-        Ok(_v) => _v,
-        Err(_e) => {return "Error parsing rust code".to_string()},
-    };
-
-    let mut file = Box::new(Program{body: Vec::new()}); //highest node in the AST
-    file.visit_file(&syntax);
-
-    match serde_json::to_string_pretty(&file){
-        Ok(_v)=>{_v},
-        Err(_e)=>{"Error serializing".to_string()},
-    }
-
-}
-
-pub fn get_ast(val: &str) -> std::result::Result<Box<Program>, Box<dyn Error>> {
-    let mut file = FileSys::open(val).unwrap();
-    let mut content = String::new();
-
-    file.read_to_string(&mut content).unwrap();
-    //println!("{}", content);
-    let syntax = syn::parse_file(&content)?;
-
-    let mut file = Box::new(Program{body: Vec::new()}); //highest node in the AST
-    file.visit_file(&syntax);
-    Ok(file)
-
+    let mut ir_file = Program{body: Vec::new()}; // highest node in the AST
+    ir_file.visit_file(&syntax);
+    Ok(ir_file)
 }
