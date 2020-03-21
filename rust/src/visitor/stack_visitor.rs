@@ -105,6 +105,10 @@ impl Stack{
                 let range = RangeExpression::new(Some(from), Some(to), None);
                 self.visitor.push(Box::new(range));
             }
+            Pat::Wild(_w)=>{
+                let wild = NameExpression::new(String::from("_"));
+                self.visitor.push(Box::new(wild));
+            }
             _=>{}
         }
 
