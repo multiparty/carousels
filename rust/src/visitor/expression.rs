@@ -228,15 +228,13 @@ impl <'ast> Visit <'ast> for Stack{
          let left = Stack::my_visit_expr(&node.receiver);
          let dot_expr = DotExpression::new(left, Box::new(right));
 
-         if node.args.is_empty(){
-             self.visitor.push(Box::new(dot_expr));
-         }else{
-             let mut function_call = FunctionCall::new(Box::new(dot_expr), Vec::new());
+         let mut function_call = FunctionCall::new(Box::new(dot_expr), Vec::new());
+         if !node.args.is_empty(){
              for p in node.args.iter(){
                  function_call.parameters.push(Stack::my_visit_expr(p));
              }
-             self.visitor.push(Box::new(function_call));
          }
+         self.visitor.push(Box::new(function_call));
      }
      //
      fn visit_expr_field(&mut self, node: &'ast ExprField){
