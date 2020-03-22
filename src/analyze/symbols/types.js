@@ -59,7 +59,7 @@ Type.prototype.conflicts = function (otherType) {
   return false;
 };
 Type.prototype.combine = function (otherType, dependentCombiner) {
-  if (otherType != null && otherType.dataType !== TYPE_ENUM.UNIT) {
+  if (otherType != null && !otherType.is(TYPE_ENUM.UNIT)) {
     if (this.secret !== otherType.secret) {
       throw new Error('Cannot combine secret and non-secret types "' +
         this.toString() + '" and "' + otherType.toString() + '"!');

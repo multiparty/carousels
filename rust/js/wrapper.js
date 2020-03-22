@@ -14,7 +14,7 @@ const REPLACE_PATTERNS = [
   },
   {
     pattern: new RegExp('obliv\\s+if', 'g'),
-    replace: 'let __obliv = !__obliv;\nif'
+    replace: '#[__obliv__]\nif'
   }
 ];
 
