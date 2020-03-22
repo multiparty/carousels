@@ -1,5 +1,5 @@
 const iterationCountForEach = function (node, childrenType) {
-  return childrenType.range.size;
+  return childrenType.range.size().size;
 };
 
 const iterationCountFor = function (node, childrenType) {

@@ -45,7 +45,7 @@ These node types are statements but cannot be expressions.
 
 #### ForEach
 
-1. iteratorDefinition: VariableDefinition (the loop variable)
+1. iterator: VariableDefinition (the loop variable)
 2. range: rangeExpression
 3. body: array<statements>
 

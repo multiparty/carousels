@@ -1,19 +1,38 @@
 const carouselsTypes = require('../symbols/types.js');
 
 const ForEach = function (node, pathStr) {
+  // we only support iterators that are direct names
+  if (node.iterator.nodeType !== 'NameExpression') {
+    throw new Error('Unsupported iterator node of type "' + node.iterator.nodeType +'", expected "NameExpression"!');
+  }
+
   // Visit children!
   const childrenType = {};
   const childrenMetric = {};
-
-  // iterator
-  const iteratorResult = this.visit(node.iteratorDefinition, pathStr + '[iterator]');
-  childrenType.iteratorDefinition = iteratorResult.type;
-  childrenMetric.iteratorDefinition = iteratorResult.metric;
 
   // range
   const rangeResult = this.visit(node.range, pathStr + '[range]');
   childrenType.range = rangeResult.type;
   childrenMetric.range = rangeResult.metric;
+
+  // iterator type and metric are derived from the range
+  const memberType = rangeResult.type.memberType(pathStr);
+  childrenType.iterator = memberType.type;
+  childrenMetric.iterator = rangeResult.metric;
+
+  this.analyzer.addParameters(memberType.parameters);
+  this.analyzer.addParameters(rangeResult.type.size(pathStr).parameters);
+
+  // iterator is added to scope (as if it is a variable definition)
+  this.analyzer.variableTypeMap.add(node.iterator.name.name, childrenType.iterator);
+  this.analyzer.variableMetricMap.add(node.iterator.name.name, this.analyzer.metric.store(childrenMetric.iterator));
+  this.analyzer.intermediateResults.push({ // for debugging
+    node: node.iterator,
+    result: {
+      type: childrenType.iterator,
+      metric: childrenMetric.iterator
+    }
+  });
 
   // body
   const bodyResult = this.visit(node.body, pathStr + '[body]');
