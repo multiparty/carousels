@@ -1,4 +1,4 @@
-use syn::{Expr, Stmt, Pat, Block};
+use syn::{Expr, Stmt, Pat};
 use crate::ir::{IRNode, Error};
 
 pub struct Stack{
@@ -47,4 +47,5 @@ impl Stack{
             }
         }
     }
+
 }

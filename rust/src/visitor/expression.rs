@@ -1,13 +1,64 @@
 use syn::visit::{Visit};
-use syn::{Lit, Expr, Member, ExprAssign, ExprMethodCall, ExprBlock,
+use syn::{Lit, Expr, Member, ExprAssign, ExprMethodCall,
     ExprBinary, ExprForLoop, ExprLit, ExprCall, ExprUnary, ExprReturn, ExprRange, ExprParen,
     ExprIf, ExprArray, ExprField, ExprIndex, ExprPath, BinOp, UnOp};
 
-use crate::ir::{IRNode, ReturnStatement, ForEach, VariableAssignment, If, OblivIf, LiteralExpression, NameExpression,
+use crate::ir::{ReturnStatement, ForEach, VariableAssignment, If, OblivIf, LiteralExpression, NameExpression,
                 DirectExpression, ParenthesesExpression, ArrayAccess, RangeExpression, SliceExpression,
                 ArrayExpression, FunctionCall, DotExpression};
 
 use crate::visitor::stack::{Stack};
+
+impl Stack{
+    fn my_visit_expr_if<'ast>(&mut self, node: &'ast ExprIf, obliv: bool){
+
+        let condition = Stack::my_visit_expr(&node.cond);
+
+        let mut if_body =  Vec::new();
+        for stmt in &node.then_branch.stmts {
+            if_body.push(Stack::my_visit_stmts(stmt));
+        }
+
+        let mut _else_body = Vec::new();
+        match &node.else_branch{
+            Some(_else)=>{
+                match &*_else.1{
+                    Expr::Block(_b)=>{
+                        for stmt in &_b.block.stmts {
+                           _else_body.push(Stack::my_visit_stmts(stmt));
+                        }
+                    }
+                    Expr::If(_if)=>{
+                        let mut stack = Stack{visitor: Vec::new()};
+                        stack.my_visit_expr_if(&_if, obliv);
+                        match stack.visitor.pop(){
+                            Some(_s)=>{
+                               _else_body.push(_s);
+                            }
+                            None =>{
+                                panic!("this is a terrible mistake!");
+                            }
+                        }
+                    }
+                    _=>{
+                        panic!("this is a terrible mistake!");
+                    }
+                }
+            }
+            None =>{
+            }
+        }
+
+
+        if obliv == true {
+           self.visitor.push(Box::new(OblivIf::new(condition, if_body,Some(_else_body))));
+        }
+        else{
+           self.visitor.push(Box::new(If::new(condition, if_body, Some(_else_body))));
+        }
+
+    }
+}
 
 impl <'ast> Visit <'ast> for Stack{
     fn visit_expr_binary(&mut self, node: &'ast ExprBinary) {
@@ -157,37 +208,7 @@ impl <'ast> Visit <'ast> for Stack{
                  if &seg.ident.to_string() == "obliv" {obliv = true};
              }
          }
-
-         let condition = Stack::my_visit_expr(&node.cond);
-
-         let mut if_body =  Vec::new();
-         for stmt in &node.then_branch.stmts {
-             if_body.push(Stack::my_visit_stmts(stmt));
-         }
-
-         let mut _else_body = Vec::new();
-         match &node.else_branch{
-             Some(_else)=>{
-                 _else_body.push(Stack::my_visit_expr(&*_else.1));
-             }
-             None =>{}
-         }
-
-
-         if obliv == true {
-            self.visitor.push(Box::new(OblivIf::new(condition, if_body,Some(_else_body))));
-         }
-         else{
-            self.visitor.push(Box::new(If::new(condition, if_body, Some(_else_body))));
-         }
-
-     }
-     fn visit_expr_block(&mut self, node: &'ast ExprBlock){
-         let mut vec = Vec::new();
-         for stmt in &node.block.stmts {
-            vec.push(Stack::my_visit_stmts(stmt));
-         }
-         self.visitor = vec;
+         self.my_visit_expr_if(node, obliv);
      }
      fn visit_expr_return(&mut self, node: &'ast ExprReturn){
          match &node.expr{
