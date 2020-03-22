@@ -24,8 +24,8 @@ const ForEach = function (node, pathStr) {
   this.analyzer.addParameters(rangeResult.type.size(pathStr).parameters);
 
   // iterator is added to scope (as if it is a variable definition)
-  this.analyzer.variableTypeMap.add(node.iterator.name.name, childrenType.iterator);
-  this.analyzer.variableMetricMap.add(node.iterator.name.name, this.analyzer.metric.store(childrenMetric.iterator));
+  this.analyzer.variableTypeMap.add(node.iterator.name, childrenType.iterator);
+  this.analyzer.variableMetricMap.add(node.iterator.name, this.analyzer.metric.store(childrenMetric.iterator));
   this.analyzer.intermediateResults.push({ // for debugging
     node: node.iterator,
     result: {
