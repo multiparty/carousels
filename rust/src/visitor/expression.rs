@@ -3,7 +3,7 @@ use syn::{Lit, Expr, Member, ExprAssign, ExprMethodCall,
     ExprBinary, ExprForLoop, ExprLit, ExprCall, ExprUnary, ExprReturn, ExprRange, ExprParen,
     ExprIf, ExprArray, ExprField, ExprIndex, ExprPath, BinOp, UnOp};
 
-use crate::ir::{ReturnStatement, ForEach, VariableAssignment, If, LiteralExpression, NameExpression,
+use crate::ir::{IRNode, ReturnStatement, ForEach, VariableAssignment, If, OblivIf, LiteralExpression, NameExpression,
                 DirectExpression, ParenthesesExpression, ArrayAccess, RangeExpression, SliceExpression,
                 ArrayExpression, FunctionCall, DotExpression};
 
@@ -151,31 +151,43 @@ impl <'ast> Visit <'ast> for Stack{
      }
      //
      fn visit_expr_if(&mut self, node: &'ast ExprIf){
-         let condition = Stack::my_visit_expr(&node.cond);
-
-         let mut if_expr = If::new(condition, Vec::new(), None);
-         for stmt in &node.then_branch.stmts {
-             if_expr.if_body.push(Stack::my_visit_stmts(stmt));
+         let mut obliv = false;
+         for att in &node.attrs{
+             for seg in &att.path.segments{
+                 if &seg.ident.to_string() == "obliv" {obliv = true};
+             }
          }
 
+         let condition = Stack::my_visit_expr(&node.cond);
+
+         let mut if_body =  Vec::new();
+         for stmt in &node.then_branch.stmts {
+             if_body.push(Stack::my_visit_stmts(stmt));
+         }
+
+         let else_body: Option<Vec<Box<dyn IRNode>>> = None;
          match &node.else_branch{
              Some(_else)=>{
-                 // println!("{}", format!("{:#?}", _else));
-                 let mut else_body = Vec::new();
 
+                 let mut else_body = Vec::new();
                  match &*_else.1{
                      Expr::Block(_b)=>{
                          for stmt in &_b.block.stmts {
                             else_body.push(Stack::my_visit_stmts(stmt));
                          }
-                          if_expr.else_body = Some(else_body);
                      }
                      _=>{}
                  }
              }
              None =>{}
          }
-         self.visitor.push(Box::new(if_expr));
+         if obliv == true {
+            self.visitor.push(Box::new(OblivIf::new(condition, if_body, else_body)));
+         }
+         else{
+            self.visitor.push(Box::new(If::new(condition, if_body, else_body)));
+         }
+
      }
      fn visit_expr_return(&mut self, node: &'ast ExprReturn){
          match &node.expr{

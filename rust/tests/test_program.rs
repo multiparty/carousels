@@ -14,6 +14,7 @@ where T: Ord + Clone
 
     for _ in 0..out_len {
         out.push({
+             #[obliv]
              if li == left_len ||
                      ri < right_len &&
                      Oram(right)[ri] > Oram(left)[li]

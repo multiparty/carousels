@@ -69,7 +69,7 @@ struct If {
 struct OblivIf {
     condition: Box<dyn IRNode>,
     if_body: Vec<Box<dyn IRNode>>,
-    else_body: Vec<Box<dyn IRNode>>
+    else_body: Option<Vec<Box<dyn IRNode>>>
 }
 
 #[ir_node]
