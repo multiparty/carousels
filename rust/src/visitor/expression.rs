@@ -205,7 +205,9 @@ impl <'ast> Visit <'ast> for Stack{
          let mut obliv = false;
          for att in &node.attrs{
              for seg in &att.path.segments{
-                 if &seg.ident.to_string() == "obliv" {obliv = true};
+                 if &seg.ident.to_string() == "__carouselsobliv__" {
+                     obliv = true
+                 };
              }
          }
          self.my_visit_expr_if(node, obliv);
