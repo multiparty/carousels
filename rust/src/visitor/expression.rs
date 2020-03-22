@@ -1,5 +1,5 @@
 use syn::visit::{Visit};
-use syn::{Lit, Expr, Member, ExprAssign, ExprMethodCall,
+use syn::{Lit, Expr, Member, ExprAssign, ExprMethodCall, ExprBlock,
     ExprBinary, ExprForLoop, ExprLit, ExprCall, ExprUnary, ExprReturn, ExprRange, ExprParen,
     ExprIf, ExprArray, ExprField, ExprIndex, ExprPath, BinOp, UnOp};
 
@@ -165,29 +165,29 @@ impl <'ast> Visit <'ast> for Stack{
              if_body.push(Stack::my_visit_stmts(stmt));
          }
 
-         let else_body: Option<Vec<Box<dyn IRNode>>> = None;
+         let mut _else_body = Vec::new();
          match &node.else_branch{
              Some(_else)=>{
-
-                 let mut else_body = Vec::new();
-                 match &*_else.1{
-                     Expr::Block(_b)=>{
-                         for stmt in &_b.block.stmts {
-                            else_body.push(Stack::my_visit_stmts(stmt));
-                         }
-                     }
-                     _=>{}
-                 }
+                 _else_body.push(Stack::my_visit_expr(&*_else.1));
              }
              None =>{}
          }
+
+
          if obliv == true {
-            self.visitor.push(Box::new(OblivIf::new(condition, if_body, else_body)));
+            self.visitor.push(Box::new(OblivIf::new(condition, if_body,Some(_else_body))));
          }
          else{
-            self.visitor.push(Box::new(If::new(condition, if_body, else_body)));
+            self.visitor.push(Box::new(If::new(condition, if_body, Some(_else_body))));
          }
 
+     }
+     fn visit_expr_block(&mut self, node: &'ast ExprBlock){
+         let mut vec = Vec::new();
+         for stmt in &node.block.stmts {
+            vec.push(Stack::my_visit_stmts(stmt));
+         }
+         self.visitor = vec;
      }
      fn visit_expr_return(&mut self, node: &'ast ExprReturn){
          match &node.expr{

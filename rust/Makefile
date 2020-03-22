@@ -1,4 +1,4 @@
-FILE?="tests/test_program.rs"
+FILE?="tests/test_simple.rs"
 
 test:
 	@mkdir -p output

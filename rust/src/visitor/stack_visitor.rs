@@ -71,8 +71,8 @@ impl Stack{
             Expr::Paren(_e)=>{
                 self.visit_expr_paren(_e);
             }
-            Expr::Block(_e)=>{
-                self.visit_expr_block(_e);
+            Expr::Block(_b)=>{
+                self.visit_expr_block(_b);
             }
             Expr::Return(_e)=>{
                 self.visit_expr_return(_e);
