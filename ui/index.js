@@ -34,13 +34,7 @@ var currentOutput = { // hardcoded output
 };
 
 document.addEventListener("DOMContentLoaded", async function () {
-  // CodeMirror code editor
-  CodeMirror.fromTextArea(document.getElementById('inputCode'), {
-    lineNumbers: true,
-    matchBrackets: true,
-    tabMode: 'indent',
-    readOnly: true
-  });
+
 
   // Get control elements
   var protocols = document.getElementById('protocol'),
@@ -52,32 +46,6 @@ document.addEventListener("DOMContentLoaded", async function () {
     plot = document.getElementById('plotButton'),
     outputText = document.getElementById('outputText'),
     outputPlot = 'outputPlot';
-
-  compute.disabled = true;
-  plot.disabled = true;
-
-  // Fill in protocol and metric select menus
-  for (var costKey in carousels.costs) {
-    var option = document.createElement('option');
-    option.innerHTML = costKey;
-    option.value = costKey;
-    protocols.appendChild(option);
-  }
-  protocols.onchange = function () {
-    metric.innerHTML = '';
-    var protocol = protocols.value;
-    var cost = carousels.costs[protocol];
-    for (var i = 0; i < cost.metrics.length; i++) {
-      var metricKey = cost.metrics[i].title;
-      var option = document.createElement('option');
-      option.innerHTML = metricKey;
-      option.value = metricKey;
-      metric.appendChild(option);
-    }
-  };
-  metric.onchange = function () {
-    compute.disabled = false;
-  };
 
   // Compute: TODO
   compute.onclick = function () {

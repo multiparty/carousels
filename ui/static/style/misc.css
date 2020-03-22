@@ -1,5 +1,10 @@
+/* General */
+* {
+    box-sizing: border-box;
+}
+
 body {
-    padding: 50px;
+    padding: 10px 50px 50px 50px;
     font-size: 12pt;
 }
 
@@ -7,13 +12,22 @@ h1 {
     margin-bottom: 30px;
 }
 
-/* Cards with title */
-.card {
-    border: 1px solid #000000;
-    padding: 20px 20px 20px 20px;
-    position: relative;
+.CodeMirrorContainer {
+    border: 1px dashed #555555;
 }
 
+
+
+
+
+
+
+/* Cards with title
+.card {
+    border: 1px solid #000000;
+    padding: 20px;
+    position: relative;
+}
 .card h2 {
     position: absolute;
     top: -35px;
@@ -22,18 +36,12 @@ h1 {
     display: inline-block;
 }
 
-.CodeMirrorContainer {
-    border: 1px dashed #555555;
-}
-
-/* Specific cards/panels */
-#inputControlPanel,
+/* Specific cards/panels
 #outputControlPanel {
     width: 300px;
     float: left;
 }
 
-#inputCodePanel,
 #outputPlotPanel {
     margin-left: 360px;
 }
@@ -43,18 +51,13 @@ h1 {
     margin-top: 30px;
 }
 
-#inputControlPanel,
-#inputCodePanel {
-    height: 350px;
-}
-
 #outputControlPanel,
 #outputPlotPanel {
     height: 723px;
 }
 
 
-/* Generic labels / controls */
+/*
 .labels {
     float: left;
     width: 35%;
@@ -87,7 +90,7 @@ h1 {
     margin-bottom: 30px;
 }
 
-/* Output and equations */
+Output and equations
 #outputText {
     text-align: center;
 }
@@ -117,3 +120,4 @@ h1 {
     margin-left: auto;
     margin-right: auto;
 }
+*/

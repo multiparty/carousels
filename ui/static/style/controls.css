@@ -1,0 +1,30 @@
+/* Horizontal controls */
+.horizontalControls label,select,button {
+    font-weight: bold;
+    display: inline-block;
+}
+.horizontalControls select,button {
+    width: 200px;
+}
+.horizontalControls label {
+    width: 160px;
+    margin: 0;
+}
+/* horizontal control groups are spaced out equally */
+.horizontalControls .controlsGroup {
+    display: inline-block;
+    width: 33%;
+    text-align: center;
+}
+/* if resolution is too little, place control group as an accordion */
+@media (max-width: 1400px) {
+    .horizontalControls .controlsGroup {
+        display: block;
+        width: 100%;
+        white-space: normal;
+        text-align: center;
+        margin-top: 10px;
+    }
+}
+
+/* Vertical controls */
