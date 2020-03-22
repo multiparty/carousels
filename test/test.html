@@ -7,26 +7,27 @@
 </head>
 <body>
     <h2>Input Code</h2>
-    <pre id="codePre">
-        fn merge_sort_dedup<T, P: Obliv>(a: &[Possession<T, P>])
-        -> Vec<Possession<T, P>>
-        where T: Ord + Clone
-        {
-            let n = a.len();
-            if n > 1 {
-                let m = n/2;
-                merge_dedup(&merge_sort_dedup(&a[0..m]),
-                            &merge_sort_dedup(&a[m..n]))
-            } else {
-                a.to_owned()
-            }
-        }
+    <textarea id="codeTextArea" cols="140" rows="50">
+fn merge_sort_dedup<T, P: Obliv>(a: &[Possession<T, P>])
+-> Vec<Possession<T, P>>
+where T: Ord + Clone
+{
+    let n = a.len();
+    if n > 1 {
+        let m = n/2;
+        merge_dedup(&merge_sort_dedup(&a[0..m]),
+                    &merge_sort_dedup(&a[m..n]))
+    } else {
+        a.to_owned()
+    }
+}
 
-        fn merge_dedup<T, P: Obliv>(a: &[Possession<T, P>], b: &[Possession<T, P>])
-        -> Vec<Possession<T, P>>
-        where T: Ord + Clone
-        { }
-    </pre> <br/>
+fn merge_dedup<T, P: Obliv>(a: &[Possession<T, P>], b: &[Possession<T, P>])
+-> Vec<Possession<T, P>>
+where T: Ord + Clone
+{ }
+    </textarea> <br/>
+    <input type="button" value="Try it!" onclick="analyze()"/>
 
     <h2>Parsed as IR</h2>
     <pre id="irPre"></pre> <br/>
@@ -51,12 +52,12 @@
 </body>
 <script type="text/javascript">
   /* global document, carousels, JSON, console */
-  document.addEventListener("DOMContentLoaded", async function () {
+  async function analyze() {
     await carousels.promise;
 
     // UI Elements
     const
-      codePre = document.getElementById('codePre'),
+      codeTextArea = document.getElementById('codeTextArea'),
       costsPre = document.getElementById('costsPre'),
       irPre = document.getElementById('irPre'),
       parametersPre = document.getElementById('parametersPre'),
@@ -67,7 +68,7 @@
     // Analysis parameters
     const
       language = 'rust',
-      code = codePre.textContent,
+      code = codeTextArea.value,
       costs = carousels.costs.rustBGW,
       metric = carousels.costs.rustBGW['metrics'][1]['title'],
       extraTyping = null;
@@ -90,6 +91,6 @@
       console.log(err);
     }
     annotationPre.innerHTML = analyzer.prettyPrint();
-  });
+  }
 </script>
 </html>

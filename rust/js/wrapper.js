@@ -14,7 +14,7 @@ const REPLACE_PATTERNS = [
   },
   {
     pattern: new RegExp('obliv\\s+if', 'g'),
-    replace: 'let __obliv = !__obliv;\nif'
+    replace: '#[__obliv__]\nif'
   }
 ];
 
@@ -29,7 +29,7 @@ const parseWrapper = function (code) {
     code = code.replace(pattern, replace);
   }
 
-  return WASMParser.test_wasm_now(code);
+  return WASMParser.get_json_ir(code);
 };
 
 module.exports = {

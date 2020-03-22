@@ -18,7 +18,7 @@ function Type(dataType, secret, dependentType) {
     throw new Error('Secret must be either true or false! Instead it was "' + this.secret + '".');
   }
   if (this.hasDependentType() && !this.dependentType.compatible(this)) {
-    throw new Error('Unexpected dependent type "' + this.dependentType + '" given for type "' + this + '"!');
+    throw new Error('Unexpected dependent type "' + this.dependentType + '" given for type "' + this.dataType + '"!');
   }
   if ((this.dataType === TYPE_ENUM.UNIT || this.dataType === TYPE_ENUM.RANGE ||
       this.dataType === TYPE_ENUM.SYMBOL || this.dataType === TYPE_ENUM.STRING ||
@@ -59,7 +59,7 @@ Type.prototype.conflicts = function (otherType) {
   return false;
 };
 Type.prototype.combine = function (otherType, dependentCombiner) {
-  if (otherType != null && otherType.dataType !== TYPE_ENUM.UNIT) {
+  if (otherType != null && !otherType.is(TYPE_ENUM.UNIT)) {
     if (this.secret !== otherType.secret) {
       throw new Error('Cannot combine secret and non-secret types "' +
         this.toString() + '" and "' + otherType.toString() + '"!');
@@ -76,6 +76,14 @@ Type.prototype.combine = function (otherType, dependentCombiner) {
   }
 
   return this.copy();
+};
+// returns the type of a member element
+Type.prototype.memberType = function (pathStr) {
+  throw new Error('memberType is not supported in type "' + this.dataType + '"!');
+};
+// returns the (symbolic) size of the range represented by this type (i.e. when iterating over it)
+Type.prototype.size = function (pathStr) {
+  throw new Error('size is not supported in type "' + this.dataType + '"!');
 };
 Type.fromTypeNode = function (typeNode, pathStr) {
   if (typeNode == null) {
@@ -143,6 +151,53 @@ RangeType.prototype = Object.create(Type.prototype);
 AnyType.prototype = Object.create(Type.prototype);
 StringType.prototype = Object.create(Type.prototype);
 
+// Override memberType when applicable
+ArrayType.prototype.memberType = function (pathStr) {
+  return {
+    type: this.dependentType.elementsType.copy(),
+    parameters: []
+  };
+};
+RangeType.prototype.memberType = function (pathStr) {
+  const secret = this.secret;
+  const parameter = Parameter.forValue(pathStr + '[rangeValue]');
+  return {
+    type: new NumberType(secret, parameter.mathSymbol),
+    parameters: [parameter]
+  }
+};
+AnyType.prototype.memberType = function (pathStr) {
+  return {
+    type: this.copy(),
+    parameters: []
+  };
+};
+// Override size when applicable
+ArrayType.prototype.size = function (pathStr) {
+  return {
+    size: this.dependentType.length,
+    parameters: []
+  };
+};
+RangeType.prototype.size = function (pathStr) {
+  return {
+    size: this.dependentType.size,
+    parameters: []
+  }
+};
+AnyType.prototype.size = function (pathStr) {
+  // cache size so we do not keep on introducing new variables
+  const parameters = [];
+  if (this.__size == null) {
+    parameters.push(Parameter.forLoop(pathStr));
+    this.__size = parameters[0].mathSymbol;
+  }
+  return {
+    size: this.__size,
+    parameters: parameters
+  };
+};
+
 // static initializers
 NumberType.fromTypeNode = function (typeNode, pathStr) {
   const secret = typeNode.secret;
@@ -163,9 +218,10 @@ BooleanType.fromTypeNode = function (typeNode, pathStr) {
 ArrayType.fromTypeNode = function (typeNode, pathStr) {
   const secret = typeNode.secret;
   const lengthParameter = Parameter.forArrayLength(pathStr);
+  delete typeNode['dependentType']; // TODO: this ignores un-parsable types insides array in IR
   let nested = Type.fromTypeNode(typeNode.dependentType, pathStr + '[elementsType]');
   if (nested.type == null) { // Default array are of numbers!
-    nested.type = NumberType.fromTypeNode({secret: typeNode.secret}, pathStr + '[elementsType]');
+    nested = NumberType.fromTypeNode({secret: typeNode.secret}, pathStr + '[elementsType]');
   }
 
   return {

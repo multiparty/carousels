@@ -87,7 +87,7 @@ ListNodesVisitor.prototype.visitVariableDefinition = function (node, args) {
   const assignmentResult = this.visit(node.assignment, args);
 };
 ListNodesVisitor.prototype.visitForEach = function (node, args) {
-  const iteratorDefinitionResult = this.visit(node.iteratorDefinition, args);
+  const iteratorResult = this.visit(node.iterator, args);
   const rangeResult = this.visit(node.range, args);
   const bodyResult = this.visit(node.body, args);
 };

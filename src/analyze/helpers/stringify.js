@@ -204,12 +204,12 @@ StringifyVisitor.prototype.visitVariableDefinition = function (node, withAnnotat
   return str;
 };
 StringifyVisitor.prototype.visitForEach = function (node) {
-  let iteratorDefinitionResult = this.annotationIndent(this.visit(node.iteratorDefinition));
   let rangeResult = this.annotationIndent(this.visit(node.range));
+  let iteratorResult = this.annotationIndent(this.visit(node.iterator));
   const bodyResult = this.visit(node.body);
 
   return this.format('keyword', 'foreach ') + ' (' + this.annotateNewLine +
-    iteratorDefinitionResult + this.annotateNewLine + (this.annotateNewLine === '' ? ' ' : '') +
+    iteratorResult + this.annotateNewLine + (this.annotateNewLine === '' ? ' ' : '') +
     this.format('keyword', 'in ')  + this.annotateNewLine +
     rangeResult + this.annotateNewLine +
     ') {\n' +

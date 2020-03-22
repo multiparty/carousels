@@ -35,8 +35,8 @@ impl <'ast> Visit <'ast> for Stack{
             BinOp::Lt(_op) => {direct_expr.operator = "<".to_string();}
             BinOp::Le(_op) => {direct_expr.operator = "<=".to_string();}
             BinOp::Ne(_op) => {direct_expr.operator = "!=".to_string();}
-            BinOp::Ge(_op) => {direct_expr.operator = ">".to_string();}
-            BinOp::Gt(_op) => {direct_expr.operator = ">=".to_string();}
+            BinOp::Ge(_op) => {direct_expr.operator = ">=".to_string();}
+            BinOp::Gt(_op) => {direct_expr.operator = ">".to_string();}
             _=>{} // Implement other operators if necessary
         }
         self.visitor.push(Box::new(direct_expr));

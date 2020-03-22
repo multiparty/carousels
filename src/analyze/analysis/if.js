@@ -27,7 +27,7 @@ const GenericIf = function (node, pathStr) {
   if (conditionResult.type.is(carouselsTypes.ENUM.BOOLEAN)) {
     conditionMathEquation = conditionResult.type.dependentType.value;
   } else if (conditionResult.type.is(carouselsTypes.ENUM.NUMBER)) {
-    conditionMathEquation = math.neq(conditionResult.type.dependentType.value, 0);
+    conditionMathEquation = math.neq(conditionResult.type.dependentType.value, math.parse('0'));
   } else {
     const parameter = Parameter.forCondition(pathStr + 'if[condition]');
     this.analyzer.addParameters([parameter]);
@@ -37,7 +37,7 @@ const GenericIf = function (node, pathStr) {
   // the (return) type of this statement is the union type of
   // the if and else bodies
   const ifType = ifResult.type;
-  const elseType = elseResult.type;
+  const elseType = elseResult ? elseResult.type : null;
   const type = ifType.combine(elseType, dependentIfCombiner.bind(this, conditionMathEquation));
 
   // aggregate children metric
@@ -50,7 +50,7 @@ const GenericIf = function (node, pathStr) {
   const childrenMetric = {
     condition: conditionResult.metric,
     ifBody: ifResult.metric,
-    elseBody: elseResult.metric
+    elseBody: elseResult ? elseResult.metric : this.analyzer.metric.initial
   };
   const aggregateMetric = this.analyzer.metric['aggregate'+node.nodeType](node, childrenType, childrenMetric);
 

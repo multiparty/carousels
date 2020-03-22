@@ -43,5 +43,10 @@ Parameter.forCondition = function (conditionPath) {
   const symbol = 'c' + (PARAMETER_COUNTER)++;
   return new Parameter(symbol, description);
 };
+Parameter.forLoop = function (loopPath) {
+  const description = 'The number of iterations of loop "' + loopPath + '"';
+  const symbol = 'i' + (PARAMETER_COUNTER++);
+  return new Parameter(symbol, description);
+};
 
 module.exports = Parameter;

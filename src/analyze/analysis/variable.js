@@ -1,6 +1,10 @@
 const carouselsTypes = require('../symbols/types.js');
 
 const TypeNode = function (node, pathStr) {
+  if (node.type == null || node.type === '') {
+    return null;
+  }
+
   const typeResult = carouselsTypes.fromTypeNode(node, pathStr);
 
   // Add any newly created symbolic parameters

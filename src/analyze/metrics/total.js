@@ -1,7 +1,7 @@
 const AbstractMetric = require('../../ir/metric.js');
 
 const math = require('../math.js');
-const loop = require('../loops.js');
+const loops = require('../loops.js');
 
 // Total metric: aggregates cost by adding it across any construct's children
 // Singleton instance of AbstractMetric
@@ -35,14 +35,14 @@ totalMetric.aggregateVariableDefinition = function (node, childrenType, children
 
 // For Each: body * iterations
 totalMetric.aggregateForEach = function (node, childrenType, childrenMetric) {
-  const iterationCount = loop.iterationCountForEach(node, childrenType);
+  const iterationCount = loops.iterationCountForEach(node, childrenType);
   const total = math.multiply(childrenMetric.body, iterationCount);
   return total;
 };
 
 // Regular For: (body + condition + increment) * iterations + condition + initialization (one extra condition evaluation)
 totalMetric.aggregateFor = function (node, childrenType, childrenMetric) {
-  const iterationCount = loop.iterationCountFor(node, childrenType);
+  const iterationCount = loops.iterationCountFor(node, childrenType);
   const body = math.add(childrenMetric.body, childrenMetric.condition, childrenMetric.increment);
   const bodyIterated = math.multiply(body, iterationCount);
   const total = math.add(bodyIterated, childrenMetric.condition, childrenMetric.initial);
