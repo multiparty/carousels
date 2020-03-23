@@ -5,19 +5,42 @@
     const metricSelect = document.getElementById('metric');
     const computeButton = document.getElementById('computeButton');
     const textarea = document.getElementById('inputCode');
+
+    // output
+    const outputRadio = document.getElementById('tab-2');
+    const successDiv = document.getElementById('outputSuccess');
+    const functionsDiv = document.getElementById('outputFunctions');
+    const parametersDiv = document.getElementById('outputParameters');
+    const FailureDiv = document.getElementById('outputFailure');
+    const errorsDiv = document.getElementById('outputErrors');
+
+    // debugging
     const debuggingDiv = document.getElementById('debuggingDiv');
     const IRDiv = document.getElementById('IRDiv');
 
     // Display output
     const showOutput = function (output) {
-      output.parameters.join('\n\n'); // parameters
-      output.description.join('\n\n'); // description of parameters and abstractions
-      output.equations.join('\n\n'); // symbolic equations
-      console.log(output);
+      successDiv.style.display = 'block';
+      FailureDiv.style.display = 'none';
+
+      const functions = output.equations.map(function (equation, i) {
+        return output.description[i].toString() + '\n' + equation.toString();
+      }).join('\n\n');
+      const parameters = output.parameters.join('\n\n'); // parameters
+
+      functionsDiv.textContent = functions;
+      parametersDiv.textContent = parameters;
+
+      outputRadio.checked = true;
     };
     // Showing errors
     const showError = function (err) {
       console.log(err);
+      successDiv.style.display = 'none';
+      FailureDiv.style.display = 'block';
+      errorsDiv.textContent = err.toString();
+
+      outputRadio.checked = true;
     };
     // Debugging display of pretty-print output
     const showDebug = function (prettyPrint) {
@@ -40,9 +63,17 @@
         return;
       }
 
-      // Create a new carousels analyzer and analyze code
-      const analyzer = new carousels.Analyzer(language, code);
-      showIR(analyzer.IR);
+      // Create a new carousels analyzer and dump IR
+      let analyzer;
+      try {
+        analyzer = new carousels.Analyzer(language, code);
+        showIR(analyzer.IR);
+      } catch (err) {
+        showError('Error during parsing IR. Please look at the console for more information.\n' + err.toString());
+        return;
+      }
+
+      // analyze code and display outputs
       try {
         analyzer.analyze(carousels.costs[protocolValue], metricValue);
         showOutput(analyzer.symbolicResult());

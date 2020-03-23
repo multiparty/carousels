@@ -21,9 +21,14 @@ h1 {
     overflow-x: scroll !important;;
 }
 
+pre {
+    width: 100%;
+    overflow-x: scroll;
+}
 
-
-
+#outputFailure {
+    display: none;
+}
 
 /* Cards with title
 .card {
