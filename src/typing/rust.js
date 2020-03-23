@@ -44,6 +44,18 @@ module.exports = [
       };
     }
   },
+  {
+    rule: {
+      nodeType: 'FunctionCall',
+      match: 'Oram\\(@T\\)'
+    },
+    value: function (node, pathStr, children) {
+      return {
+        type: children.parameters[0],
+        parameters: []
+      }
+    }
+  },
   // numeric direct expressions
   {
     rule: {

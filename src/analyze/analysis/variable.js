@@ -1,8 +1,15 @@
 const carouselsTypes = require('../symbols/types.js');
 
 const TypeNode = function (node, pathStr) {
+  // special case: IR does not contain any type information => type is missing
+  if ((node.type == null || node.type === '') && node.dependentType == null && node.secret !== true) {
+    return;
+  }
+
+  // Type information exists, but for some reason IR parser could not parse the base type
+  // likely a complicated generic rust type, we use number as default
   if (node.type == null || node.type === '') {
-    return null;
+    node.type = 'number';
   }
 
   const typeResult = carouselsTypes.fromTypeNode(node, pathStr);

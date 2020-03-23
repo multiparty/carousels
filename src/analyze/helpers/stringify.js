@@ -57,7 +57,7 @@ StringifyVisitor.prototype.escape = function (text) {
 StringifyVisitor.prototype.finalizeFormat = function (text) {
   if (this.HTML) {
     text = text.replace(/\n/g, '<br/>');
-    text = '<div style=\'color: ' + COLORS.plain + '; background-color: ' + COLORS.background + '; padding: 30px; ' +
+    text = '<div class="debugging" style=\'color: ' + COLORS.plain + '; background-color: ' + COLORS.background + '; padding: 30px; ' +
       'width: min-content; min-width: 90%; white-space: nowrap; font-family: "Courier New", Courier, monospace\'>' + text + '</div>';
   }
   return text;

@@ -1,14 +1,14 @@
 const carouselsTypes = require('../symbols/types.js');
 
 const ReturnStatement = function (node, pathStr) {
-  const childResult = this.visit(node, pathStr + '[returnExpression]');
+  const res = this.visit(node.expression, pathStr + '[returnExpression]');
 
   // Return statement not allowed in typings and costs: skip!
-  const metricAgg = this.analyzer.metric.aggregateReturnStatement(node, childResult.type, childResult.metric);
+  const metric = this.analyzer.metric.aggregateReturnStatement(node, {expression: res.type}, {expression: res.metric});
 
   return {
-    type: childResult.type,
-    metric: metricAgg
+    type: res.type,
+    metric: metric
   };
 };
 
