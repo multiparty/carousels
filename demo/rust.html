@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta content="all" name="robots"/>
+
+  <title>carousels</title>
+
+  <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Open+Sans">
+  <link rel="stylesheet" href="https://code.jquery.com/ui/1.10.4/themes/flick/jquery-ui.css">
+  <link rel="stylesheet" href="style.css">
+
+  <script src="../dist/carousels.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/6.6.1/math.min.js"></script>
+  <script src="../src/analyze/math.js"></script>
+
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  <script src="./plot.js"></script>
+</head>
+
+<body onload="plot();">
+  <div id="content">
+    <div id="title">carousels</div>
+    <div id="description">
+      Library for concisely defining abstract metrics over JavaScript syntax.
+    </div>
+    <div id="sheet">
+      <div class="section">
+        <h2>Purpose</h2>
+        This library makes it possible to rapidly assemble abstract metrics over subsets of JavaScript syntax.
+      </div>
+      <div class="section">
+        <h2>Examples</h2>
+        <p>
+          Below are a few interactive examples of how the library can be used to define a grammar and parse a concrete syntax string into a JSON representation of an abstract syntax tree. You can change the grammar or input string and see the results immediately.
+        </p>
+        <h3>Basic Example</h3>
+        <td>
+          Input definitions:<br/>
+          <textarea id="code" rows="18">
+fn merge_sort_dedup(a: &[Possession])
+    -> Vec>
+    where T: Ord + Clone
+{
+    let n = a.len();
+    if n > 1 {
+        let m = n/2;
+        merge_dedup(&merge_sort_dedup(&a[0..m]),
+                    &merge_sort_dedup(&a[m..n]))
+    } else {
+        a.to_owned()
+    }
+}
+
+fn merge_dedup(a: &[Possession], b: &[Possession])
+    -> Vec>
+    where T: Ord + Clone
+{ }</textarea>
+          </td>
+          <table>
+            <br></br>
+            <tr>
+              <form>
+                Select a Cost:&nbsp;&nbsp;<select id="selected_cost" onchange="plot();">
+                  <option value="onlineMsg" selected="selected">onlineMsg</option>
+                  <option value="onlineRounds">onlineRounds</option>
+                  <option value="offlineMsg">offlineMsg</option>
+                  <option value="offlineRounds">offlineRounds</option>
+                </select>
+                &nbsp;&nbsp;
+                Fix a Parameter:&nbsp;&nbsp;<select id="selected_param" onchange="plot();">
+                  <option value="numbits" selected="selected">numbits</option>
+                  <option value="numparties">numparties</option>
+                </select>
+                <div id="checkbx" style="display:none">
+                  <input type="checkbox" id="preprocessing" onchange="plot();" checked>Include Pre-Processing costs
+                </div>
+              </form>
+              <br/><br/>
+              <td>
+                AST:<br/>
+                <textarea id="ir" rows="18">
+
+                </textarea>
+              </td>
+            </tr>
+            <tr>
+              <td colspan="2">
+                Static analysis results:<br/>
+                <div><pre id="out"></pre></div>
+              </td>
+            </tr>
+        </div>
+        <br/>
+        <table>
+          Performance:<br/>
+          <div id="myPlot" style="width:100%; height:100%"></div>
+        </table>
+      </div>
+    </div><!-- /#sheet -->
+    <div id="footer_spacer"></div>
+  </div><!-- /#content -->
+  <div id="footer">
+    <hr/>
+    <a href="https://www.github.com/multiparty/carousels">Repository</a>
+  </div><!-- /#footer -->
+</body>
+<script type="text/javascript">
+carousels.promise.then(function () {
+  try {
+    const language = 'rust';
+    const code = document.getElementById('code').innerHTML;
+    const costs = carousels.costs.rustBGW;
+
+    // TODO: remove this
+    const IRCode = carousels.parsers.rust(code);
+    document.getElementById("ir").innerHTML = JSON.stringify(IRCode, null, 2);//IRCode.map(JSON.stringify).join('\n\n');
+
+    const output = carousels.analyze(language, code, costs, costs['metrics'][0]['title']);
+    console.log('output', output);
+
+    document.getElementById("selected_param").innerHTML = output.parameters.map(
+      p => '<option value="'+p.mathSymbol.name+'">'+p.description+'</option>'
+    ).join('\n');
+
+    let selected_cost = document.getElementById("selected_cost").selectedOptions[0].innerHTML;
+    let selected_param = document.getElementById("selected_param").selectedOptions[0].innerHTML;
+    plotslider(selected_cost, null, selected_param);
+
+    console.log(output.equations.join('; '));
+    document.getElementById("out").innerHTML = output.equations.join('; ');
+  } catch (err) {
+    console.log('Error:', err);
+  }
+});
+</script>
+</html>

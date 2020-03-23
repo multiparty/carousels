@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Carousels</title>
+
+    <!-- Math.js and Plotly -->
+    <script type="text/javascript" src="static/plotly-latest.min.js"></script>
+
+    <!-- carousels library and plotting code -->
+    <script type="text/javascript" src="../dist/carousels.js"></script>
+
+    <!-- Our UI js -->
+    <script type="text/javascript" src="static/codesamples/samples.js"></script>
+    <script type="text/javascript" src="index.js"></script>
+    <script type="text/javascript" src="static/plot.js"></script>
+    <script type="text/javascript" src="static/inputControllers.js"></script>
+    <script type="text/javascript" src="static/codeMirrorHandlers.js"></script>
+    <script type="text/javascript" src="static/events.js"></script>
+
+    <!-- Our UI css -->
+    <link rel="stylesheet" href="static/style/misc.css"/>
+    <link rel="stylesheet" href="static/style/tabs.css"/>
+    <link rel="stylesheet" href="static/style/controls.css"/>
+    <link rel="stylesheet" href="static/style/output.css"/>
+
+    <!-- Code mirror -->
+    <script type="text/javascript" src="static/codemirror/codemirror.js"></script>
+    <script type="text/javascript" src="static/codemirror/rust.js"></script>
+    <link rel="stylesheet" href="static/codemirror/codemirror.css"/>
+    <link rel="stylesheet" href="static/codemirror/dracula.css"/>
+</head>
+<body>
+    <h1>Carousels</h1>
+
+    <!-- tabs -->
+    <div class="tabs">
+        <!-- input controls with Codemirror Tab -->
+        <input name="tabs" type="radio" id="tab-1" checked="checked" class="tabInput"/>
+        <label for="tab-1" class="tabLabel">Input</label>
+        <div id="inputTab" class="tab">
+            <h2>Input Code</h2>
+            <div class="horizontalControls">
+                <span class="controlsGroup">
+                    <label for="codeSample">Code Sample</label>
+                    <select id="codeSample"></select>
+                </span>
+                <span class="controlsGroup">
+                    <label for="protocol">Choose Protocol</label>
+                    <select id="protocol"></select>
+                </span>
+                <span class="controlsGroup">
+                    <label for="metric">Choose Metric</label>
+                    <select id="metric"></select>
+                </span>
+                <span class="controlsGroup">
+                    <button id="computeButton" disabled="disabled">Compute</button>
+                </span>
+            </div>
+            <br/>
+            <div class="CodeMirrorContainer">
+                <textarea id="inputCode"></textarea>
+            </div>
+        </div>
+
+        <!-- Symbolic output and description Tab -->
+        <input name="tabs" type="radio" id="tab-2" class="tabInput"/>
+        <label for="tab-2" class="tabLabel">Output</label>
+        <div id="outputTab" class="tab">
+            <div id="outputSuccess">
+                <h2>Function costs</h2>
+                <div id="outputFunctions">no output yet...</div>
+
+                <h2>Parameters</h2>
+                <div id="outputParameters">no output yet...</div>
+            </div>
+
+            <div id="outputFailure">
+                <h2>Errors</h2>
+                <pre id="outputErrors"></pre>
+            </div>
+        </div>
+
+        <!-- Plot Tab -->
+        <input name="tabs" type="radio" id="tab-3" class="tabInput"/>
+        <label for="tab-3" class="tabLabel">Plot</label>
+        <div id="plotTab" class="tab">
+            <h2>Plot</h2>
+            <div class="horizontalControls">
+                <span class="controlsGroup">
+                    <label for="plotFunction">Choose Function</label>
+                    <select id="plotFunction" disabled="disabled"> </select>
+                </span>
+                <span class="controlsGroup">
+                    <label for="xaxis">Choose X-axis</label>
+                    <select id="xaxis" disabled="disabled"></select>
+                </span>
+                <span class="controlsGroup">
+                    <label for="yaxis">Choose Y-axis</label>
+                    <select id="yaxis" disabled="disabled"></select>
+                </span>
+                <span class="controlsGroup">
+                    <button id="plotButton" disabled="disabled">Plot</button>
+                </span>
+            </div>
+            <div class="horizontalControls">
+                <span class="controlsGroup">
+                    &nbsp;
+                </span>
+                <span class="controlsGroup">
+                    <label for="plotStart">X-axis Min</label>
+                    <input id="plotStart" value="0" />
+                </span>
+                <span class="controlsGroup">
+                    <label for="plotEnd">X-axis Max</label>
+                    <input id="plotEnd" value="100" />
+                </span>
+                <span class="controlsGroup">
+                    &nbsp;
+                </span>
+            </div>
+            <div id="outputPlot">
+            </div>
+        </div>
+
+        <!-- Debuggin Tabs -->
+        <input name="tabs" type="radio" id="tab-4" class="tabInput"/>
+        <label for="tab-4" class="tabLabel">Debugging</label>
+        <div id="debugginTab" class="tab">
+            <h2>Input Code with Debugging Annotations</h2>
+            <div id="debuggingDiv">no output yet...</div>
+        </div>
+        <input name="tabs" type="radio" id="tab-5" class="tabInput"/>
+        <label for="tab-5" class="tabLabel">IR</label>
+        <div id="IRTab" class="tab">
+            <h2>Intermediate Representation of Input Code</h2>
+            <pre id="IRDiv">no IR yet...</pre>
+        </div>
+    </div>
+</body>
+</html>

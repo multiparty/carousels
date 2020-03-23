@@ -1,0 +1,70 @@
+{
+  "parameters": [
+    {"symbol": "p", "description": "number of parties"},
+    {"symbol": "b", "description": "number of bits in field"}
+  ],
+  "metrics": [
+    {
+      "title": "Online Messages",
+      "description": "Total number of messages sent during the online phase",
+      "type": "TotalMetric"
+    },
+    {
+      "title": "Online Rounds",
+      "description": "Total number of rounds of communication during the online phase",
+      "type": "RoundMetric"
+    }
+  ],
+  "operations": [
+    {
+      "rule": {
+        "nodeType": "DirectExpression",
+        "match": "<type:(number|boolean)@D,secret:true>\\+<type:(number|boolean)@D,secret:true>"
+      },
+      "value": {
+        "Online Messages": "0",
+        "Online Rounds": "0"
+      }
+    },
+    {
+      "rule": {
+        "nodeType": "DirectExpression",
+        "match": "<type:(number|boolean)@D,secret:true>\\*<type:(number|boolean)@D,secret:true>"
+      },
+      "value": {
+        "Online Messages": "p-1",
+        "Online Rounds": "1"
+      }
+    },
+    {
+      "rule": {
+        "nodeType": "DirectExpression",
+        "match": "<type:(number|boolean)@D,secret:true><<type:(number|boolean)@D,secret:true>"
+      },
+      "value": {
+        "Online Messages": "b*(p-1)",
+        "Online Rounds": "b-1"
+      }
+    },
+    {
+      "rule": {
+        "nodeType": "OblivIf",
+        "match": "^@T?@T:@T"
+      },
+      "value": {
+        "Online Messages": "p-1",
+        "Online Rounds": "1"
+      }
+    },
+    {
+      "rule": {
+        "nodeType": "DotExpression",
+        "match": "<type:array@D,secret:(true|false)>\\.len"
+      },
+      "value": {
+        "Online Messages": "=0",
+        "Online Rounds": "=0"
+      }
+    }
+  ]
+}

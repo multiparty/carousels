@@ -2,9 +2,7 @@
 
 Every type of element in our language must have at least the following properties:
 
-1. nodeType: string. The type of this node, the same as the title in what follows in camel case
-
-
+1. nodeType: string. The type of this node, the same as the title in what follows with the same casing.
 
 
 
@@ -13,51 +11,50 @@ Every type of element in our language must have at least the following propertie
 
 These are logical entities that do not correspond to statements/expressions.
 
-#### Type
+#### TypeNode
 
 1. secret: boolean
 2. type: string
+3. dependentType: TypeNode (optional, for generics)
 
-For now, it is ok for the type string to be exactly what the parser gives.
-
-
-
+For now, it is ok for the type string to be either array or number
 
 
 
-## Statements
 
-These are statements but cannot be expressions.
+## Statement
 
-#### functionDefinition
+These node types are statements but cannot be expressions.
 
-1. name: nameExpression
-2. parameters: array of variable definition
-3. body: array of statements
-4. return type: type
+#### FunctionDefinition
 
-#### returnStatement
+1. name: NameExpression
+2. parameters: array<VariableDefinition>
+3. body: array<Statement>
+4. returnType: TypeNode
 
-1. expression: expression
+#### ReturnStatement
 
-#### variableDefinition
+1. expression: Expression
 
-1. name: nameExpression
-2. type: type
+#### VariableDefinition
 
-#### forEach
+1. name: NameExpression
+2. type: TypeNode (optional)
+3. assignment: VariableAssignment (optional)
 
-1. iterator: variable definition (the loop variable)
+#### ForEach
+
+1. iterator: VariableDefinition (the loop variable)
 2. range: rangeExpression
-3. body: array of statements
+3. body: array<statements>
 
-#### for
+#### For
 
-1. initial: statement
-2. condition: expression
-3. increment: statement
-
-
+1. initial: array<Statement> (includes potentially several VariableDefinition and VariableAssignments)
+2. condition: Expression
+3. increment: array<Statement>
+4. body: array<statement>
 
 
 
@@ -66,19 +63,19 @@ These are statements but cannot be expressions.
 
 These can be expressions (or statements).
 
-#### variableAssignment
+#### VariableAssignment
 
-1. name: nameExpression
-2. expression: expression
+1. name: NameExpression
+2. expression: Expression
 
 
-#### if
+#### If
 
-1. condition: expression
-2. ifBody: array of statements
-3. elseBody: array of statements (empty if no else)
+1. condition: Expression
+2. ifBody: array<Statement>
+3. elseBody: array<Statement> (empty if no else)
 
-if else if else should be represented as:
+if { } else if { } else { } should be represented as:
 ```javascript
 if(condition1) {
   // ifBody1
@@ -92,67 +89,70 @@ if(condition1) {
 }
 ```
 
-_Note:_ The last statment in both if and else body is considered to be
+_Note:_ The last statement in both if and else body is considered to be
 the return value of this statement.
 
-#### oblivIf
+#### OblivIf
 
-1. condition: expression
-2. ifBody: array of statements
-3. elseBody: array of statements
+1. condition: Expression
+2. ifBody: array<Statement>
+3. elseBody: array<Statement>
 
-_Note_: The last statment in both if and else body is considered to be
+_Note_: The last statement in both if and else body is considered to be
 the return value of this statement.
 
-#### literalExpression
+#### LiteralExpression
 
-1. value: number | string | boolean
+1. value: string
+2. type: "number" | "boolean" | "string"
 
-#### nameExpression
+The value is always a string to simplify serialization. However, the actual literal
+may have been either a number, a boolean, or a string, as specified by type.
+
+#### NameExpression
 
 1. name: string
 
 Represent variable or function names (no dots).
 
-#### directExpression
+#### DirectExpression
 
 1. operator: string ('+', '-', ...)
 2. arity: number
-3. operands: array of expression
+3. operands: array<Expression>
 
-Binary and uniary expressions.
+Binary and unary expressions.
 
-#### paranthesisExpression
+#### ParenthesesExpression
 
-1. expression: expression
+1. expression: Expression
 
-#### arrayAccess
+#### ArrayAccess
 
-1. array: expression
-2. index: expression
+1. array: Expression
+2. index: Expression
 
-#### rangeExpression
-1. start: expression
-2. end: expression
-3. increment: expression (optional)
+#### RangeExpression
+1. start: Expression
+2. end: Expression
+3. increment: Expression (optional)
 
-#### sliceExpression
+#### SliceExpression
 
-1. array: expression
-2. range: rangeExpression
+1. array: Expression
+2. range: RangeExpression
 
-#### arrayExpression
-
-1. elements: array of expression
+#### ArrayExpression
+1. elements: array<Expression>
 
 Represents a direct array value ([1, 2, 3] or [1, func(), 2 + 3]).
 
-#### functionCall
+#### FunctionCall
 
-1. function: nameExpression | dotExpression (the function name or obj.name etc)
-2. params: array of expressions
+1. function: NameExpression | DotExpression (the function name or obj.name etc)
+2. parameters: array<Expression>
 
-#### dotExpression
+#### DotExpression
 
-1. left: nameExpression | dotExpression
-2. right: nameExpression
+1. left: NameExpression | DotExpression
+2. right: NameExpression

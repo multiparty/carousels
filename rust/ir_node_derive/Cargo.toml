@@ -1,0 +1,12 @@
+[package]
+name = "ir_node_derive"
+version = "0.1.0"
+authors = ["Kinan Dak Albab <babman@bu.edu>"]
+edition = "2018"
+
+[lib]
+proc-macro = true
+
+[dependencies]
+syn = "1.0.15"
+quote = "1.0.2"

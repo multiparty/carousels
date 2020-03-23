@@ -1,0 +1,44 @@
+[package]
+name = "carousels"
+description = "WASM Rust Parser and Carousels Intermediate Language generator for obliv-rust compatibility with Carousels"
+version = "0.1.0"
+authors = ["Frederick Jansen <fjansen@bu.edu>", "Rawane Issa <ra1issa@bu.edu>", "Peter Flockhart <pflock@bu.edu>", "Kinan Dak Albab <babman@bu.edu"]
+categories = ["wasm"]
+readme = "../README.md"
+edition = "2018"
+
+[lib]
+name = "carousels"
+path = "src/lib.rs"
+crate-type = ["cdylib", "rlib"] # support using the library from both rust (rlib) and outside languages (cdylib)
+
+[[bin]]
+name = "main"
+path = "src/bin/main.rs"
+
+[profile.release]
+lto = true
+
+[features]
+default = ["wee_alloc", "console_error_panic_hook"]
+
+[dependencies]
+wasm-bindgen = "0.2.59"
+syn = {version = "1.0.15", features = ["full", "extra-traits", "visit", "parsing" ] }
+serde = {serde = "1.0.100", features = ["derive"]}
+serde_json = {version ="1.0"}
+typetag = "0.1"
+quote = "1.0.2"
+wee_alloc = { version = "0.4.5", optional = true }
+ir_node_derive = { path = "./ir_node_derive" }
+console_error_panic_hook = { version = "0.1.6", optional = true }
+
+[dependencies.web-sys]
+version = "0.3.4"
+features = ["console"]
+
+[dev-dependencies]
+wasm-bindgen-test = "0.2.45"
+futures = "0.1.27"
+js-sys = "0.3.22"
+wasm-bindgen-futures = "0.3.22"
