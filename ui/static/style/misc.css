@@ -16,7 +16,10 @@ h1 {
     border: 1px dashed #555555;
 }
 
-
+.debugging {
+    width: 100% !important;
+    overflow-x: scroll !important;;
+}
 
 
 

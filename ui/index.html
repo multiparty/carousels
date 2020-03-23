@@ -12,11 +12,12 @@
     <script type="text/javascript" src="../dist/carousels.js"></script>
 
     <!-- Our UI js and css -->
+    <script type="text/javascript" src="static/codesamples/samples.js"></script>
     <script type="text/javascript" src="index.js"></script>
     <script type="text/javascript" src="static/parse.js"></script>
     <script type="text/javascript" src="static/plot.js"></script>
-    <script type="text/javascript" src="static/components/codeMirrorHandlers.js"></script>
     <script type="text/javascript" src="static/components/inputControllers.js"></script>
+    <script type="text/javascript" src="static/components/codeMirrorHandlers.js"></script>
     <script type="text/javascript" src="static/components/events.js"></script>
     <link rel="stylesheet" href="static/style/misc.css"/>
     <link rel="stylesheet" href="static/style/tabs.css"/>
@@ -39,6 +40,10 @@
         <div id="inputTab" class="tab">
             <h2>Input Code</h2>
             <div class="horizontalControls">
+                <span class="controlsGroup">
+                    <label for="codeSample">Code Sample</label>
+                    <select id="codeSample"></select>
+                </span>
                 <span class="controlsGroup">
                     <label for="protocol">Choose Protocol</label>
                     <select id="protocol"></select>
@@ -82,11 +87,18 @@
             </div>
         </div>
 
-        <!-- Debuggin Tab -->
+        <!-- Debuggin Tabs -->
         <input name="tabs" type="radio" id="tab-4" class="tabInput"/>
         <label for="tab-4" class="tabLabel">Debugging</label>
         <div id="debugginTab" class="tab">
-            <div id="debuggingDiv"></div>
+            <h2>Input Code with Debugging Annotations</h2>
+            <div id="debuggingDiv">no output yet...</div>
+        </div>
+        <input name="tabs" type="radio" id="tab-5" class="tabInput"/>
+        <label for="tab-5" class="tabLabel">IR</label>
+        <div id="IRTab" class="tab">
+            <h2>Intermediate Representation of Input Code</h2>
+            <pre id="IRDiv">no IR yet...</pre>
         </div>
     </div>
 </body>

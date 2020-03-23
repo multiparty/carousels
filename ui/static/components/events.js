@@ -5,6 +5,8 @@
     const metricSelect = document.getElementById('metric');
     const computeButton = document.getElementById('computeButton');
     const textarea = document.getElementById('inputCode');
+    const debuggingDiv = document.getElementById('debuggingDiv');
+    const IRDiv = document.getElementById('IRDiv');
 
     // Display output
     const showOutput = function (output) {
@@ -19,7 +21,11 @@
     };
     // Debugging display of pretty-print output
     const showDebug = function (prettyPrint) {
-      console.log(prettyPrint);
+      debuggingDiv.innerHTML = prettyPrint;
+    };
+    // Debugging display of IR
+    const showIR = function (IR) {
+      IRDiv.textContent = JSON.stringify(IR, null, 4);
     };
 
     // Analyze
@@ -36,6 +42,7 @@
 
       // Create a new carousels analyzer and analyze code
       const analyzer = new carousels.Analyzer(language, code);
+      showIR(analyzer.IR);
       try {
         analyzer.analyze(carousels.costs[protocolValue], metricValue);
         showOutput(analyzer.symbolicResult());

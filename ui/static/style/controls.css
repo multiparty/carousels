@@ -13,11 +13,11 @@
 /* horizontal control groups are spaced out equally */
 .horizontalControls .controlsGroup {
     display: inline-block;
-    width: 33%;
+    width: 24%;
     text-align: center;
 }
 /* if resolution is too little, place control group as an accordion */
-@media (max-width: 1400px) {
+@media (max-width: 1800px) {
     .horizontalControls .controlsGroup {
         display: block;
         width: 100%;

@@ -1,0 +1,69 @@
+window.carouselsCodeSamples = {
+  merge_sort: 'fn merge_sort<T: Debug, P: Obliv>(slice: &[Possession<T, P>]) -> Vec<Possession<T, P>> where T: Ord + Clone {\n' +
+    '    if slice.len() == 1 {\n' +
+    '        return slice.to_owned()\n' +
+    '    }\n' +
+    '\n' +
+    '    let mid   = slice.len() / 2;\n' +
+    '    let left  = merge_sort(&slice[0..mid]);\n' +
+    '    let right = merge_sort(&slice[mid..slice.len()]);\n' +
+    '    merge(&left, &right)\n' +
+    '}\n' +
+    '\n' +
+    'fn merge<T: Debug, P: Obliv>(left: &[Possession<T, P>], right: &[Possession<T, P>]) -> Vec<Possession<T, P>> where T: Ord + Clone {\n' +
+    '    let out_len = left.len() + right.len();\n' +
+    '    let mut out = Vec::with_capacity(out_len);\n' +
+    '\n' +
+    '    let mut li = 0;\n' +
+    '    let mut ri = 0;\n' +
+    '\n' +
+    '    let left_len = left.len();\n' +
+    '    let right_len = right.len();\n' +
+    '\n' +
+    '    for _ in 0..out_len {\n' +
+    '        out.push({\n' +
+    '            obliv if li == left_len || ri < right_len && Oram(right)[ri] > Oram(left)[li] {\n' +
+    '                let arr = Oram(right);\n' +
+    '                let o = arr[ri].clone();\n' +
+    '                ri = ri + 1;\n' +
+    '                o\n' +
+    '            } else {\n' +
+    '                let arr = Oram(left);\n' +
+    '                let o = arr[li].clone();\n' +
+    '                li = li + 1;\n' +
+    '                o\n' +
+    '            }\n' +
+    '        });\n' +
+    '    }\n' +
+    '    out\n' +
+    '}',
+  merge_sort_dedup: 'fn merge_sort_dedup<T, P: Obliv>(a: &[Possession<T, P>])\n' +
+    '-> Vec<Possession<T, P>>\n' +
+    'where T: Ord + Clone\n' +
+    '{\n' +
+    '    let n = a.len();\n' +
+    '    if n > 1 {\n' +
+    '        let m = n/2;\n' +
+    '        merge_dedup(&merge_sort_dedup(&a[0..m]),\n' +
+    '                    &merge_sort_dedup(&a[m..n]))\n' +
+    '    } else {\n' +
+    '        a.to_owned()\n' +
+    '    }\n' +
+    '}\n' +
+    '\n' +
+    'fn merge_dedup<T, P: Obliv>(a: &[Possession<T, P>], b: &[Possession<T, P>])\n' +
+    '-> Vec<Possession<T, P>>\n' +
+    'where T: Ord + Clone\n' +
+    '{ }',
+  max: 'fn max<T: Debug, P: Obliv>(arr: &[Possession<T, P>]) -> Possession<T, P> where T: Ord + Clone {\n' +
+    '    let max = arr[0];\n' +
+    '    for x in arr {\n' +
+    '        max = obliv if x > max {\n' +
+    '            x\n' +
+    '        } else {\n' +
+    '            max\n' +
+    '        }\n' +
+    '    }\n' +
+    '    max\n' +
+    '}\n'
+};
