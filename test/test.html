@@ -41,11 +41,8 @@ where T: Ord + Clone
     <h3>Parameters</h3>
     <pre id="parametersPre"></pre> <br/>
 
-    <h3>Description</h3>
-    <pre id="descriptionPre"></pre> <br/>
-
     <h3>Output</h3>
-    <pre id="equationsPre" style="width: min-content; min-width: 90%;"></pre> <br/>
+    <pre id="outputPre" style="width: min-content; min-width: 90%;"></pre> <br/>
 
     <h3>Annotations + Code</h3>
     <div id="annotationPre"></div>
@@ -61,8 +58,7 @@ where T: Ord + Clone
       costsPre = document.getElementById('costsPre'),
       irPre = document.getElementById('irPre'),
       parametersPre = document.getElementById('parametersPre'),
-      descriptionPre = document.getElementById('descriptionPre'),
-      equationsPre = document.getElementById('equationsPre'),
+      outputPre = document.getElementById('outputPre'),
       annotationPre = document.getElementById('annotationPre');
 
     // Analysis parameters
@@ -81,13 +77,12 @@ where T: Ord + Clone
     const analyzer = new carousels.Analyzer(language, code, extraTyping);
     try {
       analyzer.analyze(costs, metric);
-      const output = analyzer.symbolicResult();
-      parametersPre.textContent = output.parameters.join('\n\n');
-      descriptionPre.textContent = output.description.join('\n\n');
-      equationsPre.textContent = output.equations.join('\n\n');
-      console.log(output);
+      const output = analyzer.symbolicOutput();
+
+      parametersPre.textContent = output.dumpParameters(false);
+      outputPre.textContent = output.dumpAbstractions(false);
     } catch (err) {
-      equationsPre.textContent = err.toString();
+      outputPre.textContent = err.toString();
       console.log(err);
     }
     annotationPre.innerHTML = analyzer.prettyPrint();

@@ -23,13 +23,8 @@
       successDiv.style.display = 'block';
       FailureDiv.style.display = 'none';
 
-      const functions = output.equations.map(function (equation, i) {
-        return output.description[i].toString() + '\n' + equation.toString();
-      }).join('\n\n');
-      const parameters = output.parameters.join('\n\n'); // parameters
-
-      functionsDiv.textContent = functions;
-      parametersDiv.textContent = parameters;
+      functionsDiv.innerHTML = output.dumpAbstractions(true);
+      parametersDiv.innerHTML = output.dumpParameters(true);
 
       outputRadio.checked = true;
     };
@@ -76,7 +71,7 @@
       // analyze code and display outputs
       try {
         analyzer.analyze(carousels.costs[protocolValue], metricValue);
-        showOutput(analyzer.symbolicResult());
+        showOutput(analyzer.symbolicOutput());
       } catch (err) {
         showError(err);
       } finally {

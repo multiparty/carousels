@@ -22,5 +22,10 @@
 
     codeSampleSelect.onchange = chooseCodeSample;
     chooseCodeSample();
+
+    // refresh codeMirror display when code tab becomes active
+    document.getElementById('tab-1').onclick = function () {
+      codeMirrorInstance.refresh();
+    };
   });
 })();

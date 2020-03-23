@@ -1,3 +1,5 @@
+const SymbolicOutput = require('../output/output.js');
+
 const parsers = require('../ir/parsers.js');
 const typings = require('../typing/index.js');
 
@@ -116,30 +118,8 @@ Analyzer.prototype.analyze = function (costs, metricTitle) {
 };
 
 // Retrieves the symbolic result: this can be plotted or displayed
-Analyzer.prototype.symbolicResult = function () {
-  const equations = [];
-  const description = [];
-
-  for (let funcName in this.functionMetricAbstractionMap.scopes[0]) {
-    if (Object.prototype.hasOwnProperty.call(this.functionMetricAbstractionMap.scopes[0], funcName)) {
-      const functionAbstraction = this.functionMetricAbstractionMap.scopes[0][funcName];
-
-      const absStr = functionAbstraction.mathSymbol.toString();
-      equations.push(absStr + ' = ' + this.abstractionToClosedFormMap[absStr].toString());
-      description.push(functionAbstraction.toString());
-    }
-  }
-
-  const parameters = [];
-  for (let parameter in this.parameters) {
-    parameters.push(this.parameters[parameter]);
-  }
-
-  return {
-    description: description,
-    equations: equations,
-    parameters: parameters
-  };
+Analyzer.prototype.symbolicOutput = function () {
+  return new SymbolicOutput(this);
 };
 
 // returns a string with the IR code (pretty formatted) with the metric, typing, and error annotations embedded in it for debugging

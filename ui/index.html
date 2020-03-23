@@ -11,7 +11,7 @@
     <!-- carousels library and plotting code -->
     <script type="text/javascript" src="../dist/carousels.js"></script>
 
-    <!-- Our UI js and css -->
+    <!-- Our UI js -->
     <script type="text/javascript" src="static/codesamples/samples.js"></script>
     <script type="text/javascript" src="index.js"></script>
     <script type="text/javascript" src="static/parse.js"></script>
@@ -19,9 +19,12 @@
     <script type="text/javascript" src="static/components/inputControllers.js"></script>
     <script type="text/javascript" src="static/components/codeMirrorHandlers.js"></script>
     <script type="text/javascript" src="static/components/events.js"></script>
+
+    <!-- Our UI css -->
     <link rel="stylesheet" href="static/style/misc.css"/>
     <link rel="stylesheet" href="static/style/tabs.css"/>
     <link rel="stylesheet" href="static/style/controls.css"/>
+    <link rel="stylesheet" href="static/style/output.css"/>
 
     <!-- Code mirror -->
     <script type="text/javascript" src="static/codemirror/codemirror.js"></script>
@@ -68,10 +71,10 @@
         <div id="outputTab" class="tab">
             <div id="outputSuccess">
                 <h2>Function costs</h2>
-                <pre id="outputFunctions">no output yet...</pre>
+                <div id="outputFunctions">no output yet...</div>
 
                 <h2>Parameters</h2>
-                <pre id="outputParameters">no output yet...</pre>
+                <div id="outputParameters">no output yet...</div>
             </div>
 
             <div id="outputFailure">
