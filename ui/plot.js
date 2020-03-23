@@ -2,7 +2,8 @@
 let carouselsPlot = {};
 
 (function () {
-  let topMargin = 75;
+  const MARGIN_FOR_ONE_SLIDER = 75;
+  let marginAggregate = 75;
 
   const defaultsForParameter = function (parameter) {
     const type = parameter.charAt(0);
@@ -36,7 +37,7 @@ let carouselsPlot = {};
     // return parameter slider with styling and values;
     const slider = {
       pad: {
-        t: topMargin
+        t: marginAggregate
       },
       currentvalue: {
         xanchor: 'left',
@@ -47,7 +48,7 @@ let carouselsPlot = {};
       },
       steps: steps
     };
-    topMargin += 75;
+    marginAggregate += MARGIN_FOR_ONE_SLIDER;
 
     return {
       slider: slider,
@@ -72,7 +73,7 @@ let carouselsPlot = {};
 
     // plotting main function
     plotButton.onclick = function () {
-      topMargin = 75;
+      marginAggregate = MARGIN_FOR_ONE_SLIDER;
 
       // start and end of xaxis range
       const start = parseInt(startInput.value);
@@ -87,30 +88,29 @@ let carouselsPlot = {};
       const yaxis = carouselsOutput.analyzer.functionMetricAbstractionMap.scopes[0][funcName].mathSymbol.toString();
 
       // figure out the math symbols of all remaining (fixed) parameters
-      const scope = [];
+      const initialScope = [];
       const sliders = carouselsOutput.parameters.map(function (parameter) {
         return parameter.mathSymbol.toString();
       }).filter(function (parameter) {
         return parameter !== xaxis;
       }).map(function (parameter) {
         const sliderResult = buildSliderForParameter(parameter);
-        scope.push(parameter + '=' + sliderResult.value);
+        initialScope.push(parameter + '=' + sliderResult.value);
         return sliderResult.slider;
       });
-      plotDiv.style.height = (600 + ((sliders.length+1) * 75)) + 'px';
 
       // build traces
-      const xTrace = [];
-      const yPoints = [];
+      const evaluationPoints = {};
+      evaluationPoints[xaxis] = [];
       for (let i = start; i < end; i++) {
-        xTrace.push(i);
-        yPoints.push(yaxis.replace(xaxis, i));
+        evaluationPoints[xaxis].push(i);
       }
-      const yTrace = carouselsOutput.evaluate(yPoints, scope);
+      const yTrace = carouselsOutput.evaluate(yaxis, evaluationPoints, initialScope);
 
       // create new plot
+      plotDiv.style.height = (600 + marginAggregate) + 'px';
       Plotly.newPlot(plotDiv, [{
-        x: xTrace,
+        x: evaluationPoints[xaxis],
         y: yTrace,
         type: 'scatter',
         name: funcName
@@ -132,15 +132,15 @@ let carouselsPlot = {};
       plotDiv.on('plotly_sliderchange', function (event) {
         const parameter = event.step.args[0];
         const value = event.step.value;
-        for (let i = 0; i < scope.length; i++) {
-          if (scope[i].startsWith(parameter+'=')) {
-            scope[i] = parameter + '=' + value;
+        for (let i = 0; i < initialScope.length; i++) {
+          if (initialScope[i].startsWith(parameter+'=')) {
+            initialScope[i] = parameter + '=' + value;
           }
         }
 
-        const yTrace = carouselsOutput.evaluate(yPoints, scope);
+        const yTrace = carouselsOutput.evaluate(yaxis, evaluationPoints, initialScope);
         Plotly.addTraces(plotDiv, [{
-          x: xTrace,
+          x: evaluationPoints[xaxis],
           y: yTrace,
           name: funcName,
           type: 'scatter'

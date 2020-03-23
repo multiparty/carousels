@@ -56,6 +56,22 @@ module.exports = [
       }
     }
   },
+  {
+    rule: {
+      nodeType: 'FunctionCall',
+      match: 'Vec::with_capacity\\(<type:number@D,secret:false>\\)'
+    },
+    value: function (node, pathStr, children) {
+      const length = children.parameters[0].dependentType.value;
+      const elementsType = carouselsTypes.NumberType.fromTypeNode({secret: true}, pathStr + '[elementsType]');
+      const arrayType = new carouselsTypes.ArrayType(true, elementsType.type, length);
+
+      return {
+        type: arrayType,
+        parameters: elementsType.parameters
+      }
+    }
+  },
   // numeric direct expressions
   {
     rule: {

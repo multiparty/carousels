@@ -1,4 +1,4 @@
-const SymbolicOutput = require('../output/output.js');
+const SymbolicOutput = require('./output.js');
 
 const parsers = require('../ir/parsers.js');
 const typings = require('../typing/index.js');

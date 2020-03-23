@@ -38,7 +38,9 @@ const iff = function (condition, ifVal, elseVal) {
 // functions used to parse and evaluate complex and recursive symbolic system of equations
 const evaluate = (function () {
   /* Memoized ternary if else */
-  const mem = {};
+  let mem = {};
+  let mem_size = 0;
+  const MAX_MEM = 10000000;
   const iffInterpreter = function (args, _, scope) {
     const memotag = args.map(String).join('') + JSON.stringify(scope);
     let memo = mem[memotag];
@@ -46,6 +48,10 @@ const evaluate = (function () {
       const [condition, _if, _else] = args;
       memo = condition.evaluate(scope) ? _if.evaluate(scope) : _else.evaluate(scope);
       mem[memotag] = memo;
+      mem_size++;
+      if (mem_size > MAX_MEM) {
+        mem = {};
+      }
     }
     return memo;
   };
@@ -55,27 +61,28 @@ const evaluate = (function () {
   mathjs.import({iff: iffInterpreter});  // Load the lazily evaluated definition
 
   /* Evaluate expression in context */
-  const evaluate = function (expression, context) {
+  const evaluate = function (functionAbstraction, atPoints, context) {
     const parser = mathjs.parser();
+    context.forEach(function (c) {
+      parser.evaluate(c);
+    });
 
-    if (Array.isArray(context) === false) {
-      parser.evaluate(context);
-    } else {
-      context.forEach(function (c) {
-        parser.evaluate(c);
-      });
+    const evalParameter = Object.keys(atPoints)[0];
+    const regex = new RegExp('(,|\\()[ ]*' + evalParameter + '[ ]*(,|\\))');
+    const parameterIsAnArgument = functionAbstraction.match(regex);
+
+    const evalValues = [];
+    for (let i = 0; i < atPoints[evalParameter].length; i++) {
+      const val = atPoints[evalParameter][i];
+      if (parameterIsAnArgument) {
+        evalValues.push(parser.evaluate(functionAbstraction.replace(evalParameter, val)));
+      } else {
+        parser.evaluate(evalParameter + '=' + val);
+        evalValues.push(parser.evaluate(functionAbstraction));
+      }
     }
 
-    let value;
-    if (Array.isArray(expression) === false) {
-      value = parser.evaluate(expression);
-    } else {
-      value = expression.map(function (e) {
-        return parser.evaluate(e);
-      });
-    }
-
-    return value;
+    return evalValues;
   };
 
   return evaluate;
@@ -83,6 +90,7 @@ const evaluate = (function () {
 
 module.exports = {
   parse: mathjs.parse,
+  simplify: mathjs.simplify,
   evaluate: evaluate,
   ZERO: ZERO,
   add: operatorNode('+', 'add', ZERO),
