@@ -5,7 +5,6 @@
     <title>Carousels</title>
 
     <!-- Math.js and Plotly -->
-    <script type="text/javascript" src="static/math.min.js"></script>
     <script type="text/javascript" src="static/plotly-latest.min.js"></script>
 
     <!-- carousels library and plotting code -->
@@ -14,11 +13,10 @@
     <!-- Our UI js -->
     <script type="text/javascript" src="static/codesamples/samples.js"></script>
     <script type="text/javascript" src="index.js"></script>
-    <script type="text/javascript" src="static/parse.js"></script>
     <script type="text/javascript" src="static/plot.js"></script>
-    <script type="text/javascript" src="static/components/inputControllers.js"></script>
-    <script type="text/javascript" src="static/components/codeMirrorHandlers.js"></script>
-    <script type="text/javascript" src="static/components/events.js"></script>
+    <script type="text/javascript" src="static/inputControllers.js"></script>
+    <script type="text/javascript" src="static/codeMirrorHandlers.js"></script>
+    <script type="text/javascript" src="static/events.js"></script>
 
     <!-- Our UI css -->
     <link rel="stylesheet" href="static/style/misc.css"/>
@@ -87,18 +85,41 @@
         <input name="tabs" type="radio" id="tab-3" class="tabInput"/>
         <label for="tab-3" class="tabLabel">Plot</label>
         <div id="plotTab" class="tab">
-            <h2>Plot Control</h2> <br/> <br/> <br/>
-            <label for="func">Choose Function</label>
-            <label for="xaxis">Choose X-axis</label>
-            <label for="yaxis">Choose Y-axis</label>
-            <select id="func"> </select> <br/>
-            <select id="xaxis"></select> <br/>
-            <select id="yaxis"></select> <br/>
-            <button id="plotButton" disabled="disabled">Plot</button>
-            <hr>
-            <div>
-                <div id="outputPlot">
-                </div>
+            <h2>Plot</h2>
+            <div class="horizontalControls">
+                <span class="controlsGroup">
+                    <label for="plotFunction">Choose Function</label>
+                    <select id="plotFunction" disabled="disabled"> </select>
+                </span>
+                <span class="controlsGroup">
+                    <label for="xaxis">Choose X-axis</label>
+                    <select id="xaxis" disabled="disabled"></select>
+                </span>
+                <span class="controlsGroup">
+                    <label for="yaxis">Choose Y-axis</label>
+                    <select id="yaxis" disabled="disabled"></select>
+                </span>
+                <span class="controlsGroup">
+                    <button id="plotButton" disabled="disabled">Plot</button>
+                </span>
+            </div>
+            <div class="horizontalControls">
+                <span class="controlsGroup">
+                    &nbsp;
+                </span>
+                <span class="controlsGroup">
+                    <label for="plotStart">X-axis Min</label>
+                    <input id="plotStart" value="0" />
+                </span>
+                <span class="controlsGroup">
+                    <label for="plotEnd">X-axis Max</label>
+                    <input id="plotEnd" value="100" />
+                </span>
+                <span class="controlsGroup">
+                    &nbsp;
+                </span>
+            </div>
+            <div id="outputPlot">
             </div>
         </div>
 

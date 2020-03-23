@@ -1,9 +1,9 @@
 /* Horizontal controls */
-.horizontalControls label,select,button {
+.horizontalControls label,select,button,input {
     font-weight: bold;
     display: inline-block;
 }
-.horizontalControls select,button {
+.horizontalControls select,button,input {
     width: 200px;
 }
 .horizontalControls label {
@@ -15,6 +15,7 @@
     display: inline-block;
     width: 24%;
     text-align: center;
+    margin-bottom: 20px;
 }
 /* if resolution is too little, place control group as an accordion */
 @media (max-width: 1800px) {
@@ -24,7 +25,6 @@
         white-space: normal;
         text-align: center;
         margin-top: 10px;
+        margin-bottom: 0;
     }
 }
-
-/* Vertical controls */

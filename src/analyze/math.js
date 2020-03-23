@@ -1,11 +1,13 @@
-const mathjs = require('mathjs');
+const _mathjs = require('mathjs');
+const mathjs = _mathjs.create(_mathjs.all);
 
+// constants
 const ZERO = mathjs.parse('0');
 
+// functions used to create symbolic expressions (e.g. x + y)
 const emptyArgs = function (_arguments) {
   return _arguments.length === 0 || _arguments[0] == null;
 };
-
 const operatorNode = function (operator, description, identity) {
   return function () {
     if (emptyArgs(arguments)) {
@@ -17,11 +19,9 @@ const operatorNode = function (operator, description, identity) {
     return new mathjs.OperatorNode(operator, description, Array.from(arguments));
   };
 };
-
 const floorDiv = function (x, y) {
   return new mathjs.FunctionNode('floor', [operatorNode('/', 'divide', ZERO)(x, y)]);
 };
-
 const max = function () {
   if (emptyArgs(arguments)) {
     return ZERO;
@@ -31,31 +31,55 @@ const max = function () {
   }
   return new mathjs.FunctionNode('max', Array.from(arguments));
 };
-
 const iff = function (condition, ifVal, elseVal) {
   return new mathjs.FunctionNode('iff', [condition, ifVal, elseVal]);
 };
 
-const evaluate = function (context, expression) {
-  // Set up the parser with lazy evaluation and safe recursion
-  const parser = mathjs.parser();
-  parser.set('iff', function (n, above_base_case, thunk_f, base_val) {
-    parser.set('n', n);
-    return above_base_case ? parser.evaluate(thunk_f) : base_val;
-  });
-
-  if (Array.isArray(context)) {
-    // Load all relavant functions into parser
-    context.map(parser.evaluate);
-  } else {
-    parser.scope = context;
-  }
-
-  return {
-    value: parser.evaluate(expression),
-    context: parser.getAll()
+// functions used to parse and evaluate complex and recursive symbolic system of equations
+const evaluate = (function () {
+  /* Memoized ternary if else */
+  const mem = {};
+  const iffInterpreter = function (args, _, scope) {
+    const memotag = args.map(String).join('') + JSON.stringify(scope);
+    let memo = mem[memotag];
+    if (memo === undefined) {
+      const [condition, _if, _else] = args;
+      memo = condition.evaluate(scope) ? _if.evaluate(scope) : _else.evaluate(scope);
+      mem[memotag] = memo;
+    }
+    return memo;
   };
-};
+  iffInterpreter.rawArgs = true;
+
+  /* parse by name mathjs */
+  mathjs.import({iff: iffInterpreter});  // Load the lazily evaluated definition
+
+  /* Evaluate expression in context */
+  const evaluate = function (expression, context) {
+    const parser = mathjs.parser();
+
+    if (Array.isArray(context) === false) {
+      parser.evaluate(context);
+    } else {
+      context.forEach(function (c) {
+        parser.evaluate(c);
+      });
+    }
+
+    let value;
+    if (Array.isArray(expression) === false) {
+      value = parser.evaluate(expression);
+    } else {
+      value = expression.map(function (e) {
+        return parser.evaluate(e);
+      });
+    }
+
+    return value;
+  };
+
+  return evaluate;
+})();
 
 module.exports = {
   parse: mathjs.parse,

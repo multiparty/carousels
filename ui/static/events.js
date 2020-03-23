@@ -1,4 +1,6 @@
-/* global carousels */
+/* global carousels, carouselsPlot */
+let carouselsOutput;
+
 (function () {
   window.addEventListener('DOMContentLoaded', function () {
     const protocolSelect = document.getElementById('protocol');
@@ -14,28 +16,77 @@
     const FailureDiv = document.getElementById('outputFailure');
     const errorsDiv = document.getElementById('outputErrors');
 
+    // plot controls
+    const functionsSelect = document.getElementById('plotFunction');
+    const xaxisSelect = document.getElementById('xaxis');
+    const yaxisSelect = document.getElementById('yaxis');
+    const plotButton = document.getElementById('plotButton');
+
     // debugging
     const debuggingDiv = document.getElementById('debuggingDiv');
     const IRDiv = document.getElementById('IRDiv');
 
     // Display output
     const showOutput = function (output) {
+      // fill in output tab
       successDiv.style.display = 'block';
       FailureDiv.style.display = 'none';
 
       functionsDiv.innerHTML = output.dumpAbstractions(true);
       parametersDiv.innerHTML = output.dumpParameters(true);
-
       outputRadio.checked = true;
+
+      // fill in plot tab
+      plotButton.disabled = false;
+      functionsSelect.disabled = false;
+      xaxisSelect.disabled = false;
+      yaxisSelect.disabled = false;
+      functionsSelect.innerHTML = '';
+      xaxisSelect.innerHTML = '';
+      yaxisSelect.innerHTML = '';
+      // fill in function names
+      for (let func of output.getFunctionNames()) {
+        const option = document.createElement('option');
+        option.textContent = func;
+        option.value = func;
+        functionsSelect.appendChild(option);
+      }
+      // fill in plot parameters
+      for (let parameter of output.parameters) {
+        const option = document.createElement('option');
+        option.textContent = parameter.mathSymbol.toString();
+        option.value = parameter.mathSymbol.toString();
+        xaxisSelect.appendChild(option);
+      }
+      // y-axis can only be the metric
+      const metricOption = document.createElement('option');
+      metricOption.textContent = output.analyzer.metricTitle;
+      metricOption.value = output.analyzer.metricTitle;
+      yaxisSelect.appendChild(metricOption);
+
+      // remove plot
+      carouselsOutput = output;
+      carouselsPlot.purge();
     };
     // Showing errors
     const showError = function (err) {
+      // show error in output tab
       console.log(err);
       successDiv.style.display = 'none';
       FailureDiv.style.display = 'block';
       errorsDiv.textContent = err.toString();
-
       outputRadio.checked = true;
+
+      // disable the plot tab
+      plotButton.disabled = true;
+      functionsSelect.disabled = true;
+      xaxisSelect.disabled = true;
+      yaxisSelect.disabled = true;
+      functionsSelect.innerHTML = '';
+      xaxisSelect.innerHTML = '';
+      yaxisSelect.innerHTML = '';
+      // remove plot
+      carouselsPlot.purge();
     };
     // Debugging display of pretty-print output
     const showDebug = function (prettyPrint) {

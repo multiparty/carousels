@@ -1,3 +1,5 @@
+const math = require('./../analyze/math.js');
+
 // escape HTML special characters
 const escape = function (text, html) {
   if (html) {
@@ -29,12 +31,11 @@ function SymbolicOutput(analyzer) {
   this.symbolicSystem = [];
   this._extractSymbolicSystem(this.analyzer.functionMetricAbstractionMap.scopes[0]); // metric abstractions
   this._extractSymbolicSystem(this.analyzer.functionReturnAbstractionMap.scopes[0]); // return type abstractions
+  this._extractAndSortParameters();
 }
 
 // Build a symbolic system of equations that can be evaluated by our mathjs wrapper
 SymbolicOutput.prototype._extractSymbolicSystem = function (abstractionScope) {
-  this.symbolicSystem = [];
-
   for (let funcName in abstractionScope) {
     if (!Object.prototype.hasOwnProperty.call(abstractionScope, funcName)) {
       continue;
@@ -47,23 +48,19 @@ SymbolicOutput.prototype._extractSymbolicSystem = function (abstractionScope) {
   }
 };
 
-// dump parameter in a pretty format
-SymbolicOutput.prototype.dumpParameters = function (html) {
-  html = html == null ? true : html;
-  const newline = html ? '<br/>' : '\n';
-
+SymbolicOutput.prototype._extractAndSortParameters = function () {
   // put all parameters here
-  const parameters = [];
+  this.parameters = [];
   for (let parameter in this.analyzer.parameters) {
     if (!Object.prototype.hasOwnProperty.call(this.analyzer.parameters, parameter)) {
       continue;
     }
 
-    parameters.push(this.analyzer.parameters[parameter]);
+    this.parameters.push(this.analyzer.parameters[parameter]);
   }
 
-  // dump formatted parameters
-  return parameters.sort(function (p1, p2) {
+  // sort parameters by kind then number
+  this.parameters.sort(function (p1, p2) {
     p1 = p1.mathSymbol.toString();
     p2 = p2.mathSymbol.toString();
 
@@ -85,7 +82,16 @@ SymbolicOutput.prototype.dumpParameters = function (html) {
     const suffix1 = m1[2];
     const suffix2 = m2[2];
     return parseInt(suffix1) - parseInt(suffix2);
-  }).map(function (parameter) {
+  });
+};
+
+// dump parameter in a pretty format
+SymbolicOutput.prototype.dumpParameters = function (html) {
+  html = html == null ? true : html;
+  const newline = html ? '<br/>' : '\n';
+
+  // dump formatted parameters
+  return this.parameters.map(function (parameter) {
     const symbol = emph(parameter.mathSymbol.toString(), html);
     const description = escape(parameter.description, html);
     return symbol + ': ' + description;
@@ -139,6 +145,11 @@ SymbolicOutput.prototype.dumpAbstraction = function (functionAbstraction, html) 
     dump.push('');
   }
   return dump;
+};
+
+// evaluate the given abstraction given values for parameters
+SymbolicOutput.prototype.evaluate = function (functionAbstraction, parametersValues) {
+  return math.evaluate(functionAbstraction, this.symbolicSystem.concat(parametersValues));
 };
 
 module.exports = SymbolicOutput;
