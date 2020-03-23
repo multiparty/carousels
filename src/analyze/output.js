@@ -22,6 +22,14 @@ const heading = function (text, html) {
   }
   return text;
 };
+const spaceIt = function (count, html) {
+  const space = html ? '&nbsp;' : ' ';
+  let result = '';
+  for (let i = 0; i < count; i++) {
+    result += space;
+  }
+  return result;
+};
 
 // Symbolic Output Class
 function SymbolicOutput(analyzer) {
@@ -139,17 +147,19 @@ SymbolicOutput.prototype.dumpAbstraction = function (functionAbstraction, html) 
   if (functionAbstraction != null) {
     const absStr = functionAbstraction.mathSymbol.toString();
     const closedFormStr = this.analyzer.abstractionToClosedFormMap[absStr].toString();
+    const simplClosedForm = math.simplify(this.analyzer.abstractionToClosedFormMap[absStr]).toString();
 
     dump.push(tab + emph(functionAbstraction.abstractionTitle, html));
     dump.push(tab + escape(absStr + ' = ' + closedFormStr, html));
+    dump.push(tab + spaceIt(absStr.length, html) + escape(' = ' + simplClosedForm, html));
     dump.push('');
   }
   return dump;
 };
 
 // evaluate the given abstraction given values for parameters
-SymbolicOutput.prototype.evaluate = function (functionAbstraction, parametersValues) {
-  return math.evaluate(functionAbstraction, this.symbolicSystem.concat(parametersValues));
+SymbolicOutput.prototype.evaluate = function (functionAbstraction, evaluationPoints, parametersValues) {
+  return math.evaluate(functionAbstraction, evaluationPoints, this.symbolicSystem.concat(parametersValues));
 };
 
 module.exports = SymbolicOutput;
