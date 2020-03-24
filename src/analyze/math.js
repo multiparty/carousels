@@ -61,7 +61,7 @@ const evaluate = (function () {
   mathjs.import({iff: iffInterpreter});  // Load the lazily evaluated definition
 
   /* Evaluate expression in context */
-  const evaluate = function (functionAbstraction, atPoints, context) {
+  const evaluate = function (callExpression, atPoints, context) {
     const parser = mathjs.parser();
     context.forEach(function (c) {
       parser.evaluate(c);
@@ -69,16 +69,16 @@ const evaluate = (function () {
 
     const evalParameter = Object.keys(atPoints)[0];
     const regex = new RegExp('(,|\\()[ ]*' + evalParameter + '[ ]*(,|\\))');
-    const parameterIsAnArgument = functionAbstraction.match(regex);
+    const parameterIsAnArgument = callExpression.match(regex);
 
     const evalValues = [];
     for (let i = 0; i < atPoints[evalParameter].length; i++) {
       const val = atPoints[evalParameter][i];
       if (parameterIsAnArgument) {
-        evalValues.push(parser.evaluate(functionAbstraction.replace(evalParameter, val)));
+        evalValues.push(parser.evaluate(callExpression.replace(evalParameter, val)));
       } else {
         parser.evaluate(evalParameter + '=' + val);
-        evalValues.push(parser.evaluate(functionAbstraction));
+        evalValues.push(parser.evaluate(callExpression));
       }
     }
 

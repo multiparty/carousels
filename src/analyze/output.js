@@ -149,7 +149,7 @@ SymbolicOutput.prototype.dumpAbstraction = function (functionAbstraction, html) 
     const closedFormStr = this.analyzer.abstractionToClosedFormMap[absStr].toString();
     const simplClosedForm = math.simplify(this.analyzer.abstractionToClosedFormMap[absStr]).toString();
 
-    dump.push(tab + emph(functionAbstraction.abstractionTitle, html));
+    dump.push(tab + emph(functionAbstraction.description, html));
     dump.push(tab + escape(absStr + ' = ' + closedFormStr, html));
     dump.push(tab + spaceIt(absStr.length, html) + escape(' = ' + simplClosedForm, html));
     dump.push('');
@@ -158,8 +158,8 @@ SymbolicOutput.prototype.dumpAbstraction = function (functionAbstraction, html) 
 };
 
 // evaluate the given abstraction given values for parameters
-SymbolicOutput.prototype.evaluate = function (functionAbstraction, evaluationPoints, parametersValues) {
-  return math.evaluate(functionAbstraction, evaluationPoints, this.symbolicSystem.concat(parametersValues));
+SymbolicOutput.prototype.evaluate = function (callExpression, evaluationPoints, parametersValues) {
+  return math.evaluate(callExpression, evaluationPoints, this.symbolicSystem.concat(parametersValues));
 };
 
 module.exports = SymbolicOutput;

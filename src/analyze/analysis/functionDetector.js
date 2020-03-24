@@ -3,7 +3,7 @@
 const IRVisitor = require('../../ir/visitor.js');
 
 const carouselsTypes = require('./../symbols/types.js');
-const FunctionAbstraction = require('./../symbols/functionAbstraction.js');
+const abstractions = require('./../symbols/abstractions.js');
 const Parameter = require('../symbols/parameter.js');
 
 // Single Scope Map
@@ -100,7 +100,7 @@ FunctionDetector.prototype.visitVariableDefinition = function (node, pathStr) {
 
   // Create new symbolic metric parameter for this variable
   const metricParameter = Parameter.forMetric(pathStr + '@' + variableName, this.analyzer.metricTitle);
-  this.currentParameters[variableName] = metricParameter;
+  this.currentParameters[variableName] = metricParameter.mathSymbol;
   this.analyzer.addParameters([metricParameter]);
 
   // Update Scoped Maps
@@ -137,24 +137,23 @@ FunctionDetector.prototype._typeParametersAndReturn = function (node, pathStr) {
 // then we must create an abstraction for it
 // e.g. a function g(array<length:a>) => array<length:r> has abstraction
 // r = G_return(a)
-FunctionDetector.prototype._createDependentReturnAbstraction = function (functionName, functionType, parametersDependentParameters) {
+FunctionDetector.prototype._createDependentReturnAbstraction = function (functionName, functionType, functionParameters) {
   if (functionType.dependentType.returnType.is(carouselsTypes.ENUM.ARRAY)) {
-    const returnAbstraction = new FunctionAbstraction(functionName, 'returnAbstraction', parametersDependentParameters);
+    const returnAbstraction = new abstractions.FunctionAbstraction(this.analyzer, functionName, 'Return', functionParameters);
     this.functionReturnAbstractionMap.add(functionName, returnAbstraction);
   }
 };
 
 // Similar to dependent return abstraction, but for every metric
-FunctionDetector.prototype._createMetricAbstraction = function (node, pathStr, parametersDependentParameters) {
+FunctionDetector.prototype._createMetricAbstraction = function (node, pathStr, functionParameters) {
   let metricParameters = [];
   for (let i = 0; i < node.parameters.length; i++) {
     metricParameters.push(this.currentParameters[node.parameters[i].name.name]);
   }
 
-  const abstractionParameters = metricParameters.concat(parametersDependentParameters);
-  const metricAbstraction = new FunctionAbstraction(node.name.name, this.analyzer.metricTitle, abstractionParameters);
+  const abstractionParameters = metricParameters.concat(functionParameters);
+  const metricAbstraction = new abstractions.FunctionAbstraction(this.analyzer, node.name.name, this.analyzer.metricTitle, abstractionParameters);
   this.functionMetricAbstractionMap.add(node.name.name, metricAbstraction);
-  this.analyzer.addParameters(metricParameters);
 };
 
 // Function Definition
@@ -177,18 +176,14 @@ FunctionDetector.prototype.visitFunctionDefinition = function (node, pathStr) {
   const functionType = new carouselsTypes.FunctionType(null, childrenType.parameters, childrenType.returnType);
   this.functionTypeMap.add(functionName, functionType);
 
-  // Get dependent parameters that were used in the function signature
-  // The various abstractions will be functions of them
-  const parametersDependentParameters = this.analyzer.getParametersBySymbol(functionType.dependentType.getDependentParameters());
-
   // Create return abstraction
-  this._createDependentReturnAbstraction(functionName, functionType, parametersDependentParameters);
+  this._createDependentReturnAbstraction(functionName, functionType, childrenType.parameters);
 
   // Create metric abstraction for this function
   // e.g. a function g(a: array<length:l>, b: number) => * has
   // number of round = G_rounds(rounds(a), rounds(b), length(a))
   // Map variables to their corresponding metric parameter (a => rounds(a))
-  this._createMetricAbstraction(node, pathStr, parametersDependentParameters);
+  this._createMetricAbstraction(node, pathStr, childrenType.parameters);
 };
 
 // Visit sequence: just look for function definition and visit those!
