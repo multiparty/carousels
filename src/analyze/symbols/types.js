@@ -185,18 +185,6 @@ RangeType.prototype.size = function (pathStr) {
     parameters: []
   }
 };
-AnyType.prototype.size = function (pathStr) {
-  // cache size so we do not keep on introducing new variables
-  const parameters = [];
-  if (this.__size == null) {
-    parameters.push(Parameter.forLoop(pathStr));
-    this.__size = parameters[0].mathSymbol;
-  }
-  return {
-    size: this.__size,
-    parameters: parameters
-  };
-};
 
 // static initializers
 NumberType.fromTypeNode = function (typeNode, pathStr) {
