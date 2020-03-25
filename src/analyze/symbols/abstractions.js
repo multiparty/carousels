@@ -90,9 +90,45 @@ const getParameterDependentParameter = function (parameterType) {
 };
 
 // Abstraction for loops
-function LoopAbstraction () {
-
+function LoopAbstraction(suffix, iteratorParameter, description) {
+  Abstraction.call(this, 'L' + suffix, [iteratorParameter], description);
 }
+// inherit prototype
+LoopAbstraction.prototype = Object.create(Abstraction.prototype);
+// static function for creating all loopAbstractions for a given loop
+LoopAbstraction.makeAbstractions = function (pathStr, metricTitle, iteratorParameter, variableNames, variableTypes) {
+  const index = ABSTRACTION_COUNTER++;
+  // metric abstraction for entire loop
+  const metricLoopAbstraction = new LoopAbstraction(index, iteratorParameter, metricTitle + ' Abstraction for loop "' + pathStr + '"');
+
+  // abstractions for every modified variable in the loop
+  const abstractions = {
+    metrics: {},
+    types: {}
+  };
+
+  // construct abstraction for every variable
+  for (let i = 0; i < variableNames; i++) {
+    // the metric abstraction is always constructed
+    const variableName = variableNames[i];
+    const variableMetricAbstraction = new LoopAbstraction(index + variableName, iteratorParameter,
+      metricTitle + ' Abstraction for variable "' + variableName + '" in loop "' + pathStr + '"');
+    abstractions.metrics[variableName] = variableMetricAbstraction;
+
+    // a type abstraction is only constructor for array lengths
+    if (variableTypes[i].is(carouselsTypes.ENUM.ARRAY)) {
+      const variableTypeAbstraction = new LoopAbstraction('t' + index + variableName, iteratorParameter,
+        'Type Abstraction for variable "' + variableName + '" in loop "' + pathStr + '"');
+      abstractions.types[variableName] = variableTypeAbstraction;
+    }
+  }
+
+  // return all constructor abstractions
+  return {
+    loop: metricLoopAbstraction,
+    variables: abstractions
+  };
+};
 
 module.exports = {
   FunctionAbstraction: FunctionAbstraction,
