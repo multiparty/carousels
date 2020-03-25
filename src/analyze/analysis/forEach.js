@@ -32,7 +32,7 @@ const ForEach = function (node, pathStr) {
     increment = rangeResult.type.dependentType.incrementType.dependentType.value;
     // figure out iterator type
     iteratorParameter = Parameter.forValue(pathStr+'[iterator]');
-    iteratorType = new carouselsTypes.NumberType(false, iteratorParameter.mathSymbol);
+    iteratorType = new carouselsTypes.NumberType(false, math.sub(iteratorParameter.mathSymbol, increment));
   } else if (rangeResult.type.is(carouselsTypes.ENUM.ARRAY)) {
     start = math.ZERO;
     end = rangeResult.type.dependentType.length;
@@ -45,6 +45,7 @@ const ForEach = function (node, pathStr) {
   }
   this.analyzer.addParameters([iteratorParameter]);
   const iteratorMath = iteratorParameter.mathSymbol;
+  const previousIterationMath = math.sub(iteratorMath, increment);
 
   // iterator is added to scope (as if it is a variable definition)
   childrenType.iterator = iteratorType;
@@ -86,7 +87,6 @@ const ForEach = function (node, pathStr) {
   // since they will be assigned values before use inside body, otherwise the program is invalid)
   const initialType = {};
   const initialMetric = {};
-  const previousIterationMath = math.sub(iteratorMath, increment);
   for (let i = 0; i < existingModifiedVariables.length; i++) {
     const variableName = existingModifiedVariables[i];
     initialMetric[variableName] = this.analyzer.variableMetricMap.get(variableName);
