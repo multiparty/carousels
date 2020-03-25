@@ -89,6 +89,12 @@ const getParameterDependentParameter = function (parameterType) {
   }
 };
 
+// Abstraction for loops
+function LoopAbstraction () {
+
+}
+
 module.exports = {
-  FunctionAbstraction: FunctionAbstraction
+  FunctionAbstraction: FunctionAbstraction,
+  LoopAbstraction: LoopAbstraction
 };

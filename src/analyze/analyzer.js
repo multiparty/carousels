@@ -18,6 +18,7 @@ const visitorImplementations = [
   require('./analysis/callAndReturn.js'),
   require('./analysis/expression.js'),
   require('./analysis/for.js'),
+  require('./analysis/forEach.js'),
   require('./analysis/functionDefinition.js'),
   require('./analysis/if.js'),
   require('./analysis/oblivIf.js'),
