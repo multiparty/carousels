@@ -39,6 +39,7 @@ function SymbolicOutput(analyzer) {
   this.symbolicSystem = [];
   this._extractSymbolicSystem(this.analyzer.functionMetricAbstractionMap.scopes[0]); // metric abstractions
   this._extractSymbolicSystem(this.analyzer.functionReturnAbstractionMap.scopes[0]); // return type abstractions
+  this._extractSymbolicSystem(this.analyzer.loopAbstractions); // all loop abstractions
   this._extractAndSortParameters();
 }
 
@@ -49,10 +50,13 @@ SymbolicOutput.prototype._extractSymbolicSystem = function (abstractionScope) {
       continue;
     }
 
-    const functionAbstraction = abstractionScope[funcName];
-    const absStr = functionAbstraction.mathSymbol.toString();
-    const closedFormStr = this.analyzer.abstractionToClosedFormMap[absStr].toString();
-    this.symbolicSystem.push(absStr + ' = ' + closedFormStr);
+    const tmp = abstractionScope[funcName];
+    const functionAbstractions = Array.isArray(tmp) ? tmp : [tmp];
+    for (let i = 0; i < functionAbstractions.length; i++) {
+      const absStr = functionAbstractions[i].mathSymbol.toString();
+      const closedFormStr = this.analyzer.abstractionToClosedFormMap[absStr].toString();
+      this.symbolicSystem.push(absStr + ' = ' + closedFormStr);
+    }
   }
 };
 
@@ -119,7 +123,7 @@ SymbolicOutput.prototype.getFunctionNames = function () {
 
 // dump all symbolic abstraction functions including their name and parameters, their closed form, and
 // description of them and their parameters
-SymbolicOutput.prototype.dumpAbstractions = function (html) {
+SymbolicOutput.prototype.dumpFunctionAbstractions = function (html) {
   html = html == null ? true : html;
   const newline = html ? '<br/>' : '\n';
 
@@ -133,6 +137,28 @@ SymbolicOutput.prototype.dumpAbstractions = function (html) {
     dump.push(heading(funcName, html));
     dump = dump.concat(this.dumpAbstraction(metricAbstraction, html));
     dump = dump.concat(this.dumpAbstraction(returnTypeAbstraction, html));
+    dump.push('');
+  }
+
+  return dump.join(newline);
+};
+
+// dump all symbolic abstractions for loops, in a similar format to the above
+SymbolicOutput.prototype.dumpLoopAbstractions = function (html) {
+  html = html == null ? true : html;
+  const newline = html ? '<br/>' : '\n';
+
+  let dump = [];
+  for (let loopName in this.analyzer.loopAbstractions) {
+    if (!Object.prototype.hasOwnProperty.call(this.analyzer.loopAbstractions, loopName)) {
+      continue;
+    }
+
+    const loopAbstractions = this.analyzer.loopAbstractions[loopName];
+    dump.push(heading(loopName, html));
+    for (let i = 0; i < loopAbstractions.length; i++) {
+      dump = dump.concat(this.dumpAbstraction(loopAbstractions[i], html));
+    }
     dump.push('');
   }
 

@@ -3,6 +3,7 @@ const mathjs = _mathjs.create(_mathjs.all);
 
 // constants
 const ZERO = mathjs.parse('0');
+const ONE = mathjs.parse('1');
 
 // functions used to create symbolic expressions (e.g. x + y)
 const emptyArgs = function (_arguments) {
@@ -21,6 +22,9 @@ const operatorNode = function (operator, description, identity) {
 };
 const floorDiv = function (x, y) {
   return new mathjs.FunctionNode('floor', [operatorNode('/', 'divide', ZERO)(x, y)]);
+};
+const ceilDiv = function (x, y) {
+  return new mathjs.FunctionNode('ceil', [operatorNode('/', 'divide', ZERO)(x, y)]);
 };
 const max = function () {
   if (emptyArgs(arguments)) {
@@ -93,10 +97,12 @@ module.exports = {
   simplify: mathjs.simplify,
   evaluate: evaluate,
   ZERO: ZERO,
+  ONE: ONE,
   add: operatorNode('+', 'add', ZERO),
   sub: operatorNode('-', 'subtract', ZERO),
   multiply: operatorNode('*', 'multiply', ZERO),
   div: floorDiv,
+  ceilDiv: ceilDiv,
   gt: operatorNode('>', 'larger', ZERO),
   lt: operatorNode('<', 'smaller', ZERO),
   gte: operatorNode('>=', 'largerEq', ZERO),

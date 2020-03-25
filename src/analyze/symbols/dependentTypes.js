@@ -1,3 +1,5 @@
+const math = require('../math.js');
+
 module.exports = function (Type, TYPE_ENUM) {
 // All dependent types must have this interface (constructors can differ)
   function DependentType(classname, compatibleTypes) {
@@ -131,6 +133,17 @@ module.exports = function (Type, TYPE_ENUM) {
       this.incrementType.combine(otherDependentType.incrementType, dependentCombiner),
       dependentCombiner(this.size, otherDependentType.size)
     );
+  };
+  RangeDependentType.prototype.accurateEnd = function () {
+    // returns a symbolic expression representing the first element visited while expanding this range that is >= end
+    // for example [0:10:1] => 10
+    //             [3,10,2] => 11
+    let end = this.endType.dependentType.value;
+    if (this.incrementType.dependentType.value.toString() !== '1') {
+      end = math.multiply(this.size, this.incrementType.dependentType.value.toString());
+      end = math.add(this.startType.dependentType.value, end);
+    }
+    return end;
   };
 
   // Function type signature

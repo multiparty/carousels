@@ -108,7 +108,7 @@ LoopAbstraction.makeAbstractions = function (pathStr, metricTitle, iteratorParam
   };
 
   // construct abstraction for every variable
-  for (let i = 0; i < variableNames; i++) {
+  for (let i = 0; i < variableNames.length; i++) {
     // the metric abstraction is always constructed
     const variableName = variableNames[i];
     const variableMetricAbstraction = new LoopAbstraction(index + variableName, iteratorParameter,

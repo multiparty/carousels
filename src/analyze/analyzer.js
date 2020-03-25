@@ -48,6 +48,7 @@ function Analyzer(language, code, costs, extraTyping) {
   this.functionReturnAbstractionMap = new ScopedMap();
   this.functionMetricAbstractionMap = new ScopedMap();
   this.abstractionToClosedFormMap = {};
+  this.loopAbstractions = {}; // for pretty printing output
 
   // visitor pattern
   this.visitor = new IRVisitor({ analyzer: this });

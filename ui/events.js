@@ -12,6 +12,7 @@ let carouselsOutput;
     const outputRadio = document.getElementById('tab-2');
     const successDiv = document.getElementById('outputSuccess');
     const functionsDiv = document.getElementById('outputFunctions');
+    const loopsDiv = document.getElementById('outputLoops');
     const parametersDiv = document.getElementById('outputParameters');
     const FailureDiv = document.getElementById('outputFailure');
     const errorsDiv = document.getElementById('outputErrors');
@@ -32,7 +33,8 @@ let carouselsOutput;
       successDiv.style.display = 'block';
       FailureDiv.style.display = 'none';
 
-      functionsDiv.innerHTML = output.dumpAbstractions(true);
+      functionsDiv.innerHTML = output.dumpFunctionAbstractions(true);
+      loopsDiv.innerHTML = output.dumpLoopAbstractions(true);
       parametersDiv.innerHTML = output.dumpParameters(true);
       outputRadio.checked = true;
 

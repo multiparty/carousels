@@ -33,14 +33,14 @@ Parameter.forMetric = function (variableName, metricTitle) {
   const symbol = 'm' + (PARAMETER_COUNTER++);
   return new Parameter(symbol, description);
 };
-Parameter.forRangeSize = function (rangeName) {
-  const description = 'The size for range "' + rangeName + '"';
-  const symbol = 's' + (PARAMETER_COUNTER++);
-  return new Parameter(symbol, description);
-};
 Parameter.forCondition = function (conditionPath) {
   const description = 'The value of condition "' + conditionPath + '"';
   const symbol = 'c' + (PARAMETER_COUNTER)++;
+  return new Parameter(symbol, description);
+};
+Parameter.forLoopRange = function (loopName) {
+  const description = 'The value of the range iterator for for loop "' + loopName + '"';
+  const symbol = 'i' + (PARAMETER_COUNTER++);
   return new Parameter(symbol, description);
 };
 

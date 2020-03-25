@@ -77,14 +77,6 @@ Type.prototype.combine = function (otherType, dependentCombiner) {
 
   return this.copy();
 };
-// returns the type of a member element
-Type.prototype.memberType = function (pathStr) {
-  throw new Error('memberType is not supported in type "' + this.dataType + '"!');
-};
-// returns the (symbolic) size of the range represented by this type (i.e. when iterating over it)
-Type.prototype.size = function (pathStr) {
-  throw new Error('size is not supported in type "' + this.dataType + '"!');
-};
 Type.fromTypeNode = function (typeNode, pathStr) {
   if (typeNode == null) {
     return {
@@ -151,41 +143,6 @@ RangeType.prototype = Object.create(Type.prototype);
 AnyType.prototype = Object.create(Type.prototype);
 StringType.prototype = Object.create(Type.prototype);
 
-// Override memberType when applicable
-ArrayType.prototype.memberType = function (pathStr) {
-  return {
-    type: this.dependentType.elementsType.copy(),
-    parameters: []
-  };
-};
-RangeType.prototype.memberType = function (pathStr) {
-  const secret = this.secret;
-  const parameter = Parameter.forValue(pathStr + '[rangeValue]');
-  return {
-    type: new NumberType(secret, parameter.mathSymbol),
-    parameters: [parameter]
-  }
-};
-AnyType.prototype.memberType = function (pathStr) {
-  return {
-    type: this.copy(),
-    parameters: []
-  };
-};
-// Override size when applicable
-ArrayType.prototype.size = function (pathStr) {
-  return {
-    size: this.dependentType.length,
-    parameters: []
-  };
-};
-RangeType.prototype.size = function (pathStr) {
-  return {
-    size: this.dependentType.size,
-    parameters: []
-  }
-};
-
 // static initializers
 NumberType.fromTypeNode = function (typeNode, pathStr) {
   const secret = typeNode.secret;
@@ -250,7 +207,7 @@ RangeType.fromComponents = function (startType, endType, incrementType, pathStr)
     parameters = parameters.concat(result.parameters);
   }
   if (incrementType == null) {
-    incrementType = new NumberType(false, math.parse('1'));
+    incrementType = new NumberType(false, math.ONE);
   }
 
   // Assert building types are all numbers
@@ -262,7 +219,7 @@ RangeType.fromComponents = function (startType, endType, incrementType, pathStr)
   // Compute range size symbolically
   let size = math.sub(endType.dependentType.value, startType.dependentType.value);
   if (incrementType.dependentType.value.toString() !== '1') {
-    size = math.div(size, incrementType.dependentType.value);
+    size = math.ceilDiv(size, incrementType.dependentType.value);
   }
 
   return {
