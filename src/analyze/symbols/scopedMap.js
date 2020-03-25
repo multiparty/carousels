@@ -46,5 +46,8 @@ ScopedMap.prototype.has = function (name) {
   }
   return false;
 };
+ScopedMap.prototype.lookInCurrentScope = function (name) {
+  return this.scopes[this.scopes.length - 1][name];
+};
 
 module.exports = ScopedMap;

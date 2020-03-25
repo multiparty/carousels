@@ -24,7 +24,7 @@ const GenericIf = function (node, pathStr) {
   // turn the condition type into something actionable: a mathjs expression
   // that can be used in a symbolic if statement
   let conditionMathEquation;
-  if (conditionResult.type.is(carouselsTypes.ENUM.BOOLEAN)) {
+  if (conditionResult.type.is(carouselsTypes.ENUM.BOOL)) {
     conditionMathEquation = conditionResult.type.dependentType.value;
   } else if (conditionResult.type.is(carouselsTypes.ENUM.NUMBER)) {
     conditionMathEquation = math.neq(conditionResult.type.dependentType.value, math.parse('0'));

@@ -4,7 +4,7 @@ MACROS['@D'] = '(' + MACROS['@T'] + '?)'; // ANY DEPENDENT TYPE
 MACROS['@\'P'] = '(' + MACROS['@T'] + ',)*'; // ANY PARAMETERS FOLLOWED BY COMMA IF PARAMETERS EXISTS
 MACROS['@,P'] = '(,' + MACROS['@T'] + ')*'; // ANY PARAMETERS PRECEDED BY COMMA IF PARAMETERS EXISTS
 MACROS['@P'] = '(' + MACROS['@\'P'] + MACROS['@T'] + ')?'; // ANY PARAMETERS WITHOUT LEADING OR TRAILING COMMAS
-MACROS['@NB'] = '(<type:(number|boolean)' + MACROS['@D'] + ',secret:(true|false)>)'; // NUMBER OR BOOLEAN
+MACROS['@NB'] = '(<type:(number|bool)' + MACROS['@D'] + ',secret:(true|false)>)'; // NUMBER OR BOOL
 
 function Rule(pattern, value) {
   this.pattern = pattern;

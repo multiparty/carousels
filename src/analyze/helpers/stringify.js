@@ -268,10 +268,10 @@ StringifyVisitor.prototype.visitOblivIf = function (node) {
     '}';
 };
 StringifyVisitor.prototype.visitLiteralExpression = function (node) {
-  const type = node.type; // "string", "number", "boolean"
+  const type = node.type; // "str", "number", "bool"
   const value = node.value; // string
 
-  if (type === 'string') {
+  if (type === 'str') {
     return this.format('literal', '"' + value + '"');
   }
 

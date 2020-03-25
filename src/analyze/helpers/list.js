@@ -112,7 +112,7 @@ ListNodesVisitor.prototype.visitOblivIf = function (node, args) {
   const elseBodyResult = this.visit(node.elseBody, args);
 };
 ListNodesVisitor.prototype.visitLiteralExpression = function (node, args) {
-  const type = node.type; // "string", "number", "boolean"
+  const type = node.type; // "str", "number", "bool"
   const value = node.value; // string
 };
 ListNodesVisitor.prototype.visitNameExpression = function (node, args) {

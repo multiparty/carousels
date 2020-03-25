@@ -5,7 +5,7 @@ const Parameter = require('./parameter.js');
 let dependentTypes = require('./dependentTypes.js');
 
 // Enum containing supported types
-const TYPE_ENUM = new Enum('TYPE_ENUM', ['NUMBER', 'ARRAY', 'BOOLEAN', 'STRING', 'ANY', 'UNIT', 'FUNCTION', 'RANGE', 'SYMBOL']);
+const TYPE_ENUM = new Enum('TYPE_ENUM', ['NUMBER', 'ARRAY', 'BOOL', 'STR', 'ANY', 'UNIT', 'FUNCTION', 'RANGE', 'SYMBOL']);
 
 // Abstract type class
 function Type(dataType, secret, dependentType) {
@@ -21,7 +21,7 @@ function Type(dataType, secret, dependentType) {
     throw new Error('Unexpected dependent type "' + this.dependentType + '" given for type "' + this.dataType + '"!');
   }
   if ((this.dataType === TYPE_ENUM.UNIT || this.dataType === TYPE_ENUM.RANGE ||
-      this.dataType === TYPE_ENUM.SYMBOL || this.dataType === TYPE_ENUM.STRING ||
+      this.dataType === TYPE_ENUM.SYMBOL || this.dataType === TYPE_ENUM.STR ||
       this.dataType === TYPE_ENUM.FUNCTION)
     && this.secret) {
     throw new Error('Type "' + this.dataType + '" cannot be secret!');
@@ -44,7 +44,7 @@ Type.prototype.copy = function (dependentType) {
   return new Type(this.dataType, this.secret, dependentType);
 };
 Type.prototype.match = function (otherType) {
-  return otherType != null && this.dataType === otherType.dataType;
+  return otherType != null && this.dataType === otherType.dataType && this.secret === otherType.secret;
 };
 Type.prototype.conflicts = function (otherType) {
   if (!(otherType instanceof Type)) {
@@ -102,7 +102,7 @@ Type.fromTypeNode = function (typeNode, pathStr) {
     case TYPE_ENUM.NUMBER:
       return NumberType.fromTypeNode(typeNode, pathStr);
 
-    case TYPE_ENUM.BOOLEAN:
+    case TYPE_ENUM.BOOL:
       return BooleanType.fromTypeNode(typeNode, pathStr);
 
     case TYPE_ENUM.ARRAY:
@@ -111,7 +111,7 @@ Type.fromTypeNode = function (typeNode, pathStr) {
     case TYPE_ENUM.RANGE:
       return RangeType.fromTypeNode(typeNode, pathStr);
 
-    case TYPE_ENUM.STRING:
+    case TYPE_ENUM.STR:
     case TYPE_ENUM.ANY:
     case TYPE_ENUM.UNIT:
       return {
@@ -129,7 +129,7 @@ function NumberType(secret, value) {
   Type.call(this, TYPE_ENUM.NUMBER, secret, new dependentTypes.ValueDependentType(value));
 }
 function BooleanType(secret, value) {
-  Type.call(this, TYPE_ENUM.BOOLEAN, secret, new dependentTypes.ValueDependentType(value));
+  Type.call(this, TYPE_ENUM.BOOL, secret, new dependentTypes.ValueDependentType(value));
 }
 function ArrayType(secret, elementsType, length) {
   Type.call(this, TYPE_ENUM.ARRAY, secret, new dependentTypes.ArrayDependentType(elementsType, length));
@@ -141,7 +141,7 @@ function AnyType(secret) {
   Type.call(this, TYPE_ENUM.ANY, secret);
 }
 function StringType(secret) {
-  Type.call(this, TYPE_ENUM.STRING, secret);
+  Type.call(this, TYPE_ENUM.STR, secret);
 }
 
 NumberType.prototype = Object.create(Type.prototype);

@@ -84,6 +84,12 @@ const VariableAssignment = function (node, pathStr) {
   const variableType = childResult.type;
   const childMetric = childResult.metric;
 
+  // ensure variable assignments does not change the type of the variable if already defined
+  const oldType = analyzer.variableTypeMap.lookInCurrentScope(variableName);
+  if (oldType != null && !oldType.match(variableType)) {
+    throw new Error('Type of variable "' + variableName + '" is changed at "' + pathStr + '" after definition!');
+  }
+
   analyzer.variableTypeMap.add(variableName, variableType);
   analyzer.variableMetricMap.add(variableName, analyzer.metric.store(childMetric));
 

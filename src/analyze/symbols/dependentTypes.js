@@ -25,9 +25,9 @@ module.exports = function (Type, TYPE_ENUM) {
     throw new Error('DependentType "' + this.classname + '".combine() is not implemented yet!');
   };
 
-  // Value dependent type: for booleans and numbers
+  // Value dependent type: for bools and numbers
   function ValueDependentType(value) {
-    DependentType.call(this, 'ValueDependentType', [TYPE_ENUM.NUMBER, TYPE_ENUM.BOOLEAN]);
+    DependentType.call(this, 'ValueDependentType', [TYPE_ENUM.NUMBER, TYPE_ENUM.BOOL]);
 
     if (value == null) {
       throw new Error('ValueDependentType given null parameters!');

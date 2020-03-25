@@ -93,7 +93,7 @@ totalMetric.aggregateSliceExpression = function (node, childrenType, childrenMet
 
 // ArrayExpression: an array constructed from some elements directly
 totalMetric.aggregateArrayExpression = function (node, childrenType, childrenMetric) {
-  const total = math.max.add(null, childrenMetric);
+  const total = math.add.apply(null, childrenMetric);
   return total;
 };
 
