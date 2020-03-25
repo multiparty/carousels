@@ -1,18 +1,5 @@
 const carouselsTypes = require('../symbols/types.js');
 
-const addScope = function () {
-  this.analyzer.variableTypeMap.addScope();
-  this.analyzer.functionReturnAbstractionMap.addScope();
-  this.analyzer.variableMetricMap.addScope();
-  this.analyzer.functionMetricAbstractionMap.addScope();
-};
-const removeScope = function () {
-  this.analyzer.variableTypeMap.removeScope();
-  this.analyzer.functionReturnAbstractionMap.removeScope();
-  this.analyzer.variableMetricMap.removeScope();
-  this.analyzer.functionMetricAbstractionMap.removeScope();
-};
-
 // If the return type had a dependent type/clause that was expressed via an abstraction
 // find the closed form from the children (body) result and store it as the solution
 // to that abstraction
@@ -57,7 +44,7 @@ const FunctionDefinition = function (node, pathStr) {
   const analyzer = this.analyzer;
 
   // Add scopes for all scoped maps
-  addScope.call(this);
+  analyzer.addScope();
 
   // Read some function attributes
   const functionName = node.name.name;
@@ -80,7 +67,7 @@ const FunctionDefinition = function (node, pathStr) {
   const bodyResult = this.visit(node.body, pathStr + '#');
 
   // The function definition is over, remove its scope
-  removeScope.call(this);
+  analyzer.removeScope();
 
   // Figure out the closed form symbolic equation for any dependent return type
   const returnAbstractionStr = storeClosedFormReturnAbstraction(analyzer, functionName, functionType, bodyResult.type);

@@ -47,7 +47,42 @@ const ForEach = function (node, pathStr) {
   const iteratorMath = iteratorParameter.mathSymbol;
   const previousIterationMath = math.sub(iteratorMath, increment);
 
+  // find variables that are modified in body
+  const modifiedVisitor = new ModifiedVisitor();
+  const modifiedVariables = modifiedVisitor.start(node.body); // these only include variables defined outside the for loop body
+
+  // create abstractions for modified variables and for the loop metric, use value/iteration
+  // parameter as the parameter to all these loop abstractions
+  const previousVariablesTypes = modifiedVariables.map(function (variableName) {
+    return this.analyzer.variableTypeMap.get(variableName);
+  }, this);
+  const loopAbstractions = abstractions.LoopAbstraction.makeAbstractions(pathStr, this.analyzer.metricTitle, iteratorParameter, modifiedVariables, previousVariablesTypes);
+
+  // save metrics and types prior to body so they can later be used as initial values (base case) for abstractions
+  // put concretized abstractions at iteration = (value/iteration parameter - increment) as the metric and type for all the variables
+  // inside the type and metric scopes
+  // this only applies for variables that existed before the for loop, and will survive the execution of a loop iteration
+  // variables defined within the for loop will be handled automatically by visiting their body (they do not need an initial metric/type
+  // since they will be assigned values before use inside body, otherwise the program is invalid)
+  const initialType = {};
+  const initialMetric = {};
+  for (let i = 0; i < modifiedVariables.length; i++) {
+    const variableName = modifiedVariables[i];
+    initialMetric[variableName] = this.analyzer.variableMetricMap.get(variableName);
+    this.analyzer.variableMetricMap.set(variableName, loopAbstractions.variables.metrics[variableName].concretize([previousIterationMath]));
+
+    // type loop abstraction is only used for array lengths
+    if (previousVariablesTypes[i].is(carouselsTypes.ENUM.ARRAY)) {
+      initialType[variableName] = previousVariablesTypes[i].dependentType.length;
+      const abstractedType = previousVariablesTypes[i].copy();
+      abstractedType.dependentType.length = loopAbstractions.variables.types[variableName].concretize([previousIterationMath]);
+      this.analyzer.variableTypeMap.set(variableName, abstractedType);
+    }
+  }
+  const previousIterationMetric = loopAbstractions.loop.concretize([previousIterationMath]);
+
   // iterator is added to scope (as if it is a variable definition)
+  this.analyzer.addScope();
   childrenType.iterator = iteratorType;
   childrenMetric.iterator = rangeResult.metric;
   this.analyzer.variableTypeMap.add(iteratorName, childrenType.iterator);
@@ -60,52 +95,13 @@ const ForEach = function (node, pathStr) {
     }
   });
 
-  // find variables that are modified in body
-  const modifiedVisitor = new ModifiedVisitor();
-  const modifiedVariables = modifiedVisitor.start(node.body);
-
-  // create abstractions for modified variables and for the loop metric, use value/iteration
-  // parameter as the parameter to all these loop abstractions
-  const previousVariablesTypes = [];
-  const existingModifiedVariables = modifiedVariables.filter(function (variableName) {
-    if (variableName === iteratorName) {
-      throw new Error('For each iterator variable "' + iteratorName + '" is modified in the body of for each loop "' + pathStr + '"')
-    }
-    if (this.analyzer.variableTypeMap.has(variableName)) {
-      previousVariablesTypes.push(this.analyzer.variableTypeMap.get(variableName));
-      return true;
-    }
-    return false;
-  }, this);
-  const loopAbstractions = abstractions.LoopAbstraction.makeAbstractions(pathStr, this.analyzer.metricTitle, iteratorParameter, existingModifiedVariables, previousVariablesTypes);
-
-  // save metrics and types prior to body so they can later be used as initial values (base case) for abstractions
-  // put concretized abstractions at iteration = (value/iteration parameter - increment) as the metric and type for all the variables
-  // inside the type and metric scopes
-  // this only applies for variables that existed before the for loop, and will survive the execution of a loop iteration
-  // variables defined within the for loop will be handled automatically by visiting their body (they do not need an initial metric/type
-  // since they will be assigned values before use inside body, otherwise the program is invalid)
-  const initialType = {};
-  const initialMetric = {};
-  for (let i = 0; i < existingModifiedVariables.length; i++) {
-    const variableName = existingModifiedVariables[i];
-    initialMetric[variableName] = this.analyzer.variableMetricMap.get(variableName);
-    this.analyzer.variableMetricMap.add(variableName, loopAbstractions.variables.metrics[variableName].concretize([previousIterationMath]));
-
-    // type loop abstraction is only used for array lengths
-    if (previousVariablesTypes[i].is(carouselsTypes.ENUM.ARRAY)) {
-      initialType[variableName] = previousVariablesTypes[i].dependentType.length;
-      const abstractedType = previousVariablesTypes[i].copy();
-      abstractedType.dependentType.length = loopAbstractions.variables.types[variableName].concretize([previousIterationMath]);
-      this.analyzer.variableTypeMap.add(variableName, abstractedType);
-    }
-  }
-  const previousIterationMetric = loopAbstractions.loop.concretize([previousIterationMath]);
-
   // visit body
   const bodyResult = this.visit(node.body, pathStr + '[body]');
   childrenType.body = bodyResult.type;
   childrenMetric.body = bodyResult.metric;
+
+  // remove scope
+  this.analyzer.removeScope();
 
   // compute closed form of every abstraction as:
   // <Abs>(<i>) = iff(<i> == start, <initial>, <bodyScope>[<Abs>] (which is a function of <Abs>(<i> - <increment>)) ...)
@@ -113,14 +109,14 @@ const ForEach = function (node, pathStr) {
   // concretize abstractions at iteration parameter = end as the metric and type for all the variables
   // put those inside the type and metric scopes
   const abstractionsArray = [];
-  for (let i = 0; i < existingModifiedVariables.length; i++) {
-    const variableName = existingModifiedVariables[i];
+  for (let i = 0; i < modifiedVariables.length; i++) {
+    const variableName = modifiedVariables[i];
 
     // compute closed form for metric
     const closedForm = math.iff(math.eq(iteratorMath, start), initialMetric[variableName], this.analyzer.variableMetricMap.get(variableName));
     abstractionsArray.push(loopAbstractions.variables.metrics[variableName]);
     this.analyzer.abstractionToClosedFormMap[loopAbstractions.variables.metrics[variableName].mathSymbol.toString()] = closedForm;
-    this.analyzer.variableMetricMap.add(variableName, loopAbstractions.variables.metrics[variableName].concretize([end]));
+    this.analyzer.variableMetricMap.set(variableName, loopAbstractions.variables.metrics[variableName].concretize([end]));
 
     // compute closed form for type (if needed and type is an array)
     if (initialType[variableName] != null) {
@@ -132,7 +128,7 @@ const ForEach = function (node, pathStr) {
 
       const finalType = newType.copy();
       finalType.dependentType.length = loopAbstractions.variables.types[variableName].concretize([end]);
-      this.analyzer.variableTypeMap.add(variableName, finalType);
+      this.analyzer.variableTypeMap.set(variableName, finalType);
     }
   }
 

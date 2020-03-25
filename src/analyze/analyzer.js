@@ -89,6 +89,20 @@ Analyzer.prototype.getParametersBySymbol = function (symbols) {
   });
 };
 
+// Manage scopes
+Analyzer.prototype.addScope = function () {
+  this.variableTypeMap.addScope();
+  this.functionReturnAbstractionMap.addScope();
+  this.variableMetricMap.addScope();
+  this.functionMetricAbstractionMap.addScope();
+};
+Analyzer.prototype.removeScope = function () {
+  this.variableTypeMap.removeScope();
+  this.functionReturnAbstractionMap.removeScope();
+  this.variableMetricMap.removeScope();
+  this.functionMetricAbstractionMap.removeScope();
+};
+
 // Main entry point
 Analyzer.prototype.analyze = function (costs, metricTitle) {
   // costs parsing
