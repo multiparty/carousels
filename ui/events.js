@@ -52,10 +52,10 @@ let carouselsOutput;
         functionsSelect.appendChild(option);
       }
       // fill in plot parameters
-      for (let parameter of output.parameters) {
+      for (let parameter of output.scopeParameters) {
         const option = document.createElement('option');
-        option.textContent = parameter.mathSymbol.toString();
-        option.value = parameter.mathSymbol.toString();
+        option.textContent = parameter;
+        option.value = parameter;
         xaxisSelect.appendChild(option);
       }
       // y-axis can only be the metric

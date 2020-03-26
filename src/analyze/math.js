@@ -3,6 +3,7 @@ const mathjs = _mathjs.create(_mathjs.all);
 
 // constants
 const ZERO = mathjs.parse('0');
+const ONE = mathjs.parse('1');
 
 // functions used to create symbolic expressions (e.g. x + y)
 const emptyArgs = function (_arguments) {
@@ -21,6 +22,9 @@ const operatorNode = function (operator, description, identity) {
 };
 const floorDiv = function (x, y) {
   return new mathjs.FunctionNode('floor', [operatorNode('/', 'divide', ZERO)(x, y)]);
+};
+const ceilDiv = function (x, y) {
+  return new mathjs.FunctionNode('ceil', [operatorNode('/', 'divide', ZERO)(x, y)]);
 };
 const max = function () {
   if (emptyArgs(arguments)) {
@@ -61,7 +65,7 @@ const evaluate = (function () {
   mathjs.import({iff: iffInterpreter});  // Load the lazily evaluated definition
 
   /* Evaluate expression in context */
-  const evaluate = function (functionAbstraction, atPoints, context) {
+  const evaluate = function (callExpression, atPoints, context) {
     const parser = mathjs.parser();
     context.forEach(function (c) {
       parser.evaluate(c);
@@ -69,16 +73,16 @@ const evaluate = (function () {
 
     const evalParameter = Object.keys(atPoints)[0];
     const regex = new RegExp('(,|\\()[ ]*' + evalParameter + '[ ]*(,|\\))');
-    const parameterIsAnArgument = functionAbstraction.match(regex);
+    const parameterIsAnArgument = callExpression.match(regex);
 
     const evalValues = [];
     for (let i = 0; i < atPoints[evalParameter].length; i++) {
       const val = atPoints[evalParameter][i];
       if (parameterIsAnArgument) {
-        evalValues.push(parser.evaluate(functionAbstraction.replace(evalParameter, val)));
+        evalValues.push(parser.evaluate(callExpression.replace(evalParameter, val)));
       } else {
         parser.evaluate(evalParameter + '=' + val);
-        evalValues.push(parser.evaluate(functionAbstraction));
+        evalValues.push(parser.evaluate(callExpression));
       }
     }
 
@@ -88,15 +92,62 @@ const evaluate = (function () {
   return evaluate;
 })();
 
+// check if variable appear as a *free* variable in expression
+const variableIsUsed = function (variable, expression) {
+  let found = false;
+  const boundAttr = '_carousels_bound' + variable;
+  expression.traverse(function (node, path, parent) {
+    switch (node.type) {
+      case 'AccessorNode':
+      case 'ArrayNode':
+      case 'ConditionalNode':
+      case 'ConstantNode':
+      case 'FunctionNode':
+      case 'IndexNode':
+      case 'ObjectNode':
+      case 'OperatorNode':
+      case 'ParenthesisNode':
+      case 'RangeNode':
+      case 'RelationalNode':
+        if (parent[boundAttr]) {
+          node[boundAttr] = parent[boundAttr];
+        }
+        break;
+
+      case 'FunctionAssignmentNode':
+        if (node.params.indexOf(variable) > -1) {
+          // not a free variable
+          node[boundAttr] = true;
+        }
+        break;
+      case 'SymbolNode':
+        if (parent[boundAttr] !== true && node.name === variable) {
+          found = true;
+        }
+        break;
+
+      case 'AssignmentNode':
+      case 'BlockNode':
+      default:
+        throw new Error('Unsupported node type "' + node.type + '" in mathjs expression!');
+    }
+  });
+
+  return found;
+};
+
 module.exports = {
   parse: mathjs.parse,
   simplify: mathjs.simplify,
   evaluate: evaluate,
+  variableIsUsed: variableIsUsed,
   ZERO: ZERO,
+  ONE: ONE,
   add: operatorNode('+', 'add', ZERO),
   sub: operatorNode('-', 'subtract', ZERO),
   multiply: operatorNode('*', 'multiply', ZERO),
   div: floorDiv,
+  ceilDiv: ceilDiv,
   gt: operatorNode('>', 'larger', ZERO),
   lt: operatorNode('<', 'smaller', ZERO),
   gte: operatorNode('>=', 'largerEq', ZERO),

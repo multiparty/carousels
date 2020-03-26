@@ -29,12 +29,12 @@ const localFunctionCall = function (node, pathStr) {
   if (returnType.is(carouselsTypes.ENUM.ARRAY)) {
     // Has dependent portion: resolve it via return type abstraction
     const returnTypeAbstraction = this.analyzer.functionReturnAbstractionMap.get(functionName);
-    returnType.dependentType.length = returnTypeAbstraction.concretizeDependent(parametersType);
+    returnType.dependentType.length = returnTypeAbstraction.concretize(parametersType);
   }
 
   // Figure out metric via metric abstraction
   const metricAbstraction = this.analyzer.functionMetricAbstractionMap.get(functionName);
-  const callMetric = metricAbstraction.concretizeDependent(parametersMetric.map(this.analyzer.metric.store).concat(parametersType));
+  const callMetric = metricAbstraction.concretize(parametersMetric.map(this.analyzer.metric.store).concat(parametersType));
 
   // We do not need to look in the typing or cost rules
   // In a sense, we replaced them with the more accurate return and metric abstractions

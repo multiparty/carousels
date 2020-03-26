@@ -1,7 +1,6 @@
 const AbstractMetric = require('../../ir/metric.js');
 
 const math = require('../math.js');
-const loops = require('../loops.js');
 
 // Total metric: aggregates cost by adding it across any construct's children
 // Singleton instance of AbstractMetric
@@ -35,18 +34,18 @@ totalMetric.aggregateVariableDefinition = function (node, childrenType, children
 
 // For Each: body * iterations
 totalMetric.aggregateForEach = function (node, childrenType, childrenMetric) {
-  const iterationCount = loops.iterationCountForEach(node, childrenType);
-  const total = math.multiply(childrenMetric.body, iterationCount);
-  return total;
+  return math.add(childrenMetric.body, childrenMetric.previousIterationMetric);
 };
 
 // Regular For: (body + condition + increment) * iterations + condition + initialization (one extra condition evaluation)
 totalMetric.aggregateFor = function (node, childrenType, childrenMetric) {
-  const iterationCount = loops.iterationCountFor(node, childrenType);
+  throw new Error('Regular for loops are not yet supported! use for each');
+  /*
   const body = math.add(childrenMetric.body, childrenMetric.condition, childrenMetric.increment);
   const bodyIterated = math.multiply(body, iterationCount);
   const total = math.add(bodyIterated, childrenMetric.condition, childrenMetric.initial);
   return total;
+  */
 };
 
 // If: only one of the two branches is executed
@@ -93,7 +92,7 @@ totalMetric.aggregateSliceExpression = function (node, childrenType, childrenMet
 
 // ArrayExpression: an array constructed from some elements directly
 totalMetric.aggregateArrayExpression = function (node, childrenType, childrenMetric) {
-  const total = math.max.add(null, childrenMetric);
+  const total = math.add.apply(null, childrenMetric);
   return total;
 };
 

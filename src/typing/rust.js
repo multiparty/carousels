@@ -89,7 +89,7 @@ module.exports = [
       }
     }
   },
-  // boolean direct expression
+  // bool direct expression
   {
     rule: {
       nodeType: 'DirectExpression',

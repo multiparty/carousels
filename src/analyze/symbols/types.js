@@ -5,7 +5,7 @@ const Parameter = require('./parameter.js');
 let dependentTypes = require('./dependentTypes.js');
 
 // Enum containing supported types
-const TYPE_ENUM = new Enum('TYPE_ENUM', ['NUMBER', 'ARRAY', 'BOOLEAN', 'STRING', 'ANY', 'UNIT', 'FUNCTION', 'RANGE', 'SYMBOL']);
+const TYPE_ENUM = new Enum('TYPE_ENUM', ['NUMBER', 'ARRAY', 'BOOL', 'STR', 'ANY', 'UNIT', 'FUNCTION', 'RANGE', 'SYMBOL']);
 
 // Abstract type class
 function Type(dataType, secret, dependentType) {
@@ -21,7 +21,7 @@ function Type(dataType, secret, dependentType) {
     throw new Error('Unexpected dependent type "' + this.dependentType + '" given for type "' + this.dataType + '"!');
   }
   if ((this.dataType === TYPE_ENUM.UNIT || this.dataType === TYPE_ENUM.RANGE ||
-      this.dataType === TYPE_ENUM.SYMBOL || this.dataType === TYPE_ENUM.STRING ||
+      this.dataType === TYPE_ENUM.SYMBOL || this.dataType === TYPE_ENUM.STR ||
       this.dataType === TYPE_ENUM.FUNCTION)
     && this.secret) {
     throw new Error('Type "' + this.dataType + '" cannot be secret!');
@@ -44,7 +44,7 @@ Type.prototype.copy = function (dependentType) {
   return new Type(this.dataType, this.secret, dependentType);
 };
 Type.prototype.match = function (otherType) {
-  return otherType != null && this.dataType === otherType.dataType;
+  return otherType != null && this.dataType === otherType.dataType && this.secret === otherType.secret;
 };
 Type.prototype.conflicts = function (otherType) {
   if (!(otherType instanceof Type)) {
@@ -77,14 +77,6 @@ Type.prototype.combine = function (otherType, dependentCombiner) {
 
   return this.copy();
 };
-// returns the type of a member element
-Type.prototype.memberType = function (pathStr) {
-  throw new Error('memberType is not supported in type "' + this.dataType + '"!');
-};
-// returns the (symbolic) size of the range represented by this type (i.e. when iterating over it)
-Type.prototype.size = function (pathStr) {
-  throw new Error('size is not supported in type "' + this.dataType + '"!');
-};
 Type.fromTypeNode = function (typeNode, pathStr) {
   if (typeNode == null) {
     return {
@@ -102,7 +94,7 @@ Type.fromTypeNode = function (typeNode, pathStr) {
     case TYPE_ENUM.NUMBER:
       return NumberType.fromTypeNode(typeNode, pathStr);
 
-    case TYPE_ENUM.BOOLEAN:
+    case TYPE_ENUM.BOOL:
       return BooleanType.fromTypeNode(typeNode, pathStr);
 
     case TYPE_ENUM.ARRAY:
@@ -111,7 +103,7 @@ Type.fromTypeNode = function (typeNode, pathStr) {
     case TYPE_ENUM.RANGE:
       return RangeType.fromTypeNode(typeNode, pathStr);
 
-    case TYPE_ENUM.STRING:
+    case TYPE_ENUM.STR:
     case TYPE_ENUM.ANY:
     case TYPE_ENUM.UNIT:
       return {
@@ -129,7 +121,7 @@ function NumberType(secret, value) {
   Type.call(this, TYPE_ENUM.NUMBER, secret, new dependentTypes.ValueDependentType(value));
 }
 function BooleanType(secret, value) {
-  Type.call(this, TYPE_ENUM.BOOLEAN, secret, new dependentTypes.ValueDependentType(value));
+  Type.call(this, TYPE_ENUM.BOOL, secret, new dependentTypes.ValueDependentType(value));
 }
 function ArrayType(secret, elementsType, length) {
   Type.call(this, TYPE_ENUM.ARRAY, secret, new dependentTypes.ArrayDependentType(elementsType, length));
@@ -141,7 +133,7 @@ function AnyType(secret) {
   Type.call(this, TYPE_ENUM.ANY, secret);
 }
 function StringType(secret) {
-  Type.call(this, TYPE_ENUM.STRING, secret);
+  Type.call(this, TYPE_ENUM.STR, secret);
 }
 
 NumberType.prototype = Object.create(Type.prototype);
@@ -150,53 +142,6 @@ ArrayType.prototype = Object.create(Type.prototype);
 RangeType.prototype = Object.create(Type.prototype);
 AnyType.prototype = Object.create(Type.prototype);
 StringType.prototype = Object.create(Type.prototype);
-
-// Override memberType when applicable
-ArrayType.prototype.memberType = function (pathStr) {
-  return {
-    type: this.dependentType.elementsType.copy(),
-    parameters: []
-  };
-};
-RangeType.prototype.memberType = function (pathStr) {
-  const secret = this.secret;
-  const parameter = Parameter.forValue(pathStr + '[rangeValue]');
-  return {
-    type: new NumberType(secret, parameter.mathSymbol),
-    parameters: [parameter]
-  }
-};
-AnyType.prototype.memberType = function (pathStr) {
-  return {
-    type: this.copy(),
-    parameters: []
-  };
-};
-// Override size when applicable
-ArrayType.prototype.size = function (pathStr) {
-  return {
-    size: this.dependentType.length,
-    parameters: []
-  };
-};
-RangeType.prototype.size = function (pathStr) {
-  return {
-    size: this.dependentType.size,
-    parameters: []
-  }
-};
-AnyType.prototype.size = function (pathStr) {
-  // cache size so we do not keep on introducing new variables
-  const parameters = [];
-  if (this.__size == null) {
-    parameters.push(Parameter.forLoop(pathStr));
-    this.__size = parameters[0].mathSymbol;
-  }
-  return {
-    size: this.__size,
-    parameters: parameters
-  };
-};
 
 // static initializers
 NumberType.fromTypeNode = function (typeNode, pathStr) {
@@ -262,7 +207,7 @@ RangeType.fromComponents = function (startType, endType, incrementType, pathStr)
     parameters = parameters.concat(result.parameters);
   }
   if (incrementType == null) {
-    incrementType = new NumberType(false, math.parse('1'));
+    incrementType = new NumberType(false, math.ONE);
   }
 
   // Assert building types are all numbers
@@ -274,7 +219,7 @@ RangeType.fromComponents = function (startType, endType, incrementType, pathStr)
   // Compute range size symbolically
   let size = math.sub(endType.dependentType.value, startType.dependentType.value);
   if (incrementType.dependentType.value.toString() !== '1') {
-    size = math.div(size, incrementType.dependentType.value);
+    size = math.ceilDiv(size, incrementType.dependentType.value);
   }
 
   return {

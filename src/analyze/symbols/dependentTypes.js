@@ -1,3 +1,5 @@
+const math = require('../math.js');
+
 module.exports = function (Type, TYPE_ENUM) {
 // All dependent types must have this interface (constructors can differ)
   function DependentType(classname, compatibleTypes) {
@@ -25,9 +27,9 @@ module.exports = function (Type, TYPE_ENUM) {
     throw new Error('DependentType "' + this.classname + '".combine() is not implemented yet!');
   };
 
-  // Value dependent type: for booleans and numbers
+  // Value dependent type: for bools and numbers
   function ValueDependentType(value) {
-    DependentType.call(this, 'ValueDependentType', [TYPE_ENUM.NUMBER, TYPE_ENUM.BOOLEAN]);
+    DependentType.call(this, 'ValueDependentType', [TYPE_ENUM.NUMBER, TYPE_ENUM.BOOL]);
 
     if (value == null) {
       throw new Error('ValueDependentType given null parameters!');
@@ -132,6 +134,17 @@ module.exports = function (Type, TYPE_ENUM) {
       dependentCombiner(this.size, otherDependentType.size)
     );
   };
+  RangeDependentType.prototype.accurateEnd = function () {
+    // returns a symbolic expression representing the first element visited while expanding this range that is >= end
+    // for example [0:10:1] => 10
+    //             [3,10,2] => 11
+    let end = this.endType.dependentType.value;
+    if (this.incrementType.dependentType.value.toString() !== '1') {
+      end = math.multiply(this.size, this.incrementType.dependentType.value.toString());
+      end = math.add(this.startType.dependentType.value, end);
+    }
+    return end;
+  };
 
   // Function type signature
   // thisType can be null when this is not a method
@@ -183,26 +196,6 @@ module.exports = function (Type, TYPE_ENUM) {
   };
   FunctionDependentType.prototype.combine = function () {
     throw new Error('FunctionDependentType does not support .combine()!');
-  };
-  // [] of dependent type math parameters/symbols of this.parameterTypes in order
-  FunctionDependentType.prototype.getDependentParameters = function () {
-    if (this.thisType != null) {
-      throw new Error('Locally defined methods (with a this parameter) are not currently supported');
-    }
-
-    const symbols = [];
-    for (let i = 0; i < this.parameterTypes.length; i++) {
-      let parameterType = this.parameterTypes[i];
-      let dependentParameter = null;
-      if (parameterType.is(TYPE_ENUM.ARRAY)) {
-        dependentParameter = parameterType.dependentType.length;
-      } else if (parameterType.is(TYPE_ENUM.NUMBER) || parameterType.is(TYPE_ENUM.BOOLEAN)) {
-        dependentParameter = parameterType.dependentType.value;
-      }
-      symbols.push(dependentParameter);
-    }
-
-    return symbols;
   };
 
   return {

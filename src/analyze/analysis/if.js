@@ -18,13 +18,19 @@ const GenericIf = function (node, pathStr) {
 
   // visit children
   const conditionResult = this.visit(condition, pathStr + 'if[condition]');
+
+  this.analyzer.addScope();
   const ifResult = this.visit(ifBody, pathStr + 'if[body]');
+  this.analyzer.removeScope();
+
+  this.analyzer.addScope();
   const elseResult = this.visit(elseBody, pathStr + 'else[body]');
+  this.analyzer.removeScope();
 
   // turn the condition type into something actionable: a mathjs expression
   // that can be used in a symbolic if statement
   let conditionMathEquation;
-  if (conditionResult.type.is(carouselsTypes.ENUM.BOOLEAN)) {
+  if (conditionResult.type.is(carouselsTypes.ENUM.BOOL)) {
     conditionMathEquation = conditionResult.type.dependentType.value;
   } else if (conditionResult.type.is(carouselsTypes.ENUM.NUMBER)) {
     conditionMathEquation = math.neq(conditionResult.type.dependentType.value, math.parse('0'));

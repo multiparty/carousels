@@ -27,6 +27,10 @@ const VariableDefinition = function (node, pathStr) {
   const variableName = node.name.name;
   const analyzer = this.analyzer;
 
+  // placeholders to signify that this variable is going to be added to THIS scope
+  analyzer.variableTypeMap.add(variableName, analyzer.variableTypeMap.PLACEHOLDER);
+  analyzer.variableMetricMap.add(variableName, analyzer.variableMetricMap.PLACEHOLDER);
+
   // visit static type definition and assignment (if they exist)
   let variableTypeResult = this.visit(node.type, pathStr + variableName + '[type]');
   let variableAssignmentResult = this.visit(node.assignment, pathStr + variableName + '=');
@@ -84,8 +88,14 @@ const VariableAssignment = function (node, pathStr) {
   const variableType = childResult.type;
   const childMetric = childResult.metric;
 
-  analyzer.variableTypeMap.add(variableName, variableType);
-  analyzer.variableMetricMap.add(variableName, analyzer.metric.store(childMetric));
+  // ensure variable assignments does not change the type of the variable if already defined
+  const oldType = analyzer.variableTypeMap.lookInCurrentScope(variableName);
+  if (oldType != null && !oldType.match(variableType)) {
+    throw new Error('Type of variable "' + variableName + '" is changed at "' + pathStr + '" after definition!');
+  }
+
+  analyzer.variableTypeMap.set(variableName, variableType);
+  analyzer.variableMetricMap.set(variableName, analyzer.metric.store(childMetric));
 
   return {
     type: variableType,

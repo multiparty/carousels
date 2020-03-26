@@ -8,7 +8,8 @@ const ArrayExpression = function (node, pathStr) {
 
   let aggType = null;
   let aggSecret = false;
-  for (let i = 0; i < node.elements; i++) {
+  let error = false;
+  for (let i = 0; i < node.elements.length; i++) {
     const result = this.visit(node.elements[i], pathStr + '[' + i + ']');
     childrenType.push(result.type);
     childrenMetric.push(result.metric);
@@ -16,9 +17,17 @@ const ArrayExpression = function (node, pathStr) {
     aggSecret = aggSecret || result.type.secret;
     if (aggType == null) {
       aggType = result.type;
-    } else if (aggType.match(result.type)) {
-      aggType = new carouselsTypes.AnyType(aggSecret);
+    } else if (!aggType.match(result.type)) {
+      if (aggType.secret === result.type.secret) {
+        aggType = new carouselsTypes.AnyType(aggSecret);
+      } else {
+        error = true;
+      }
     }
+  }
+
+  if (error) {
+    throw new Error('Found conflicting secret and non-secret types in Array expression');
   }
 
   // find type of array
@@ -81,12 +90,12 @@ const LiteralExpression = function (node) {
       type = new carouselsTypes.NumberType(false, val);
       break;
 
-    case 'boolean':
+    case 'bool':
       val = math.parse((node.value.trim() === '1' || node.value.toLowerCase().trim() === 'true').toString());
       type = new carouselsTypes.BooleanType(false, val);
       break;
 
-    case 'string':
+    case 'str':
       type = new carouselsTypes.StringType(false);
       break;
 

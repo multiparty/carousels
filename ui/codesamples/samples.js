@@ -65,5 +65,12 @@ window.carouselsCodeSamples = {
     '        }\n' +
     '    }\n' +
     '    max\n' +
+    '}\n',
+  innerProduct: 'fn inner_product<T: Debug, P: Obliv>(arr1: &[Possession<T, P>], arr2: &[Possession<T, P>]) -> Possession<T, P> where T: Ord + Clone {\n' +
+    '    let product = arr1[0] * arr2[0];\n' +
+    '    for i in 1..arr1.len() {\n' +
+    '        product = product + (arr1[i] * arr2[i])\n' +
+    '    }\n' +
+    '    product\n' +
     '}\n'
 };

@@ -9,6 +9,7 @@ const TypingRuleBook = require('./rules/typingRuleBook.js');
 const CostRuleBook = require('./rules/costRuleBook.js');
 
 const ScopedMap = require('./symbols/scopedMap.js');
+const PathTracker = require('./symbols/pathTracker.js');
 
 const metricObjects = require('./metrics/metrics.js');
 
@@ -18,6 +19,7 @@ const visitorImplementations = [
   require('./analysis/callAndReturn.js'),
   require('./analysis/expression.js'),
   require('./analysis/for.js'),
+  require('./analysis/forEach.js'),
   require('./analysis/functionDefinition.js'),
   require('./analysis/if.js'),
   require('./analysis/oblivIf.js'),
@@ -47,6 +49,7 @@ function Analyzer(language, code, costs, extraTyping) {
   this.functionReturnAbstractionMap = new ScopedMap();
   this.functionMetricAbstractionMap = new ScopedMap();
   this.abstractionToClosedFormMap = {};
+  this.functionLoopAbstractionMap = {}; // for pretty printing output
 
   // visitor pattern
   this.visitor = new IRVisitor({ analyzer: this });
@@ -87,6 +90,24 @@ Analyzer.prototype.getParametersBySymbol = function (symbols) {
   });
 };
 
+// Manage scopes
+Analyzer.prototype.addScope = function () {
+  this.variableTypeMap.addScope();
+  this.functionReturnAbstractionMap.addScope();
+  this.variableMetricMap.addScope();
+  this.functionMetricAbstractionMap.addScope();
+  this.parametersPathTracker.addScope();
+  this.conditionsPathTracker.addScope();
+};
+Analyzer.prototype.removeScope = function () {
+  this.variableTypeMap.removeScope();
+  this.functionReturnAbstractionMap.removeScope();
+  this.variableMetricMap.removeScope();
+  this.functionMetricAbstractionMap.removeScope();
+  this.parametersPathTracker.removeScope();
+  this.conditionsPathTracker.removeScope();
+};
+
 // Main entry point
 Analyzer.prototype.analyze = function (costs, metricTitle) {
   // costs parsing
@@ -112,6 +133,13 @@ Analyzer.prototype.analyze = function (costs, metricTitle) {
   if (this.metric == null) {
     throw new Error('Unrecognized metric "' + metricTitle + '"!');
   }
+
+  // initialize maps used during visitor to track state along visit paths
+  this.parametersPathTracker = new PathTracker();
+  this.conditionsPathTracker = new PathTracker();
+
+  // tracks the current function
+  this.currentFunctionName = null;
 
   // start the visitor pattern
   this.visitor.start(this.IR, '');
