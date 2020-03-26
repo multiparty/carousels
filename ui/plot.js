@@ -13,7 +13,7 @@ let carouselsPlot = {};
       return [1, 64, 1];
     } else if (type === 'c') {
       return [0, 2, 1];
-    } else { // n, v, s, i, m
+    } else { // n, v
       return [0, 100000, 1000];
     }
   };
@@ -89,9 +89,7 @@ let carouselsPlot = {};
 
       // figure out the math symbols of all remaining (fixed) parameters
       const initialScope = [];
-      const sliders = carouselsOutput.parameters.map(function (parameter) {
-        return parameter.mathSymbol.toString();
-      }).filter(function (parameter) {
+      const sliders = carouselsOutput.scopeParameters.filter(function (parameter) {
         return parameter !== xaxis;
       }).map(function (parameter) {
         const sliderResult = buildSliderForParameter(parameter);

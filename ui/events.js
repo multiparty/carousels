@@ -12,7 +12,6 @@ let carouselsOutput;
     const outputRadio = document.getElementById('tab-2');
     const successDiv = document.getElementById('outputSuccess');
     const functionsDiv = document.getElementById('outputFunctions');
-    const loopsDiv = document.getElementById('outputLoops');
     const parametersDiv = document.getElementById('outputParameters');
     const FailureDiv = document.getElementById('outputFailure');
     const errorsDiv = document.getElementById('outputErrors');
@@ -33,8 +32,7 @@ let carouselsOutput;
       successDiv.style.display = 'block';
       FailureDiv.style.display = 'none';
 
-      functionsDiv.innerHTML = output.dumpFunctionAbstractions(true);
-      loopsDiv.innerHTML = output.dumpLoopAbstractions(true);
+      functionsDiv.innerHTML = output.dumpAbstractions(true);
       parametersDiv.innerHTML = output.dumpParameters(true);
       outputRadio.checked = true;
 
@@ -54,10 +52,10 @@ let carouselsOutput;
         functionsSelect.appendChild(option);
       }
       // fill in plot parameters
-      for (let parameter of output.parameters) {
+      for (let parameter of output.scopeParameters) {
         const option = document.createElement('option');
-        option.textContent = parameter.mathSymbol.toString();
-        option.value = parameter.mathSymbol.toString();
+        option.textContent = parameter;
+        option.value = parameter;
         xaxisSelect.appendChild(option);
       }
       // y-axis can only be the metric

@@ -139,7 +139,8 @@ FunctionDetector.prototype._typeParametersAndReturn = function (node, pathStr) {
 // r = G_return(a)
 FunctionDetector.prototype._createDependentReturnAbstraction = function (functionName, functionType, functionParameters) {
   if (functionType.dependentType.returnType.is(carouselsTypes.ENUM.ARRAY)) {
-    const returnAbstraction = new abstractions.FunctionAbstraction(this.analyzer, functionName, 'Return', functionParameters);
+    const returnAbstraction = new abstractions.FunctionAbstraction(this.analyzer, functionName, 'Return',
+      this.analyzer.parametersPathTracker.retrieveAll(), functionParameters);
     this.functionReturnAbstractionMap.add(functionName, returnAbstraction);
   }
 };
@@ -152,7 +153,8 @@ FunctionDetector.prototype._createMetricAbstraction = function (node, pathStr, f
   }
 
   const abstractionParameters = metricParameters.concat(functionParameters);
-  const metricAbstraction = new abstractions.FunctionAbstraction(this.analyzer, node.name.name, this.analyzer.metricTitle, abstractionParameters);
+  const metricAbstraction = new abstractions.FunctionAbstraction(this.analyzer, node.name.name, this.analyzer.metricTitle,
+    this.analyzer.parametersPathTracker.retrieveAll(), abstractionParameters);
   this.functionMetricAbstractionMap.add(node.name.name, metricAbstraction);
 };
 

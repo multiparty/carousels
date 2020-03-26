@@ -80,7 +80,7 @@ where T: Ord + Clone
       const output = analyzer.symbolicOutput();
 
       parametersPre.textContent = output.dumpParameters(false);
-      outputPre.textContent = output.dumpFunctionAbstractions(false) + '\n' + output.dumpLoopAbstractions(false);
+      outputPre.textContent = output.dumpAbstractions(false);
     } catch (err) {
       outputPre.textContent = err.toString();
       console.log(err);

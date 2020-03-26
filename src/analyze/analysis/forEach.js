@@ -21,31 +21,27 @@ const ForEach = function (node, pathStr) {
   childrenType.range = rangeResult.type;
   childrenMetric.range = rangeResult.metric;
 
-  // find type, parameters, and symbolic range of iterator
-  // if range is a range type, create a value parameter for it, keep start, end=accurateEnd, and increment as those of the range
-  // if range is an array type, create an iteration parameter for it, keep start, end, and 1 as 0, length, and 1
-  const iteratorName = node.iterator.name;
-  let start, end, increment, iteratorParameter, iteratorType;
+  // find start, end, and increment
+  // if range is a range type, use start, accurateEnd, and increment from the range dependent type
+  // if range is an array type, use 0, array length, and 1
+  let start, end, increment;
   if (rangeResult.type.is(carouselsTypes.ENUM.RANGE)) {
     start = rangeResult.type.dependentType.startType.dependentType.value;
     end = rangeResult.type.dependentType.accurateEnd();
     increment = rangeResult.type.dependentType.incrementType.dependentType.value;
-    // figure out iterator type
-    iteratorParameter = Parameter.forValue(pathStr+'[iterator]');
-    iteratorType = new carouselsTypes.NumberType(false, math.sub(iteratorParameter.mathSymbol, increment));
   } else if (rangeResult.type.is(carouselsTypes.ENUM.ARRAY)) {
     start = math.ZERO;
     end = rangeResult.type.dependentType.length;
     increment = math.ONE;
-    // figure out iterator type
-    iteratorParameter = Parameter.forLoopRange(pathStr);
-    iteratorType = rangeResult.type.dependentType.elementsType.copy();
   } else {
     throw new Error('Found non-iterable type "' + rangeResult.type + '" as the range of foreach loop "' + pathStr + '"');
   }
-  this.analyzer.addParameters([iteratorParameter]);
-  const iteratorMath = iteratorParameter.mathSymbol;
-  const previousIterationMath = math.sub(iteratorMath, increment);
+
+  // create a fresh symbolic parameter representing the iteration counter
+  const iterationParameter = Parameter.forLoop(pathStr);
+  const iterationMath = iterationParameter.mathSymbol;
+  const previousIterationMath = math.sub(iterationMath, increment);
+  this.analyzer.addParameters([iterationParameter]);
 
   // find variables that are modified in body
   const modifiedVisitor = new ModifiedVisitor();
@@ -56,7 +52,8 @@ const ForEach = function (node, pathStr) {
   const previousVariablesTypes = modifiedVariables.map(function (variableName) {
     return this.analyzer.variableTypeMap.get(variableName);
   }, this);
-  const loopAbstractions = abstractions.LoopAbstraction.makeAbstractions(pathStr, this.analyzer.metricTitle, iteratorParameter, modifiedVariables, previousVariablesTypes);
+  const loopAbstractions = abstractions.LoopAbstraction.makeAbstractions(pathStr, this.analyzer.metricTitle,
+    this.analyzer.parametersPathTracker.retrieveAll(), iterationParameter, modifiedVariables, previousVariablesTypes);
 
   // save metrics and types prior to body so they can later be used as initial values (base case) for abstractions
   // put concretized abstractions at iteration = (value/iteration parameter - increment) as the metric and type for all the variables
@@ -83,17 +80,22 @@ const ForEach = function (node, pathStr) {
 
   // iterator is added to scope (as if it is a variable definition)
   this.analyzer.addScope();
-  childrenType.iterator = iteratorType;
+  const iteratorName = node.iterator.name;
+  childrenType.iterator = rangeResult.type.is(carouselsTypes.ENUM.RANGE) ? new carouselsTypes.NumberType(false, previousIterationMath) : rangeResult.type.dependentType.elementsType.copy();
   childrenMetric.iterator = rangeResult.metric;
   this.analyzer.variableTypeMap.add(iteratorName, childrenType.iterator);
   this.analyzer.variableMetricMap.add(iteratorName, this.analyzer.metric.store(childrenMetric.iterator));
-  this.analyzer.intermediateResults.push({ // for debugging
+  this.analyzer.parametersPathTracker.add({parameter: iterationParameter, value: previousIterationMath});
+
+  // pretty printing and debugging
+  this.analyzer.intermediateResults.push({
     node: node.iterator,
     result: {
       type: childrenType.iterator,
       metric: childrenMetric.iterator
     }
   });
+  this.analyzer.functionLoopAbstractionMap[this.analyzer.currentFunctionName].addChild();
 
   // visit body
   const bodyResult = this.visit(node.body, pathStr + '[body]');
@@ -113,7 +115,7 @@ const ForEach = function (node, pathStr) {
     const variableName = modifiedVariables[i];
 
     // compute closed form for metric
-    const closedForm = math.iff(math.eq(iteratorMath, start), initialMetric[variableName], this.analyzer.variableMetricMap.get(variableName));
+    const closedForm = math.iff(math.eq(iterationMath, start), initialMetric[variableName], this.analyzer.variableMetricMap.get(variableName));
     abstractionsArray.push(loopAbstractions.variables.metrics[variableName]);
     this.analyzer.abstractionToClosedFormMap[loopAbstractions.variables.metrics[variableName].mathSymbol.toString()] = closedForm;
     this.analyzer.variableMetricMap.set(variableName, loopAbstractions.variables.metrics[variableName].concretize([end]));
@@ -122,7 +124,7 @@ const ForEach = function (node, pathStr) {
     if (initialType[variableName] != null) {
       const newType = this.analyzer.variableTypeMap.get(variableName);
       const newLength = newType.dependentType.length;
-      const lengthClosedForm = math.iff(math.eq(iteratorMath, start), initialType[variableName], newLength);
+      const lengthClosedForm = math.iff(math.eq(iterationMath, start), initialType[variableName], newLength);
       abstractionsArray.push(loopAbstractions.variables.types[variableName]);
       this.analyzer.abstractionToClosedFormMap[loopAbstractions.variables.types[variableName].mathSymbol.toString()] = lengthClosedForm;
 
@@ -137,13 +139,14 @@ const ForEach = function (node, pathStr) {
   const aggregateMetric = this.analyzer.metric.aggregateForEach(node, childrenType, childrenMetric);
 
   // concretize the loop metric abstraction and its closed form and return
-  const loopClosedForm = math.iff(math.eq(iteratorMath, start), this.analyzer.metric.initial, aggregateMetric);
+  const loopClosedForm = math.iff(math.lte(iterationMath, start), this.analyzer.metric.initial, aggregateMetric);
   abstractionsArray.unshift(loopAbstractions.loop);
   this.analyzer.abstractionToClosedFormMap[loopAbstractions.loop.mathSymbol.toString()] = loopClosedForm;
   const finalMetric = loopAbstractions.loop.concretize([end]);
 
   // for pretty printing
-  this.analyzer.loopAbstractions[pathStr] = abstractionsArray;
+  this.analyzer.functionLoopAbstractionMap[this.analyzer.currentFunctionName].toParent();
+  this.analyzer.functionLoopAbstractionMap[this.analyzer.currentFunctionName].setElement({loopName: pathStr, abstractions: abstractionsArray});
 
   // For Each is not supported by cost or typing rules: skip!
   // done

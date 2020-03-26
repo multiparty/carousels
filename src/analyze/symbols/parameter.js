@@ -38,8 +38,8 @@ Parameter.forCondition = function (conditionPath) {
   const symbol = 'c' + (PARAMETER_COUNTER)++;
   return new Parameter(symbol, description);
 };
-Parameter.forLoopRange = function (loopName) {
-  const description = 'The value of the range iterator for for loop "' + loopName + '"';
+Parameter.forLoop = function (loopName) {
+  const description = 'The current iteration of the for loop "' + loopName + '"';
   const symbol = 'i' + (PARAMETER_COUNTER++);
   return new Parameter(symbol, description);
 };

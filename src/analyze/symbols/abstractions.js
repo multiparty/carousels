@@ -4,18 +4,30 @@ const math = require('../math.js');
 let ABSTRACTION_COUNTER = 0;
 
 // General abstraction class: a function symbol with parameters
-function Abstraction(name, parameters, description) {
+function Abstraction(name, scopeParameters, parameters, description) {
   this.name = name;
   this.description = description;
+  this.scopeParameters = scopeParameters; // parameters that the parent abstractions receive and are in the scope of this abstraction
   this.parameters = parameters; // [Parameter]
 
+  this.scopeParametersMath = [];
+  this.scopeParameterValues = [];
+  scopeParameters.forEach(function (parameter) {
+    if (parameter.value) {
+      this.scopeParametersMath.push(parameter.parameter.mathSymbol.toString());
+      this.scopeParameterValues.push(parameter.parameter.mathSymbol.toString()); //parameter.value.toString());
+    } else {
+      this.scopeParametersMath.push(parameter.mathSymbol.toString());
+      this.scopeParameterValues.push(parameter.mathSymbol.toString());
+    }
+  }, this);
   const parameterSymbols = this.parameters.map(function (parameter) {
     return parameter.mathSymbol.toString();
   });
-  this.mathSymbol = math.parse(this.name + '(' + parameterSymbols.join(',') + ')');
+  this.mathSymbol = math.parse(this.name + '(' + this.scopeParametersMath.concat(parameterSymbols).join(',') + ')');
 }
 Abstraction.prototype.concretize = function (concreteParameters) {
-  return math.parse(this.name + '(' + concreteParameters.join(',') + ')');
+  return math.parse(this.name + '(' + this.scopeParameterValues.concat(concreteParameters).join(',') + ')');
 };
 Abstraction.prototype.toString = function () {
   const mathSymbol = this.mathSymbol.toString().trim();
@@ -28,7 +40,7 @@ Abstraction.prototype.toString = function () {
 };
 
 // Abstraction for Functions
-function FunctionAbstraction(analyzer, functionName, abstractionTitle, parameters) {
+function FunctionAbstraction(analyzer, functionName, abstractionTitle, scopeParameters, parameters) {
   this.functionName = functionName;
 
   const description = abstractionTitle + ' Abstraction for function "' + functionName + '"';
@@ -53,7 +65,7 @@ function FunctionAbstraction(analyzer, functionName, abstractionTitle, parameter
     parameterSymbols.push(parameter);
   }
 
-  Abstraction.call(this, name, analyzer.getParametersBySymbol(parameterSymbols), description);
+  Abstraction.call(this, name, scopeParameters, analyzer.getParametersBySymbol(parameterSymbols), description);
 }
 // inherit prototype
 FunctionAbstraction.prototype = Object.create(Abstraction.prototype);
@@ -90,16 +102,16 @@ const getParameterDependentParameter = function (parameterType) {
 };
 
 // Abstraction for loops
-function LoopAbstraction(suffix, iteratorParameter, description) {
-  Abstraction.call(this, 'L' + suffix, [iteratorParameter], description);
+function LoopAbstraction(suffix, scopeParameters, iterationParameter, description) {
+  Abstraction.call(this, 'L' + suffix, scopeParameters, [iterationParameter], description);
 }
 // inherit prototype
 LoopAbstraction.prototype = Object.create(Abstraction.prototype);
 // static function for creating all loopAbstractions for a given loop
-LoopAbstraction.makeAbstractions = function (pathStr, metricTitle, iteratorParameter, variableNames, variableTypes) {
+LoopAbstraction.makeAbstractions = function (pathStr, metricTitle, scopeParameters, iterationParameter, variableNames, variableTypes) {
   const index = ABSTRACTION_COUNTER++;
   // metric abstraction for entire loop
-  const metricLoopAbstraction = new LoopAbstraction(index, iteratorParameter, metricTitle + ' Abstraction for loop "' + pathStr + '"');
+  const metricLoopAbstraction = new LoopAbstraction(index, scopeParameters, iterationParameter, metricTitle + ' Abstraction for loop "' + pathStr + '"');
 
   // abstractions for every modified variable in the loop
   const abstractions = {
@@ -111,13 +123,13 @@ LoopAbstraction.makeAbstractions = function (pathStr, metricTitle, iteratorParam
   for (let i = 0; i < variableNames.length; i++) {
     // the metric abstraction is always constructed
     const variableName = variableNames[i];
-    const variableMetricAbstraction = new LoopAbstraction(index + variableName, iteratorParameter,
+    const variableMetricAbstraction = new LoopAbstraction(index + variableName, scopeParameters, iterationParameter,
       metricTitle + ' Abstraction for variable "' + variableName + '" in loop "' + pathStr + '"');
     abstractions.metrics[variableName] = variableMetricAbstraction;
 
     // a type abstraction is only constructor for array lengths
     if (variableTypes[i].is(carouselsTypes.ENUM.ARRAY)) {
-      const variableTypeAbstraction = new LoopAbstraction('t' + index + variableName, iteratorParameter,
+      const variableTypeAbstraction = new LoopAbstraction('t' + index + variableName, scopeParameters, iterationParameter,
         'Type Abstraction for variable "' + variableName + '" in loop "' + pathStr + '"');
       abstractions.types[variableName] = variableTypeAbstraction;
     }

@@ -1,4 +1,5 @@
 const carouselsTypes = require('../symbols/types.js');
+const TreeTracker = require('../symbols/treeTracker.js');
 
 // If the return type had a dependent type/clause that was expressed via an abstraction
 // find the closed form from the children (body) result and store it as the solution
@@ -56,6 +57,21 @@ const FunctionDefinition = function (node, pathStr) {
   // Add previously handled function parameters to the scope
   this.currentFunctionDetector.putParametersIntoScope(functionName);
 
+  // Add all the parameters that the function abstraction expects to the path tracker
+  // so that nested abstractions in the body can access them
+  const metricAbstraction = analyzer.functionMetricAbstractionMap.get(functionName);
+  this.analyzer.parametersPathTracker.concat(metricAbstraction.parameters);
+
+  // mark that we are in this function
+  const oldFunctionName = analyzer.currentFunctionName;
+  analyzer.currentFunctionName = functionName;
+
+  // for pretty printing later
+  if (analyzer.functionLoopAbstractionMap[functionName] != null) {
+    throw new Error('function with a duplicate name found "' + functionName + '"!');
+  }
+  analyzer.functionLoopAbstractionMap[functionName] = new TreeTracker();
+
   // Now we have:
   // 1. the function type including all its parameters and return type
   // 2. any symbolic parameters for dependent types of function parameters or return
@@ -68,6 +84,9 @@ const FunctionDefinition = function (node, pathStr) {
 
   // The function definition is over, remove its scope
   analyzer.removeScope();
+
+  // mark that we left this function
+  analyzer.currentFunctionName = oldFunctionName;
 
   // Figure out the closed form symbolic equation for any dependent return type
   const returnAbstractionStr = storeClosedFormReturnAbstraction(analyzer, functionName, functionType, bodyResult.type);
