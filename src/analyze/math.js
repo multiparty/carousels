@@ -4,8 +4,13 @@ const mathjs = _mathjs.create(_mathjs.all);
 // constants
 const ZERO = mathjs.parse('0');
 const ONE = mathjs.parse('1');
+const TRUE = mathjs.parse('true');
+const ERROR = mathjs.parse('__error()');
 
 // functions used to create symbolic expressions (e.g. x + y)
+const not = function (argument) {
+  return new mathjs.OperatorNode('not', 'not', [argument]);
+};
 const emptyArgs = function (_arguments) {
   return _arguments.length === 0 || _arguments[0] == null;
 };
@@ -143,9 +148,12 @@ module.exports = {
   variableIsUsed: variableIsUsed,
   ZERO: ZERO,
   ONE: ONE,
+  TRUE: TRUE,
+  ERROR: ERROR,
   add: operatorNode('+', 'add', ZERO),
   sub: operatorNode('-', 'subtract', ZERO),
   multiply: operatorNode('*', 'multiply', ZERO),
+  and: operatorNode('and', 'and', TRUE),
   div: floorDiv,
   ceilDiv: ceilDiv,
   gt: operatorNode('>', 'larger', ZERO),
@@ -154,7 +162,7 @@ module.exports = {
   lte: operatorNode('<=', 'smallerEq', ZERO),
   eq: operatorNode('==', 'equal', ZERO),
   neq: operatorNode('!=', 'Unequal', ZERO),
-  not: operatorNode('not', 'not', ZERO),
+  not: not,
   max: max,
   iff: iff
 };

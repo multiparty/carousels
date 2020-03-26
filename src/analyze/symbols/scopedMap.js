@@ -27,15 +27,13 @@ ScopedMap.prototype.set = function (name, val) {
   }
   this.add(name, val);
 };
-ScopedMap.prototype.addPreviousScope = function (name, val) {
-  const index = this.scopes.length - 2;
-  this.scopes[index][name] = val;
-};
-ScopedMap.prototype.get = function (name, d) {
+ScopedMap.prototype.get = function (name, d, countPlaceHolder) {
+  countPlaceHolder = countPlaceHolder != null ? countPlaceHolder : false;
+
   for (let i = this.scopes.length - 1; i >= 0; i--) {
     const scope = this.scopes[i];
     const val = scope[name];
-    if (val != null && val !== this.PLACEHOLDER) {
+    if (val != null && (countPlaceHolder || val !== this.PLACEHOLDER)) {
       return val;
     }
   }
@@ -50,15 +48,21 @@ ScopedMap.prototype.get = function (name, d) {
 
   return this.dVal;
 };
-ScopedMap.prototype.has = function (name) {
+ScopedMap.prototype.has = function (name, countPlaceHolder) {
+  countPlaceHolder = countPlaceHolder == null ? false : countPlaceHolder;
+  return this.lastIndexOf(name, countPlaceHolder) > -1;
+};
+ScopedMap.prototype.lastIndexOf = function (name, countPlaceHolder) {
+  countPlaceHolder = countPlaceHolder == null ? false : countPlaceHolder;
+
   for (let i = this.scopes.length - 1; i >= 0; i--) {
     const scope = this.scopes[i];
     const val = scope[name];
-    if (val != null && val !== this.PLACEHOLDER) {
-      return true;
+    if (val != null && (countPlaceHolder || val !== this.PLACEHOLDER)) {
+      return i;
     }
   }
-  return false;
+  return -1;
 };
 ScopedMap.prototype.lookInCurrentScope = function (name) {
   const val = this.scopes[this.scopes.length - 1][name];

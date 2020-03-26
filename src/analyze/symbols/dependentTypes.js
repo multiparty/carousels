@@ -23,7 +23,7 @@ module.exports = function (Type, TYPE_ENUM) {
   DependentType.prototype.conflicts = function (otherDependentType) {
     throw new Error('DependentType "' + this.classname + '".conflicts() is not implemented yet!');
   };
-  DependentType.prototype.combine = function (otherDependentType, dependentCombiner) {
+  DependentType.prototype.combine = function (otherDependentType, condition) {
     throw new Error('DependentType "' + this.classname + '".combine() is not implemented yet!');
   };
 
@@ -48,13 +48,14 @@ module.exports = function (Type, TYPE_ENUM) {
   ValueDependentType.prototype.conflicts = function (otherDependentType) {
     return !(otherDependentType instanceof ValueDependentType);
   };
-  ValueDependentType.prototype.combine = function (otherDependentType, dependentCombiner) {
-    if (!(otherDependentType instanceof ValueDependentType)) {
+  ValueDependentType.prototype.combine = function (otherDependentType, condition) {
+    if (otherDependentType != null && !(otherDependentType instanceof ValueDependentType)) {
       throw new Error('Cannot combined ValueDependentType "' + this + '" with un-matching dependent type "' +
         otherDependentType + '"!');
     }
 
-    const combinedValue = dependentCombiner(this.value, otherDependentType.value);
+    const otherValue = otherDependentType ? otherDependentType.value : math.ERROR;
+    const combinedValue = math.iff(condition, this.value, otherValue);
     return new ValueDependentType(combinedValue);
   };
 
@@ -81,14 +82,15 @@ module.exports = function (Type, TYPE_ENUM) {
     return !(otherDependentType instanceof  ArrayDependentType) ||
       this.elementsType.conflicts(otherDependentType.elementsType);
   };
-  ArrayDependentType.prototype.combine = function (otherDependentType, dependentCombiner) {
-    if (!(otherDependentType instanceof ArrayDependentType)) {
+  ArrayDependentType.prototype.combine = function (otherDependentType, condition) {
+    if (otherDependentType != null && !(otherDependentType instanceof ArrayDependentType)) {
       throw new Error('Cannot combined ArrayDependentType "' + this + '" with un-matching dependent type "' +
         otherDependentType + '"!');
     }
 
-    const dependentDataType = this.elementsType.combine(otherDependentType.elementsType, dependentCombiner);
-    const combinedLength = dependentCombiner(this.length, otherDependentType.length);
+    const otherLength = otherDependentType ? otherDependentType.length : math.ERROR;
+    const combinedLength = math.iff(condition, this.length, otherLength);
+    const dependentDataType = this.elementsType.combine(otherDependentType ? otherDependentType.elementsType : null, condition);
     return new ArrayDependentType(dependentDataType, combinedLength);
   };
 
@@ -122,16 +124,19 @@ module.exports = function (Type, TYPE_ENUM) {
       this.endType.conflicts(otherDependentType.endType) ||
       this.incrementType.conflicts(otherDependentType.incrementType);
   };
-  RangeDependentType.prototype.combine = function (otherDependentType, dependentCombiner) {
-    if (!(otherDependentType instanceof RangeDependentType)) {
+  RangeDependentType.prototype.combine = function (otherDependentType, condition) {
+    if (otherDependentType != null && !(otherDependentType instanceof RangeDependentType)) {
       throw new Error('Cannot combined RangeDependentType "' + this + '" with un-matching dependent type "' +
         otherDependentType + '"!');
     }
+
+    const otherSize = otherDependentType ? otherDependentType.size : math.ERROR;
+    otherDependentType = otherDependentType ? otherDependentType : {};
     return new RangeDependentType(
-      this.startType.combine(otherDependentType.startType, dependentCombiner),
-      this.endType.combine(otherDependentType.endType, dependentCombiner),
-      this.incrementType.combine(otherDependentType.incrementType, dependentCombiner),
-      dependentCombiner(this.size, otherDependentType.size)
+      this.startType.combine(otherDependentType.startType, condition),
+      this.endType.combine(otherDependentType.endType, condition),
+      this.incrementType.combine(otherDependentType.incrementType, condition),
+      math.iff(condition, this.size, otherSize)
     );
   };
   RangeDependentType.prototype.accurateEnd = function () {

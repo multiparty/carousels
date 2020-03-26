@@ -70,7 +70,7 @@ const ForEach = function (node, pathStr) {
 
     // type loop abstraction is only used for array lengths
     if (previousVariablesTypes[i].is(carouselsTypes.ENUM.ARRAY)) {
-      initialType[variableName] = previousVariablesTypes[i].dependentType.length;
+      initialType[variableName] = previousVariablesTypes[i];
       const abstractedType = previousVariablesTypes[i].copy();
       abstractedType.dependentType.length = loopAbstractions.variables.types[variableName].concretize([previousIterationMath]);
       this.analyzer.variableTypeMap.set(variableName, abstractedType);
@@ -115,22 +115,22 @@ const ForEach = function (node, pathStr) {
     const variableName = modifiedVariables[i];
 
     // compute closed form for metric
-    const closedForm = math.iff(math.eq(iterationMath, start), initialMetric[variableName], this.analyzer.variableMetricMap.get(variableName));
+    const closedForm = math.iff(math.lte(iterationMath, start), initialMetric[variableName], this.analyzer.variableMetricMap.get(variableName));
     abstractionsArray.push(loopAbstractions.variables.metrics[variableName]);
     this.analyzer.abstractionToClosedFormMap[loopAbstractions.variables.metrics[variableName].mathSymbol.toString()] = closedForm;
-    this.analyzer.variableMetricMap.set(variableName, loopAbstractions.variables.metrics[variableName].concretize([end]));
+    this.analyzer.setMetricWithConditions(variableName, loopAbstractions.variables.metrics[variableName].concretize([end]), initialMetric[variableName]);
 
     // compute closed form for type (if needed and type is an array)
     if (initialType[variableName] != null) {
       const newType = this.analyzer.variableTypeMap.get(variableName);
       const newLength = newType.dependentType.length;
-      const lengthClosedForm = math.iff(math.eq(iterationMath, start), initialType[variableName], newLength);
+      const lengthClosedForm = math.iff(math.lte(iterationMath, start), initialType[variableName].dependentType.length, newLength);
       abstractionsArray.push(loopAbstractions.variables.types[variableName]);
       this.analyzer.abstractionToClosedFormMap[loopAbstractions.variables.types[variableName].mathSymbol.toString()] = lengthClosedForm;
 
       const finalType = newType.copy();
       finalType.dependentType.length = loopAbstractions.variables.types[variableName].concretize([end]);
-      this.analyzer.variableTypeMap.set(variableName, finalType);
+      this.analyzer.setTypeWithConditions(variableName, finalType, initialType[variableName]);
     }
   }
 
