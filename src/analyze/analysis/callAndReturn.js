@@ -1,13 +1,22 @@
 const carouselsTypes = require('../symbols/types.js');
+const math = require('../math.js');
 
 const ReturnStatement = function (node, pathStr) {
   const res = this.visit(node.expression, pathStr + '[returnExpression]');
 
   // Return statement not allowed in typings and costs: skip!
+  const type = res.type;
   const metric = this.analyzer.metric.aggregateReturnStatement(node, {expression: res.type}, {expression: res.metric});
 
+  // must make note that the function returns here with the type and metric deduced above
+  const conditions = this.analyzer.conditionsPathTracker.retrieveAll();
+  if (conditions.length > 0) {
+    let aggregateCondition = math.and.apply(math, conditions);
+    this.analyzer.functionReturnConditionMap[this.analyzer.currentFunctionName].push({condition: aggregateCondition, metric: metric, type: type});
+  }
+
   return {
-    type: res.type,
+    type: type,
     metric: metric
   };
 };

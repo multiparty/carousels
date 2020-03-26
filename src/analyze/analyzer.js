@@ -187,6 +187,7 @@ Analyzer.prototype.analyze = function (costs, metricTitle) {
   // initialize maps used during visitor to track state along visit paths
   this.parametersPathTracker = new PathTracker();
   this.conditionsPathTracker = new PathTracker();
+  this.functionReturnConditionMap = {}; // {functionName -> [ {condition: ..., type: ..., metric: ...} ]
 
   // tracks the current function
   this.currentFunctionName = null;
