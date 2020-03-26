@@ -23,8 +23,9 @@ PathTracker.prototype.concat = function (elements) {
   const index = this.scopes.length - 1;
   this.scopes[index] = this.scopes[index].concat(elements);
 };
-PathTracker.prototype.retrieveAll = function () {
-  return this.scopes.reduce(function (acc, scope) {
+PathTracker.prototype.retrieveAll = function (startIndex) {
+  startIndex = startIndex == null ? 0 : startIndex;
+  return this.scopes.slice(startIndex).reduce(function (acc, scope) {
     return acc.concat(scope);
   }, []);
 };

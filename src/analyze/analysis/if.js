@@ -2,16 +2,8 @@ const carouselsTypes = require('../symbols/types.js');
 const Parameter = require('../symbols/parameter.js');
 const math = require('../math.js');
 
-const dependentIfCombiner = function (conditionMathEquation, ifVal, elseVal) {
-  return math.iff(conditionMathEquation, ifVal, elseVal);
-};
-
 // Used for both If and OblivIf
-const GenericIf = function (node, pathStr) {
-  if (node.nodeType !== 'If' && node.nodeType !== 'OblivIf') {
-    throw new Error('GenericIf Visitor called with an illegal node with type "' + node.nodeType + '"!');
-  }
-
+const If = function (node, pathStr) {
   const condition = node.condition;
   const ifBody = node.ifBody;
   const elseBody = node.elseBody;
@@ -19,16 +11,8 @@ const GenericIf = function (node, pathStr) {
   // visit children
   const conditionResult = this.visit(condition, pathStr + 'if[condition]');
 
-  this.analyzer.addScope();
-  const ifResult = this.visit(ifBody, pathStr + 'if[body]');
-  this.analyzer.removeScope();
-
-  this.analyzer.addScope();
-  const elseResult = this.visit(elseBody, pathStr + 'else[body]');
-  this.analyzer.removeScope();
-
   // turn the condition type into something actionable: a mathjs expression
-  // that can be used in a symbolic if statement
+  // that can be used in a symbolic iff statement
   let conditionMathEquation;
   if (conditionResult.type.is(carouselsTypes.ENUM.BOOL)) {
     conditionMathEquation = conditionResult.type.dependentType.value;
@@ -40,11 +24,28 @@ const GenericIf = function (node, pathStr) {
     conditionMathEquation = parameter.mathSymbol;
   }
 
-  // the (return) type of this statement is the union type of
+  // add the condition to the conditions path
+  this.analyzer.addScope();
+  this.analyzer.conditionsPathTracker.add(conditionMathEquation);
+  const ifResult = this.visit(ifBody, pathStr + 'if[body]');
+  this.analyzer.removeScope();
+
+  // add the negated condition to the conditions path
+  this.analyzer.addScope();
+  this.analyzer.conditionsPathTracker.add(math.not(conditionMathEquation));
+  const elseResult = this.visit(elseBody, pathStr + 'else[body]');
+  this.analyzer.removeScope();
+
+  // the (return) type of this statement is the combined type of
   // the if and else bodies
   const ifType = ifResult.type;
   const elseType = elseResult ? elseResult.type : null;
-  const type = ifType.combine(elseType, dependentIfCombiner.bind(this, conditionMathEquation));
+  let type;
+  if (ifType.is(carouselsTypes.ENUM.UNIT) || elseType == null || elseType.is(carouselsTypes.ENUM.UNIT)) {
+    type = carouselsTypes.UNIT;
+  } else {
+    type = ifType.combine(elseType, conditionMathEquation);
+  }
 
   // aggregate children metric
   const childrenType = {
@@ -58,20 +59,15 @@ const GenericIf = function (node, pathStr) {
     ifBody: ifResult.metric,
     elseBody: elseResult ? elseResult.metric : this.analyzer.metric.initial
   };
-  const aggregateMetric = this.analyzer.metric['aggregate'+node.nodeType](node, childrenType, childrenMetric);
-
-  // find cost in rules and apply it
-  const elseTypeStr = elseType ? elseType.toString() : carouselsTypes.UNIT.toString();
-  const typeString = conditionResult.type.toString() + '?' + ifType.toString() + ':' + elseTypeStr;
-  const finalMetric = this.analyzer.costs.applyMatch(node, typeString, aggregateMetric);
+  const aggregateMetric = this.analyzer.metric.aggregateIf(node, childrenType, childrenMetric);
 
   // return results
   return {
     type: type,
-    metric: finalMetric
+    metric: aggregateMetric
   }
 };
 
 module.exports = {
-  If: GenericIf
+  If: If
 };

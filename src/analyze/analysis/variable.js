@@ -58,6 +58,7 @@ const VariableDefinition = function (node, pathStr) {
     throw new Error('Cannot determine type of variable "' + pathStr + variableName + '"');
   }
 
+
   // Aggregate metric
   const childrenType = {
     type: typeType,
@@ -68,14 +69,15 @@ const VariableDefinition = function (node, pathStr) {
     assignment: assignmentMetric
   };
 
+  const aggregateType = assignmentType || typeType;
   const aggregateMetric = analyzer.metric.aggregateVariableDefinition(node, childrenType, childrenMetric);
 
   // add variable and type to scope
-  analyzer.variableTypeMap.add(variableName, assignmentType || typeType);
+  analyzer.variableTypeMap.add(variableName, aggregateType);
   analyzer.variableMetricMap.add(variableName, analyzer.metric.store(aggregateMetric));
 
   return {
-    type: assignmentType || typeType,
+    type: aggregateType,
     metric: aggregateMetric
   };
 };
@@ -89,13 +91,15 @@ const VariableAssignment = function (node, pathStr) {
   const childMetric = childResult.metric;
 
   // ensure variable assignments does not change the type of the variable if already defined
-  const oldType = analyzer.variableTypeMap.lookInCurrentScope(variableName);
-  if (oldType != null && !oldType.match(variableType)) {
+  const oldType = analyzer.variableTypeMap.get(variableName, undefined, true);
+  if (oldType !== analyzer.variableTypeMap.PLACEHOLDER && !oldType.match(variableType)) {
     throw new Error('Type of variable "' + variableName + '" is changed at "' + pathStr + '" after definition!');
   }
 
-  analyzer.variableTypeMap.set(variableName, variableType);
-  analyzer.variableMetricMap.set(variableName, analyzer.metric.store(childMetric));
+  // when modifying the type/metric in scope, take conditions in the current visitor path (starting after where
+  // the function was defined) into consideration
+  analyzer.setTypeWithConditions(variableName, variableType);
+  analyzer.setMetricWithConditions(variableName, analyzer.metric.store(childMetric));
 
   return {
     type: variableType,

@@ -1,7 +1,7 @@
 const Rule = require('./rule.js');
 
 const ALLOWED_NODES = {
-  costs: ['FunctionCall', 'DotExpression', 'NameExpression', 'DirectExpression', 'If', 'OblivIf'],
+  costs: ['FunctionCall', 'DotExpression', 'NameExpression', 'DirectExpression', 'OblivIf'],
   typing: ['FunctionCall', 'DotExpression', 'NameExpression', 'DirectExpression']
 };
 

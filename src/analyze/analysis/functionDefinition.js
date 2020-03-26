@@ -1,22 +1,33 @@
 const carouselsTypes = require('../symbols/types.js');
 const TreeTracker = require('../symbols/treeTracker.js');
 
+const math = require('../math.js');
+
 // If the return type had a dependent type/clause that was expressed via an abstraction
 // find the closed form from the children (body) result and store it as the solution
 // to that abstraction
 const storeClosedFormReturnAbstraction = function (analyzer, functionName, functionType, bodyType) {
   if (functionType.dependentType.returnType.is(carouselsTypes.ENUM.ARRAY)) {
-    let concreteDependentReturnType;
-    if (bodyType.is(carouselsTypes.ENUM.ARRAY)) {
-      concreteDependentReturnType = bodyType.dependentType.length;
-    } else {
-      concreteDependentReturnType = functionType.dependentType.returnType.dependentType.length;
+    if (!bodyType.is(carouselsTypes.ENUM.ARRAY)) {
+      throw new Error('Function "' + functionName + '" body returns type "' + bodyType + '" that does not matching the signature!');
+    }
+
+    let finalDependentReturnType = bodyType.dependentType.length;
+    const earlyReturnConditions = analyzer.functionReturnConditionMap[functionName];
+    for (let i = earlyReturnConditions.length - 1; i >= 0; i--) {
+      const earlyReturn = earlyReturnConditions[i];
+      const earlyType = earlyReturn.type;
+      if (!earlyType.is(carouselsTypes.ENUM.ARRAY)) {
+        throw new Error('Function "' + functionName + '" body returns type "' + earlyType + '" at conditions "' +
+          earlyReturn.condition + '" that does not matching the signature!');
+      }
+      finalDependentReturnType = math.iff(earlyReturn.condition, earlyType.dependentType.length, finalDependentReturnType);
     }
 
     const returnAbstraction = analyzer.functionReturnAbstractionMap.get(functionName);
-    analyzer.abstractionToClosedFormMap[returnAbstraction.mathSymbol.toString()] = concreteDependentReturnType;
+    analyzer.abstractionToClosedFormMap[returnAbstraction.mathSymbol.toString()] = finalDependentReturnType;
 
-    return returnAbstraction.mathSymbol.toString() + ' = ' + concreteDependentReturnType.toString();
+    return returnAbstraction.mathSymbol.toString() + ' = ' + finalDependentReturnType.toString();
   }
 
   return '';
@@ -25,9 +36,18 @@ const storeClosedFormReturnAbstraction = function (analyzer, functionName, funct
 // Store the closed form metric equation return from visiting the body as the solution
 // to the corresponding metric abstraction
 const storeClosedFormMetricAbstraction = function (analyzer, functionName, bodyMetric) {
+  // accumulate bodyMetric into all recorded earlyReturn results
+  const earlyReturnConditions = analyzer.functionReturnConditionMap[functionName];
+  let finalMetric = bodyMetric;
+  for (let i = earlyReturnConditions.length - 1; i >= 0; i--) {
+    const earlyReturn = earlyReturnConditions[i];
+    finalMetric = math.iff(earlyReturn.condition, earlyReturn.metric, finalMetric);
+  }
+
+  // store resulting closed form
   const metricAbstraction = analyzer.functionMetricAbstractionMap.get(functionName);
-  analyzer.abstractionToClosedFormMap[metricAbstraction.mathSymbol.toString()] = bodyMetric;
-  return metricAbstraction.mathSymbol.toString() + ' = ' + bodyMetric.toString();
+  analyzer.abstractionToClosedFormMap[metricAbstraction.mathSymbol.toString()] = finalMetric;
+  return metricAbstraction.mathSymbol.toString() + ' = ' + finalMetric.toString();
 };
 
 // Visit Function Definition and analyze its type and metric
@@ -71,6 +91,7 @@ const FunctionDefinition = function (node, pathStr) {
     throw new Error('function with a duplicate name found "' + functionName + '"!');
   }
   analyzer.functionLoopAbstractionMap[functionName] = new TreeTracker();
+  analyzer.functionReturnConditionMap[functionName] = [];
 
   // Now we have:
   // 1. the function type including all its parameters and return type

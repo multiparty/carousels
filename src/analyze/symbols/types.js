@@ -58,8 +58,9 @@ Type.prototype.conflicts = function (otherType) {
   }
   return false;
 };
-Type.prototype.combine = function (otherType, dependentCombiner) {
-  if (otherType != null && !otherType.is(TYPE_ENUM.UNIT)) {
+Type.prototype.combine = function (otherType, condition) {
+  if (otherType != null) {
+    // other type exists
     if (this.secret !== otherType.secret) {
       throw new Error('Cannot combine secret and non-secret types "' +
         this.toString() + '" and "' + otherType.toString() + '"!');
@@ -71,10 +72,17 @@ Type.prototype.combine = function (otherType, dependentCombiner) {
     }
 
     if (this.dependentType != null && otherType.dependentType != null) {
-      return this.copy(this.dependentType.combine(otherType.dependentType, dependentCombiner));
+      return this.copy(this.dependentType.combine(otherType.dependentType, condition));
+    }
+  } else {
+    // other type does not exist
+    // ensure type can only be accessed when conditions are met
+    if (this.dependentType != null) {
+      return this.copy(this.dependentType.combine(null, condition));
     }
   }
 
+  // for useless types
   return this.copy();
 };
 Type.fromTypeNode = function (typeNode, pathStr) {

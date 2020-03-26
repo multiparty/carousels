@@ -13,6 +13,8 @@ const PathTracker = require('./symbols/pathTracker.js');
 
 const metricObjects = require('./metrics/metrics.js');
 
+const math = require('./math.js');
+
 const IRVisitor = require('../ir/visitor.js');
 const visitorImplementations = [
   require('./analysis/array.js'),
@@ -107,6 +109,54 @@ Analyzer.prototype.removeScope = function () {
   this.parametersPathTracker.removeScope();
   this.conditionsPathTracker.removeScope();
 };
+Analyzer.prototype.setTypeWithConditions = function (variableName, variableType, oldType) {
+  const scopeIndex = this.variableTypeMap.lastIndexOf(variableName, true);
+  if (scopeIndex === -1) {
+    this.variableTypeMap.add(variableName, variableType);
+    return;
+  }
+
+  if (oldType == null) {
+    // might be a placeholder, unit, or the actual type, guaranteed not to have a conflict at this point
+    oldType = this.variableTypeMap.scopes[scopeIndex][variableName];
+    if (oldType === this.variableTypeMap.PLACEHOLDER) {
+      oldType = null;
+    }
+  }
+
+  // all conditions up to this point
+  const conditions = this.conditionsPathTracker.retrieveAll(scopeIndex+1);
+  if (conditions.length === 0) {
+    this.variableTypeMap.set(variableName, variableType);
+    return;
+  }
+
+  this.variableTypeMap.set(variableName, variableType.combine(oldType, math.and.apply(math, conditions)));
+};
+Analyzer.prototype.setMetricWithConditions = function (variableName, variableMetric, oldMetric) {
+  const scopeIndex = this.variableMetricMap.lastIndexOf(variableName, true);
+  if (scopeIndex === -1) {
+    this.variableMetricMap.add(variableName, variableMetric);
+    return;
+  }
+
+  if (oldMetric == null) {
+    // might be a placeholder, unit, or the actual type, guaranteed not to have a conflict at this point
+    oldMetric = this.variableMetricMap.scopes[scopeIndex][variableName];
+    if (oldMetric === this.variableMetricMap.PLACEHOLDER) {
+      oldMetric = math.ERROR;
+    }
+  }
+
+  // all conditions up to this point
+  const conditions = this.conditionsPathTracker.retrieveAll(scopeIndex+1);
+  if (conditions.length === 0) {
+    this.variableMetricMap.set(variableName, variableMetric);
+    return;
+  }
+
+  this.variableMetricMap.set(variableName, math.iff(math.and.apply(math, conditions), variableMetric, oldMetric));
+};
 
 // Main entry point
 Analyzer.prototype.analyze = function (costs, metricTitle) {
@@ -137,6 +187,7 @@ Analyzer.prototype.analyze = function (costs, metricTitle) {
   // initialize maps used during visitor to track state along visit paths
   this.parametersPathTracker = new PathTracker();
   this.conditionsPathTracker = new PathTracker();
+  this.functionReturnConditionMap = {}; // {functionName -> [ {condition: ..., type: ..., metric: ...} ]
 
   // tracks the current function
   this.currentFunctionName = null;
