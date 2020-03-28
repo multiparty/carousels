@@ -91,6 +91,7 @@ const VariableAssignment = function (node, pathStr) {
   const childMetric = childResult.metric;
 
   // ensure variable assignments does not change the type of the variable if already defined
+  // do not allow assigning to global undefined variables
   const oldType = analyzer.variableTypeMap.get(variableName, undefined, true);
   if (oldType !== analyzer.variableTypeMap.PLACEHOLDER && !oldType.match(variableType)) {
     throw new Error('Type of variable "' + variableName + '" is changed at "' + pathStr + '" after definition!');

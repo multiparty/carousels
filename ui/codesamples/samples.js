@@ -14,8 +14,8 @@ window.carouselsCodeSamples = {
     '    let out_len = left.len() + right.len();\n' +
     '    let mut out = Vec::with_capacity(out_len);\n' +
     '\n' +
-    '    let mut li = 0;\n' +
-    '    let mut ri = 0;\n' +
+    '    let mut li = P::run(0);\n' +
+    '    let mut ri = P::run(0);\n' +
     '\n' +
     '    let left_len = left.len();\n' +
     '    let right_len = right.len();\n' +

@@ -44,7 +44,7 @@ const ForEach = function (node, pathStr) {
   this.analyzer.addParameters([iterationParameter]);
 
   // find variables that are modified in body
-  const modifiedVisitor = new ModifiedVisitor();
+  const modifiedVisitor = new ModifiedVisitor(this.analyzer);
   const modifiedVariables = modifiedVisitor.start(node.body); // these only include variables defined outside the for loop body
 
   // create abstractions for modified variables and for the loop metric, use value/iteration

@@ -154,6 +154,7 @@ module.exports = {
   sub: operatorNode('-', 'subtract', ZERO),
   multiply: operatorNode('*', 'multiply', ZERO),
   and: operatorNode('and', 'and', TRUE),
+  or: operatorNode('or', 'or', TRUE),
   div: floorDiv,
   ceilDiv: ceilDiv,
   gt: operatorNode('>', 'larger', ZERO),

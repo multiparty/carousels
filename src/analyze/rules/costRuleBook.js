@@ -12,8 +12,12 @@ function CostRuleBook(analyzer, rules, metricTitle) {
 CostRuleBook.prototype = Object.create(RuleBook.prototype);
 
 // Apply matching rule to metric if found
-CostRuleBook.prototype.applyMatch = function (node, expressionTypeString, metric) {
-  const matchedValue = this.findMatch(node, expressionTypeString);
+CostRuleBook.prototype.applyMatch = function (node, expressionTypeString, args, metric, childrenType, childrenMetric) {
+  let matchedValue = this.findMatch(node, expressionTypeString);
+  if (typeof(matchedValue) === 'function') {
+    matchedValue = matchedValue.call(this.analyzer, node, metric, args, childrenType, childrenMetric);
+  }
+
   if (matchedValue === undefined) {
     return metric;
   }

@@ -18,15 +18,25 @@ const ArrayAccess = function (node, pathStr) {
     throw new Error('Expected Expression in ArrayAccess to be of type array, found "' + arrayResult.type + '" instead!');
   }
 
-  // ArrayAccess is not allowed in typings and costs: skip
-  let type = arrayResult.type.dependentType.elementsType;
+  // find typing rule if it exists
+  let type;
+  const typeString = arrayResult.type.toString() + '[' + indexResult.type.toString() + ']';
+  if (this.analyzer.typings.findMatch(node, typeString) !== undefined) {
+    type = this.analyzer.typings.applyMatch(node, typeString, pathStr, childrenType);
+  } else {
+    type = arrayResult.type.dependentType.elementsType.copy();
+  }
 
   // aggregate metric
-  const metric = this.analyzer.metric.aggregateArrayAccess(node, childrenType, childrenMetric);
+  const aggregateMetric = this.analyzer.metric.aggregateArrayAccess(node, childrenType, childrenMetric);
 
+  // find cost in rules and apply it
+  const finalMetric = this.analyzer.costs.applyMatch(node, typeString, pathStr, aggregateMetric, childrenType, childrenMetric);
+
+  // done
   return {
     type: type,
-    metric: metric
+    metric: finalMetric
   };
 };
 

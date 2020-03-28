@@ -74,7 +74,7 @@ const OblivIf = function (node, pathStr) {
 
   // find cost in rules and apply it
   const typeString = conditionResult.type.toString() + '?' + ifType.toString() + ':' + elseType.toString();
-  const finalMetric = this.analyzer.costs.applyMatch(node, typeString, aggregateMetric);
+  const finalMetric = this.analyzer.costs.applyMatch(node, typeString, pathStr, aggregateMetric, childrenType, childrenMetric);
 
   // return results
   return {

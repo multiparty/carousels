@@ -132,7 +132,7 @@ const unknownFunctionCall = function (node, pathStr) {
   const aggregateMetric = this.analyzer.metric.aggregateFunctionCall(node, childrenType, childrenMetric);
 
   // find metric in costs
-  const finalMetric = this.analyzer.costs.applyMatch(node, expressionTypeStr, aggregateMetric);
+  const finalMetric = this.analyzer.costs.applyMatch(node, expressionTypeStr, pathStr, aggregateMetric, childrenType, childrenMetric);
 
   // done
   return {

@@ -27,7 +27,7 @@ const DirectExpression = function (node, pathStr) {
   const aggregateMetric = this.analyzer.metric.aggregateDirectExpression(node, childrenType, childrenMetric);
 
   // Apply cost rule if exists
-  const finalMetric = this.analyzer.costs.applyMatch(node, expressionTypeStr, aggregateMetric);
+  const finalMetric = this.analyzer.costs.applyMatch(node, expressionTypeStr, pathStr, aggregateMetric, childrenType, childrenMetric);
 
   // Done
   return {
@@ -67,7 +67,7 @@ const DotExpression = function (node, pathStr) {
   const aggregateMetric = this.analyzer.metric.aggregateDotExpression(node, childrenType, childrenMetric);
 
   // Apply cost to metric
-  const finalMetric = this.analyzer.costs.applyMatch(node, expressionTypeStr, aggregateMetric);
+  const finalMetric = this.analyzer.costs.applyMatch(node, expressionTypeStr, pathStr, aggregateMetric, childrenType, childrenMetric);
 
   return {
     type: finalType,
@@ -83,16 +83,11 @@ const DotExpression = function (node, pathStr) {
 // Other occurrences of NameExpression are handled without visit by their parents
 const NameExpression = function (node, pathStr) {
   let type;
-  let metric = this.analyzer.metric.initial;
+  let metric;
 
   // read type and metric from scope (if exists)
-  if (this.analyzer.variableTypeMap.has(node.name)) {
-    type = this.analyzer.variableTypeMap.get(node.name)
-  }
-
-  if (this.analyzer.variableMetricMap.has(node.name)) {
-    metric = this.analyzer.variableMetricMap.get(node.name);
-  }
+  type = this.analyzer.variableTypeMap.get(node.name, null);
+  metric = this.analyzer.variableMetricMap.get(node.name, null);
 
   // Find type in case of special (global) variables
   let symbol = false;
@@ -100,13 +95,16 @@ const NameExpression = function (node, pathStr) {
     type = this.analyzer.typings.applyMatch(node, node.name, pathStr, null);
     symbol = true;
   }
+  if (metric == null) {
+    metric = this.analyzer.metric.initial;
+  }
 
   // aggregate metric
   metric = this.analyzer.metric.aggregateNameExpression(node, type, metric);
 
   // find costs if any
   if (symbol) {
-    metric = this.analyzer.costs.applyMatch(node, node.name, metric);
+    metric = this.analyzer.costs.applyMatch(node, node.name, pathStr, metric, null, null);
   }
 
   // no children to visit

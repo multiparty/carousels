@@ -1,7 +1,10 @@
 const IRVisitor = require('../../ir/visitor.js');
 const ScopedMap = require('../symbols/scopedMap.js');
 
-function ModifiedVisitor() {
+const carouselsTypes = require('../symbols/types.js');
+
+function ModifiedVisitor(analyzer) {
+  this.analyzer = analyzer;
   this.undefinedModifiedVariables = {};
   this.definedVariables = new ScopedMap();
   IRVisitor.call(this);
@@ -53,7 +56,8 @@ ModifiedVisitor.prototype.visitFor = function (node) {
   throw new Error('Regular for loops are not yet supported! use foreach instead!');
 };
 ModifiedVisitor.prototype.visitVariableAssignment = function (node) {
-  if (!this.definedVariables.has(node.name.name)) {
+  // do not track global undefined variables
+  if (!this.definedVariables.has(node.name.name) && this.analyzer.variableTypeMap.has(node.name.name)) {
     this.undefinedModifiedVariables[node.name.name] = true;
   }
   this.visit(node.expression);
@@ -92,6 +96,7 @@ ModifiedVisitor.prototype.visitSliceExpression = function (node) {
   this.visit(node.range);
 };
 ModifiedVisitor.prototype.visitFunctionCall = function (node) {
+  this.visit(node.function);
   for (let i = 0; i < node.parameters.length; i++) {
     this.visit(node.parameters[i]);
   }
@@ -103,6 +108,18 @@ ModifiedVisitor.prototype.visitDotExpression = function (node) {
 
   this.visit(node.left);
   this.visit(node.right);
+
+  // <arr>.push() has side effects
+  if (node.left.nodeType === 'NameExpression' && node.right.name === 'push') {
+    const varName = node.left.name;
+    if (!this.definedVariables.has(varName)) { // ensure array variable is not defined within the block
+      // can use this because we only allow variables defined outside this if (so they are present in the map) and because we disallow changing the types of variables
+      const type = this.analyzer.variableTypeMap.get(varName, null); // do not bother with global undefined variables
+      if (type != null && type.is(carouselsTypes.ENUM.ARRAY)) {
+        this.undefinedModifiedVariables[varName] = true;
+      }
+    }
+  }
 };
 ModifiedVisitor.prototype.visitSequence = function (nodes) {
   for (let i = 0; i < nodes.length; i++) {

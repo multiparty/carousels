@@ -1,8 +1,8 @@
 const Rule = require('./rule.js');
 
 const ALLOWED_NODES = {
-  costs: ['FunctionCall', 'DotExpression', 'NameExpression', 'DirectExpression', 'OblivIf'],
-  typing: ['FunctionCall', 'DotExpression', 'NameExpression', 'DirectExpression']
+  costs: ['FunctionCall', 'DotExpression', 'NameExpression', 'DirectExpression', 'OblivIf', 'ArrayAccess'],
+  typing: ['FunctionCall', 'DotExpression', 'NameExpression', 'DirectExpression', 'ArrayAccess']
 };
 
 function RuleBook(analyzer, rules, _type) {
