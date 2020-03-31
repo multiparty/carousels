@@ -2,10 +2,6 @@ const carouselsTypes = require('../symbols/types.js');
 const Parameter = require('../symbols/parameter.js');
 const math = require('../math.js');
 
-const dependentIfCombiner = function (conditionMathEquation, ifVal, elseVal) {
-  return math.iff(conditionMathEquation, ifVal, elseVal);
-};
-
 // Used for both If and OblivIf
 const OblivIf = function (node, pathStr) {
   const condition = node.condition;

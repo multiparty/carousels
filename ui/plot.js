@@ -14,7 +14,7 @@ let carouselsPlot = {};
     } else if (type === 'c') {
       return [0, 2, 1];
     } else { // n, v
-      return [0, 100000, 1000];
+      return [0, 100, 5];
     }
   };
 

@@ -37,29 +37,19 @@ roundMetric.aggregateForEach = function (node, childrenType, childrenMetric) {
   return math.max(childrenMetric.body, childrenMetric.previousIterationMetric);
 };
 
-// Regular For: (body + condition + increment) * iterations + condition + initialization (one extra condition evaluation)
 roundMetric.aggregateFor = function (node, childrenType, childrenMetric) {
   throw new Error('Regular for loops are not yet supported! use for each');
-  /*
-  const body = math.add(childrenMetric.body, childrenMetric.condition, childrenMetric.increment);
-  const bodyIterated = math.multiply(body, iterationCount);
-  const total = math.add(bodyIterated, childrenMetric.condition, childrenMetric.initial);
-  return total;
-  */
 };
 
 // If: only one of the two branches is executed
 roundMetric.aggregateIf = function (node, childrenType, childrenMetric) {
-  const bodies = math.iff(childrenType.conditionMath, childrenMetric.ifBody, childrenMetric.elseBody);
-  const total = math.add(bodies, childrenMetric.condition);
-  return total;
+  // condition is public and can be ignored
+  return math.iff(childrenMetric.ifBody, childrenMetric.elseBody);
 };
 
-// OblivIf: both branches are always executed (but in parallel!)
+// OblivIf: both branches as well as condition are executed in parallel in parallel
 roundMetric.aggregateOblivIf = function (node, childrenType, childrenMetric) {
-  const max = math.max(childrenMetric.ifBody, childrenMetric.elseBody);
-  const total = math.add(max, childrenMetric.condition);
-  return total;
+  return math.max(childrenMetric.condition, childrenMetric.ifBody, childrenMetric.elseBody);
 };
 
 // NameExpression: return whatever is given (from scoped map)
@@ -69,32 +59,27 @@ roundMetric.aggregateNameExpression = function (node, childrenType, childrenMetr
 
 // DirectExpression: aggregate operands, the added cost of operation is factored in separately
 roundMetric.aggregateDirectExpression = function (node, childrenType, childrenMetric) {
-  const totalExceptOperator = math.max.apply(null, childrenMetric.operands);
-  return totalExceptOperator;
+  return math.max.apply(null, childrenMetric.operands);
 };
 
 // ArrayAccess: aggregate Array and index
 roundMetric.aggregateArrayAccess = function (node, childrenType, childrenMetric) {
-  const total = math.max(childrenMetric.array, childrenMetric.index);
-  return total;
+  return math.max(childrenMetric.array, childrenMetric.index);
 };
 
 // Range: aggregate start, end, and increment
 roundMetric.aggregateRangeExpression = function (node, childrenType, childrenMetric) {
-  const total = math.max(childrenMetric.start, childrenMetric.end, childrenMetric.increment);
-  return total;
+  return math.max(childrenMetric.start, childrenMetric.end, childrenMetric.increment);
 };
 
 // Slice: aggregate the Array and the range
 roundMetric.aggregateSliceExpression = function (node, childrenType, childrenMetric) {
-  const total = math.max(childrenMetric.array, childrenMetric.range);
-  return total;
+  return math.max(childrenMetric.array, childrenMetric.range);
 };
 
 // ArrayExpression: an array constructed from some elements directly
 roundMetric.aggregateArrayExpression = function (node, childrenType, childrenMetric) {
-  const total = math.max.apply(null, childrenMetric);
-  return total;
+  return math.max.apply(null, childrenMetric);
 };
 
 // FunctionCall: aggregate parameters (and this if exists), the added cost of the function itself is factored in separately
@@ -112,14 +97,12 @@ roundMetric.aggregateFunctionCall = function (node, childrenType, childrenMetric
     allParams.push(childrenMetric.call);
   }
 
-  const total = math.max.apply(null, allParams);
-  return total;
+  return math.max.apply(null, allParams);
 };
 
 // Aggregate Statement / Expressions Sequences: things separated by ;
 roundMetric.aggregateSequence = function (node, childrenType, childrenMetric) {
-  const total = math.max.apply(null, childrenMetric);
-  return total;
+  return math.max.apply(null, childrenMetric);
 };
 
 module.exports = roundMetric;
