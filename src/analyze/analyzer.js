@@ -110,18 +110,15 @@ Analyzer.prototype.removeScope = function () {
   this.conditionsPathTracker.removeScope();
 };
 Analyzer.prototype.setTypeWithConditions = function (variableName, variableType, oldType) {
-  const scopeIndex = this.variableTypeMap.lastIndexOf(variableName, true);
+  const scopeIndex = this.variableTypeMap.lastIndexOf(variableName);
   if (scopeIndex === -1) {
     this.variableTypeMap.add(variableName, variableType);
     return;
   }
 
   if (oldType == null) {
-    // might be a placeholder, unit, or the actual type, guaranteed not to have a conflict at this point
+    // might be a unit, or the actual type, guaranteed not to have a conflict at this point
     oldType = this.variableTypeMap.scopes[scopeIndex][variableName];
-    if (oldType === this.variableTypeMap.PLACEHOLDER) {
-      oldType = null;
-    }
   }
 
   // all conditions up to this point
@@ -134,18 +131,14 @@ Analyzer.prototype.setTypeWithConditions = function (variableName, variableType,
   this.variableTypeMap.set(variableName, variableType.combine(oldType, math.and.apply(math, conditions)));
 };
 Analyzer.prototype.setMetricWithConditions = function (variableName, variableMetric, oldMetric) {
-  const scopeIndex = this.variableMetricMap.lastIndexOf(variableName, true);
+  const scopeIndex = this.variableMetricMap.lastIndexOf(variableName);
   if (scopeIndex === -1) {
     this.variableMetricMap.add(variableName, variableMetric);
     return;
   }
 
   if (oldMetric == null) {
-    // might be a placeholder, unit, or the actual type, guaranteed not to have a conflict at this point
     oldMetric = this.variableMetricMap.scopes[scopeIndex][variableName];
-    if (oldMetric === this.variableMetricMap.PLACEHOLDER) {
-      oldMetric = math.ERROR;
-    }
   }
 
   // all conditions up to this point
