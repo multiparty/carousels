@@ -44,11 +44,13 @@ roundMetric.aggregateFor = function (node, childrenType, childrenMetric) {
 // If: only one of the two branches is executed
 roundMetric.aggregateIf = function (node, childrenType, childrenMetric) {
   // condition is public and can be ignored
-  return math.iff(childrenMetric.ifBody, childrenMetric.elseBody);
+  const bodiesCost = math.iff(childrenType.conditionMath, childrenMetric.ifBody, childrenMetric.elseBody);
+  return math.max(childrenMetric.condition, bodiesCost);
 };
 
 // OblivIf: both branches as well as condition are executed in parallel in parallel
 roundMetric.aggregateOblivIf = function (node, childrenType, childrenMetric) {
+  // other side effects are ignored, their rounds are attached to their variables
   return math.max(childrenMetric.condition, childrenMetric.ifBody, childrenMetric.elseBody);
 };
 
@@ -102,7 +104,10 @@ roundMetric.aggregateFunctionCall = function (node, childrenType, childrenMetric
 
 // Aggregate Statement / Expressions Sequences: things separated by ;
 roundMetric.aggregateSequence = function (node, childrenType, childrenMetric) {
-  return math.max.apply(null, childrenMetric);
+  if (childrenMetric == null || childrenMetric.length === 0) {
+    return math.ZERO;
+  }
+  return childrenMetric[childrenMetric.length - 1];
 };
 
 module.exports = roundMetric;

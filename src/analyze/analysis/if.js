@@ -59,6 +59,8 @@ const If = function (node, pathStr) {
     ifBody: ifResult.metric,
     elseBody: elseResult ? elseResult.metric : this.analyzer.metric.initial
   };
+
+  console.log(elseResult, childrenMetric);
   const aggregateMetric = this.analyzer.metric.aggregateIf(node, childrenType, childrenMetric);
 
   // return results

@@ -63,6 +63,11 @@ ListNodesVisitor.prototype.containsOnly = function (node, nodeTypes) {
   return true;
 };
 
+ListNodesVisitor.prototype.has = function (node, nodeType) {
+  const contained = this.start(node);
+  return contained.indexOf(nodeType) > - 1;
+};
+
 // Override visit functions
 ListNodesVisitor.prototype.visitTypeNode = function (node, args) {
   const type = node.type;

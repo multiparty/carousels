@@ -49,7 +49,9 @@ totalMetric.aggregateIf = function (node, childrenType, childrenMetric) {
 
 // OblivIf: both branches are always executed
 totalMetric.aggregateOblivIf = function (node, childrenType, childrenMetric) {
-  return math.add(childrenMetric.ifBody, childrenMetric.elseBody, childrenMetric.condition);
+  const sideEffects = childrenMetric.sideEffects.slice();
+  sideEffects.unshift(childrenMetric.condition, childrenMetric.ifBody, childrenMetric.elseBody);
+  return math.add.apply(this, sideEffects);
 };
 
 // NameExpression: return whatever is given (from scoped map)
