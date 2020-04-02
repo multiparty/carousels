@@ -14,7 +14,7 @@ const REPLACE_PATTERNS = [
   },
   {
     pattern: new RegExp('obliv\\s+if', 'g'),
-    replace: '#[__carouselsobliv__]\nif'
+    replace: '#[__carouselsobliv__] if'
   }
 ];
 

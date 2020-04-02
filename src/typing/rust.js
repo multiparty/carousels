@@ -48,6 +48,29 @@ module.exports = [
       };
     }
   },
+  // Concat of two arrays
+  {
+    rule: {
+      nodeType: 'FunctionCall',
+      match: '<type:array@D,secret:(true|false)>\\.concat\\(@T\\)'
+    },
+    value: function (node, pathStr, children) {
+      const thisType = children.leftType;
+      const argType = children.parameters[0];
+
+      const finalType = thisType.copy();
+      finalType.secret = thisType.secret || argType.secret;
+      finalType.dependentType.length = math.add(thisType.dependentType.length, math.ONE);
+      if (thisType.dependentType.elementsType.dataType !== argType.dataType) {
+        finalType.dependentType.elementsType.dataType = carouselsTypes.AnyType(thisType.secret || argType.secret);
+      }
+
+      return {
+        type: finalType,
+        parameters: []
+      }
+    }
+  },
   // Oram is identity for now
   {
     rule: {

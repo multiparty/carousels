@@ -58,8 +58,8 @@ const evaluate = (function () {
     // let memo = mem[memotag];
     // console.log('iff args', args.map(String).join(' :: '));
     // if (memo === undefined) {
-      const [condition, _if, _else] = args;
-      memo = condition.evaluate(scope) ? _if.evaluate(scope) : _else.evaluate(scope);
+    const [condition, _if, _else] = args;
+    const memo = condition.evaluate(scope) ? _if.evaluate(scope) : _else.evaluate(scope);
     //   mem[memotag] = memo;
     //   mem_size++;
     //   if (mem_size > MAX_MEM) {

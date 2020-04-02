@@ -102,12 +102,7 @@ let carouselsOutput;
       const protocolValue = protocolSelect.value;
       const metricValue = metricSelect.value;
       const code = textarea.__codeMirrorInstance.getValue();
-      const language = ['rustBGW'].indexOf(protocolValue) > -1 ? 'rust' : 'javascript';
-
-      if (language !== 'rust') {
-        alert('This protocol is not supported at this time');
-        return;
-      }
+      const language = 'rust';
 
       // Create a new carousels analyzer and dump IR
       let analyzer;
