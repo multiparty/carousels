@@ -51,17 +51,27 @@ const evaluate = (function () {
   let mem_size = 0;
   const MAX_MEM = 10000000;
   const iffInterpreter = function (args, _, scope) {
-    const memotag = args.map(String).join('') + JSON.stringify(scope);
-    let memo = mem[memotag];
-    if (memo === undefined) {
+    // const memotag = Object.keys(scope) + JSON.stringify(scope);//args.map(String).join('') + JSON.stringify(scope);
+    // let memo = mem[memotag];
+    // console.log('iff args', args.map(String).join(' :: '));
+    // if (memo === undefined) {
       const [condition, _if, _else] = args;
       memo = condition.evaluate(scope) ? _if.evaluate(scope) : _else.evaluate(scope);
-      mem[memotag] = memo;
-      mem_size++;
-      if (mem_size > MAX_MEM) {
-        mem = {};
-      }
-    }
+    //   mem[memotag] = memo;
+    //   mem_size++;
+    //   if (mem_size > MAX_MEM) {
+    //     console.log('/carousels/src/analyze/math.js:62\t\tflush cache');
+    //     new Warning('Memo Cache Flushed');
+    //     mem = {};
+    //   }
+    //   // console.log('memo created');
+    //   console.log('condition if else', condition, _if, _else);
+    //   stats.created++;
+    // } else {
+    //   // console.log('memo used');
+    //   stats.used++;
+    // }
+    // console.log(stats, mem_size, memotag, memo);
     return memo;
   };
   iffInterpreter.rawArgs = true;
@@ -141,6 +151,99 @@ const variableIsUsed = function (variable, expression) {
   return found;
 };
 
+var hotpatch = function (lib = mathjs) {
+  var _array = {};
+  _array.forEach = function (array, callback) {
+    Array.prototype.forEach.call(array, callback)
+  };
+  _array.join = function (array, separator) {
+    return Array.prototype.join.call(array, separator)
+  };
+
+  var _customs = {};
+  _customs.setSafeProperty = function (object, prop, value) {
+    var isPlainObject = function (object) {
+      return typeof object === 'object' && object && object.constructor === Object;
+    };
+
+    var isSafeProperty = function (object, prop) {
+      if (!object || typeof object !== 'object') {
+        return false
+      }
+      if (prop === 'name' || prop === 'length') {
+        return true
+      }
+      if (prop in Object.prototype) {
+        return false
+      }
+      if (prop in Function.prototype) {
+        return false
+      }
+      return true
+    };
+
+    // only allow setting safe properties of a plain object
+    if (isPlainObject(object) && isSafeProperty(object, prop)) {
+      object[prop] = value
+      return value
+    }
+
+    throw new Error('No access to property "' + prop + '"')
+  }
+
+  lib.FunctionAssignmentNode.prototype._compile = function (math, argNames) {
+    var childArgNames = Object.create(argNames);
+    (0, _array.forEach)(this.params, function (param) {
+      childArgNames[param] = true;
+    }); // compile the function expression with the child args
+
+    var evalExpr = this.expr._compile(math, childArgNames);
+
+    var name = this.name;
+    var params = this.params;
+    var signature = (0, _array.join)(this.types, ',');
+    var syntax = name + '(' + (0, _array.join)(this.params, ', ') + ')';
+    return function evalFunctionAssignmentNode(scope, args, context) {
+      var signatures = {};
+      var cache = {empty: true, mem: []};
+
+      signatures[signature] = function () {
+        var childArgs = Object.create(args);
+        var argstring = "";
+
+        for (var i = 0; i < params.length; i++) {
+          childArgs[params[i]] = arguments[i];
+        }
+
+        var call = name + JSON.stringify(childArgs) + JSON.stringify(scope);
+        var result = cache[call];
+        console.log('result', result);
+
+        if (result === undefined) {
+          console.log('no memo');
+          result = evalExpr(scope, childArgs, context);
+        } else {
+          console.log('got the memo');
+        }
+
+        console.log('call', call);
+        console.log('cache', cache);
+
+        cache[call] = result;
+
+        return result;
+      };
+
+      var fn = lib.typed(name, signatures);
+      fn.syntax = syntax;
+      fn.cache = cache;
+      (0, _customs.setSafeProperty)(scope, name, fn);
+      return fn;
+    };
+  };
+  console.log('patched');
+};
+
 module.exports = {
   parse: mathjs.parse,
   simplify: mathjs.simplify,
@@ -168,3 +271,5 @@ module.exports = {
   iff: iff
 };
 // https://mathjs.org/docs/expressions/syntax.html
+
+hotpatch(mathjs);
