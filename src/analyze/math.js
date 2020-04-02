@@ -17,6 +17,9 @@ const emptyArgs = function (_arguments) {
 const operatorNode = function (operator, description, identity) {
   return function () {
     if (emptyArgs(arguments)) {
+      if (identity === undefined) {
+        throw new Error('Mathjs operator "' + operator + '" has no identity and is called without arguments!');
+      }
       return identity;
     }
     if (arguments.length === 1) {
@@ -259,6 +262,7 @@ module.exports = {
   and: operatorNode('and', 'and', TRUE),
   or: operatorNode('or', 'or', TRUE),
   div: floorDiv,
+  mod: operatorNode('%', 'mod'),
   ceilDiv: ceilDiv,
   gt: operatorNode('>', 'larger', ZERO),
   lt: operatorNode('<', 'smaller', ZERO),

@@ -65,6 +65,7 @@ let carouselsPlot = {};
     const plotDiv = document.getElementById('outputPlot');
     const startInput = document.getElementById('plotStart');
     const endInput = document.getElementById('plotEnd');
+    const manualScope = document.getElementById('manualScope');
 
     // remove plot
     carouselsPlot.purge = function () {
@@ -95,6 +96,12 @@ let carouselsPlot = {};
         const sliderResult = buildSliderForParameter(parameter);
         initialScope.push(parameter + '=' + sliderResult.value);
         return sliderResult.slider;
+      });
+      manualScope.value.split(';').forEach(function (line) {
+        line = line.trim();
+        if (line.length > 0) {
+          initialScope.push(line.trim());
+        }
       });
 
       // build traces

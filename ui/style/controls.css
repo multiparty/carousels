@@ -1,9 +1,10 @@
 /* Horizontal controls */
-.horizontalControls label,select,button,input {
+.horizontalControls label,select,button,input,textarea {
     font-weight: bold;
     display: inline-block;
+    vertical-align: top;
 }
-.horizontalControls select,button,input {
+.horizontalControls select,button,input,textarea {
     width: 200px;
 }
 .horizontalControls label {

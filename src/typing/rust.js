@@ -6,6 +6,7 @@ const OPERATOR_MAP = {
   '-': math.sub,
   '*': math.multiply,
   '/': math.div,
+  '%': math.mod,
   '<': math.lt,
   '<=': math.lte,
   '>': math.gt,
@@ -136,7 +137,7 @@ module.exports = [
   {
     rule: {
       nodeType: 'DirectExpression',
-      match: '@NB(\\+|-|\\*|/)@NB'
+      match: '@NB(\\+|-|\\*|/|%)@NB'
     },
     value: function (node, pathStr, children) {
       const secret = children.operands[0].secret || children.operands[1].secret;

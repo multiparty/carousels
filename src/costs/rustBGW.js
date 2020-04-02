@@ -49,6 +49,17 @@ module.exports = {
         'Online Rounds': 'b-1'
       }
     },
+    // secure mod and division
+    {
+      rule: {
+        nodeType: 'DirectExpression',
+        match: '<type:(number|bool)@D,secret:true>(%|/)<type:(number|bool)@D,secret:true>'
+      },
+      value: {
+        'Online Messages': '50',
+        'Online Rounds': '10'
+      }
+    },
     // oblivIf
     {
       rule: {
