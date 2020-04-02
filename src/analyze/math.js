@@ -155,45 +155,50 @@ const variableIsUsed = function (variable, expression) {
 };
 
 var hotpatch = function (lib = mathjs) {
-  var _array = {};
-  _array.forEach = function (array, callback) {
-    Array.prototype.forEach.call(array, callback)
-  };
-  _array.join = function (array, separator) {
-    return Array.prototype.join.call(array, separator)
-  };
-
-  var _customs = {};
-  _customs.setSafeProperty = function (object, prop, value) {
-    var isPlainObject = function (object) {
-      return typeof object === 'object' && object && object.constructor === Object;
-    };
-
-    var isSafeProperty = function (object, prop) {
-      if (!object || typeof object !== 'object') {
-        return false
-      }
-      if (prop === 'name' || prop === 'length') {
-        return true
-      }
-      if (prop in Object.prototype) {
-        return false
-      }
-      if (prop in Function.prototype) {
-        return false
-      }
-      return true
-    };
-
-    // only allow setting safe properties of a plain object
-    if (isPlainObject(object) && isSafeProperty(object, prop)) {
-      object[prop] = value
-      return value
+  // dependencies for math.js `_compile()` method called on from a FunctionNode object
+  var _array = {
+    forEach: function (array, callback) {
+      Array.prototype.forEach.call(array, callback)
+    },
+    join: function (array, separator) {
+      return Array.prototype.join.call(array, separator)
     }
+  };
 
-    throw new Error('No access to property "' + prop + '"')
-  }
+  var _customs = {
+    setSafeProperty: function (object, prop, value) {
+      var isPlainObject = function (object) {
+        return typeof object === 'object' && object && object.constructor === Object;
+      };
 
+      var isSafeProperty = function (object, prop) {
+        if (!object || typeof object !== 'object') {
+          return false
+        }
+        if (prop === 'name' || prop === 'length') {
+          return true
+        }
+        if (prop in Object.prototype) {
+          return false
+        }
+        if (prop in Function.prototype) {
+          return false
+        }
+        return true
+      };
+
+      // only allow setting safe properties of a plain object
+      if (isPlainObject(object) && isSafeProperty(object, prop)) {
+        object[prop] = value
+        return value
+      }
+
+      throw new Error('No access to property "' + prop + '"')
+    }
+  };
+
+  // patch to the updated version below, so that a memoization hook
+  // is included when mathjs compile any new functions to javascript
   lib.FunctionAssignmentNode.prototype._compile = function (math, argNames) {
     var childArgNames = Object.create(argNames);
     (0, _array.forEach)(this.params, function (param) {
@@ -220,19 +225,15 @@ var hotpatch = function (lib = mathjs) {
 
         var call = name + JSON.stringify(childArgs) + JSON.stringify(scope);
         var result = cache[call];
-        console.log('result', result);
 
         if (result === undefined) {
-          console.log('no memo');
           result = evalExpr(scope, childArgs, context);
+
+          // console.log('made memo');
+          cache[call] = result;
         } else {
-          console.log('got the memo');
+          // console.log('got the memo');
         }
-
-        console.log('call', call);
-        console.log('cache', cache);
-
-        cache[call] = result;
 
         return result;
       };
@@ -245,6 +246,7 @@ var hotpatch = function (lib = mathjs) {
     };
   };
   console.log('patched');
+  console.log('caching enabled for all compiled (mjs -> js) functions');
 };
 
 module.exports = {
@@ -272,8 +274,9 @@ module.exports = {
   neq: operatorNode('!=', 'Unequal', ZERO),
   not: not,
   max: max,
-  iff: iff
+  iff: iff,
+  lib: mathjs
 };
 // https://mathjs.org/docs/expressions/syntax.html
 
-hotpatch(mathjs);
+mathjs.import({enable_dynamic_programming: hotpatch});// hotpatch(mathjs);

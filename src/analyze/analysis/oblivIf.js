@@ -76,7 +76,7 @@ const combineMetrics = function (node, ifResult, elseResult, conditionResult, si
     condition: conditionResult.metric,
     ifBody: ifResult.metric,
     elseBody: elseResult.metric,
-    sideEffects
+    sideEffects: sideEffects
   };
   const aggregateMetric = this.analyzer.metric.aggregateOblivIf(node, childrenType, childrenMetric);
 
