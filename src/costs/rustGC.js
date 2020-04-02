@@ -1,5 +1,14 @@
 // helpers to simplify expressing costs
-const primitives = {};
+const primitives = {
+  ZERO: {
+    'Network': '=0',
+    'Garbled Gates': '=0',
+    'Total Memory': '=0',
+    'Memory Access': '=0',
+    'CPU Garbler': '=0',
+    'CPU Evaluator': '=0'
+  }
+};
 primitives['and'] = {
   'Network': '4*s',
   'Garbled Gates': '1',
@@ -21,7 +30,7 @@ primitives['xor'] = primitives['and'];
 const OP_REGEX = function (ops) {
   return '(<type:(number|bool)@D,secret:true>(' + ops + ')<type:(number|bool)@D,secret:true>)|' +
   '(<type:(number|bool)@D,secret:false>(' + ops + ')<type:(number|bool)@D,secret:true>)|' +
-  '<type:(number|bool)@D,secret:true>(' + ops + ')<type:(number|bool)@D,secret:false>';
+  '(<type:(number|bool)@D,secret:true>(' + ops + ')<type:(number|bool)@D,secret:false>)';
 };
 
 const combinator = function (expr) {
@@ -187,10 +196,7 @@ module.exports = {
         nodeType: 'DotExpression',
         match: '<type:array@D,secret:(true|false)>\\.len'
       },
-      value: {
-        'Online Messages': '=0',
-        'Online Rounds': '=0'
-      }
+      value: primitives['ZERO']
     },
     // array access at secret index
     {
