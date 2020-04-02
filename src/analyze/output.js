@@ -232,11 +232,11 @@ SymbolicOutput.prototype.dumpAbstraction = function (abstraction, html) {
   if (abstraction != null) {
     const absStr = abstraction.mathSymbol.toString();
     const closedFormStr = this.analyzer.abstractionToClosedFormMap[absStr].toString();
-    const simplClosedForm = math.simplify(this.analyzer.abstractionToClosedFormMap[absStr]).toString();
+    //const simplClosedForm = math.simplify(this.analyzer.abstractionToClosedFormMap[absStr]).toString();
 
     dump.push(tab + emph(abstraction.description, html));
     dump.push(tab + escape(absStr + ' = ' + closedFormStr, html));
-    dump.push(tab + spaceIt(absStr.length, html) + escape(' = ' + simplClosedForm, html));
+    //dump.push(tab + spaceIt(absStr.length, html) + escape(' = ' + simplClosedForm, html));
     this._dumpParameters(abstraction.parameters, html).forEach(function (line) {
       dump.push(tab + line);
     });

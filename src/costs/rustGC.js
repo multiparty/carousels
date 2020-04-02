@@ -68,8 +68,9 @@ const arrayAccessFunc = function () {
 
     result[p] = (function (p) {
       return function (node, metric, pathStr, childrenType, childrenMetric) {
+        console.log(p, module.exports.operations[8].value[p], module.exports.operations[7].value[p]);
         const accessLength = childrenType.array.dependentType.length;
-        return module.exports.operations[8][p] + ' + ' + module.exports.operations[7][p] + ' + ' + accessLength.toString(); // length many if_else/obliv if and ==
+        return module.exports.operations[8].value[p] + ' + ' + module.exports.operations[7].value[p] + ' + ' + accessLength.toString(); // length many if_else/obliv if and ==
       }
     })(p);
   }

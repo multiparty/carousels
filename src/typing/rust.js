@@ -204,5 +204,20 @@ module.exports = [
         parameters: []
       };
     }
+  },
+  // uniary minus
+  {
+    rule: {
+      nodeType: 'DirectExpression',
+      match: '~@NB'
+    },
+    value: function (node, pathStr, children) {
+      const secret = children.operands[0].secret;
+      let val = math.unaryMinus(children.operands[0].dependentType.value);
+      return {
+        type: new carouselsTypes.NumberType(secret, val),
+        parameters: []
+      };
+    }
   }
 ];
