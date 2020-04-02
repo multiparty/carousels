@@ -69,9 +69,9 @@ const arrayAccessFunc = function () {
     result[p] = (function (p) {
       return function (node, metric, pathStr, childrenType, childrenMetric) {
         const accessLength = childrenType.array.dependentType.length;
-        return module.exports.operations[8][p] + ' + ' + +accessLength.toString(); // length many if_else/obliv if
+        return module.exports.operations[8][p] + ' + ' + module.exports.operations[7][p] + ' + ' + accessLength.toString(); // length many if_else/obliv if and ==
       }
-    })();
+    })(p);
   }
 
   return result;
@@ -98,10 +98,11 @@ module.exports = {
     },
     {
       title: 'Total Memory',
-      description: 'Total number of bits stored in memory through all of the execution'
+      description: 'Total number of bits stored in memory through all of the execution',
+      type: 'TotalMetric'
     },
     {
-      title: 'Memory Accesses',
+      title: 'Memory Access',
       description: 'How many times memory was accessed',
       type: 'TotalMetric'
     },

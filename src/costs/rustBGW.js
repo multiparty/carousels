@@ -3,7 +3,7 @@ const primitives = {
   ZERO: {
     'Network Bits': '=0',
     'Network Rounds': '=0',
-    'Garbled Gates': '=0',
+    'Logical Gates': '=0',
     'Total Memory': '=0',
     'Memory Access': '=0',
     'CPU': '=0'
@@ -12,48 +12,48 @@ const primitives = {
 primitives['cadd'] = {
   'Network Bits': '0',
   'Network Rounds': '0',
-  'Garbled Gates': '1',
-  'Total Memory': '1',
+  'Logical Gates': '1',
+  'Total Memory': 'b',
   'Memory Access': '3',
   'CPU': '1'
 };
 primitives['sadd'] = {
   'Network Bits': '0',
   'Network Rounds': '0',
-  'Garbled Gates': '1',
-  'Total Memory': '1',
+  'Logical Gates': '1',
+  'Total Memory': 'b',
   'Memory Access': '3',
   'CPU': '1'
 };
 primitives['cmult'] = {
   'Network Bits': '0',
   'Network Rounds': '0',
-  'Garbled Gates': '1',
-  'Total Memory': '1',
+  'Logical Gates': '1',
+  'Total Memory': 'b',
   'Memory Access': '3',
   'CPU': '1'
 };
 primitives['smult'] = {
   'Network Bits': '(p-1)*b',
   'Network Rounds': '1',
-  'Garbled Gates': '1',
-  'Total Memory': 'p+1',
+  'Logical Gates': '1',
+  'Total Memory': '(p+1)*b',
   'Memory Access': 'p+5',
   'CPU': '1'
 };
 primitives['open'] = {
   'Network Bits': '(p-1)*b',
   'Network Rounds': '1',
-  'Garbled Gates': '1',
-  'Total Memory': 'p-1',
+  'Logical Gates': '1',
+  'Total Memory': '(p-1)*b',
   'Memory Access': 'p',
   'CPU': '1'
 };
 primitives['if_else'] = {
   'Network Bits': '(p-1)*b',
   'Network Rounds': '1',
-  'Garbled Gates': '5',
-  'Total Memory': 'p+3',
+  'Logical Gates': '5',
+  'Total Memory': '(p+3)*b',
   'Memory Access': 'p+12',
   'CPU': '1'
 };
@@ -116,7 +116,7 @@ const combinatorFunc = function (func) {
       return function (node, metric, pathStr, childrenType, childrenMetric) {
         return func.call(this, p, node, metric, pathStr, childrenType, childrenMetric);
       }
-    })();
+    })(p);
   }
 
   return result;
@@ -146,10 +146,11 @@ module.exports = {
     },
     {
       title: 'Total Memory',
-      description: 'Total number of bits stored in memory through all of the execution'
+      description: 'Total number of bits stored in memory through all of the execution',
+      type: 'TotalMetric'
     },
     {
-      title: 'Memory Accesses',
+      title: 'Memory Access',
       description: 'How many times memory was accessed',
       type: 'TotalMetric'
     },
@@ -241,7 +242,7 @@ module.exports = {
       },
       value: combinatorFunc(function (p, node, metric, pathStr, childrenType, childrenMetric) {
         const accessLength = childrenType.array.dependentType.length;
-        return module.exports.operations[8][p] + ' + ' + +accessLength.toString(); // length many if_else/obliv if
+        return primitives['if_else'][p] + ' + ' + primitives['clt'][p] + ' + ' + accessLength.toString(); // length many if_else/obliv if and ==
       })
     },
     // .push modifies the cost of the array as a side effect
