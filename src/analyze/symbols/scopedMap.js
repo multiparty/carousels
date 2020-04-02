@@ -3,7 +3,6 @@ function ScopedMap(error, dVal) {
   this.error = error !== false;
   this.dVal = dVal;
 }
-ScopedMap.prototype.PLACEHOLDER = '###';
 ScopedMap.prototype.addScope = function () {
   this.scopes.push({});
 };
@@ -12,9 +11,6 @@ ScopedMap.prototype.removeScope = function () {
 };
 ScopedMap.prototype.add = function (name, val) {
   const index = this.scopes.length - 1;
-  if (this.scopes[index][name] != null && val === this.PLACEHOLDER) {
-    return; // redefining a variable in the same scope does not require a placeholder
-  }
   this.scopes[index][name] = val;
 };
 ScopedMap.prototype.set = function (name, val) {
@@ -27,13 +23,11 @@ ScopedMap.prototype.set = function (name, val) {
   }
   this.add(name, val);
 };
-ScopedMap.prototype.get = function (name, d, countPlaceHolder) {
-  countPlaceHolder = countPlaceHolder != null ? countPlaceHolder : false;
-
+ScopedMap.prototype.get = function (name, d) {
   for (let i = this.scopes.length - 1; i >= 0; i--) {
     const scope = this.scopes[i];
     const val = scope[name];
-    if (val != null && (countPlaceHolder || val !== this.PLACEHOLDER)) {
+    if (val != null) {
       return val;
     }
   }
@@ -48,17 +42,14 @@ ScopedMap.prototype.get = function (name, d, countPlaceHolder) {
 
   return this.dVal;
 };
-ScopedMap.prototype.has = function (name, countPlaceHolder) {
-  countPlaceHolder = countPlaceHolder == null ? false : countPlaceHolder;
-  return this.lastIndexOf(name, countPlaceHolder) > -1;
+ScopedMap.prototype.has = function (name) {
+  return this.lastIndexOf(name) > -1;
 };
-ScopedMap.prototype.lastIndexOf = function (name, countPlaceHolder) {
-  countPlaceHolder = countPlaceHolder == null ? false : countPlaceHolder;
-
+ScopedMap.prototype.lastIndexOf = function (name) {
   for (let i = this.scopes.length - 1; i >= 0; i--) {
     const scope = this.scopes[i];
     const val = scope[name];
-    if (val != null && (countPlaceHolder || val !== this.PLACEHOLDER)) {
+    if (val != null) {
       return i;
     }
   }
@@ -66,7 +57,7 @@ ScopedMap.prototype.lastIndexOf = function (name, countPlaceHolder) {
 };
 ScopedMap.prototype.lookInCurrentScope = function (name) {
   const val = this.scopes[this.scopes.length - 1][name];
-  return val !== this.PLACEHOLDER ? val : null;
+  return val;
 };
 
 module.exports = ScopedMap;

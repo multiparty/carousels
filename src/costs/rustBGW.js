@@ -80,7 +80,6 @@ module.exports = {
       value: {
         'Online Messages': function (node, metric, pathStr, childrenType, childrenMetric) {
           const accessLength = childrenType.array.dependentType.length;
-          console.log('(b*(p-1) + 1)' + accessLength.toString());
           return '(b*(p-1) + 1)' + accessLength.toString(); // n comparisons and obliv ifs
         },
         'Online Rounds': 'b' // one comparison + one obliv if

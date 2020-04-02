@@ -118,7 +118,7 @@ const ForEach = function (node, pathStr) {
     const closedForm = math.iff(math.lte(iterationMath, start), initialMetric[variableName], this.analyzer.variableMetricMap.get(variableName));
     abstractionsArray.push(loopAbstractions.variables.metrics[variableName]);
     this.analyzer.abstractionToClosedFormMap[loopAbstractions.variables.metrics[variableName].mathSymbol.toString()] = closedForm;
-    this.analyzer.setMetricWithConditions(variableName, loopAbstractions.variables.metrics[variableName].concretize([end]), initialMetric[variableName]);
+    this.analyzer.setMetricWithConditions(variableName, this.analyzer.metric.store(loopAbstractions.variables.metrics[variableName].concretize([end])), initialMetric[variableName]);
 
     // compute closed form for type (if needed and type is an array)
     if (initialType[variableName] != null) {
