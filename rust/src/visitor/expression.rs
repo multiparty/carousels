@@ -149,7 +149,7 @@ impl <'ast> Visit <'ast> for Stack{
                literal_expr.value = _i.base10_digits().to_string();
            }
            Lit::Float(_f) =>{
-               literal_expr.type_ = String::from("number");
+               literal_expr.type_ = String::from("float");
                literal_expr.value = _f.base10_digits().to_string();
            }
            Lit::Bool(_bo)=>{
