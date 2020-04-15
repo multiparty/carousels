@@ -130,3 +130,20 @@ struct DotExpression {
     left: Box<dyn IRNode>,
     right: Box<dyn IRNode>
 }
+
+#[ir_node]
+struct Closure{
+    parameters: Vec<Box<dyn IRNode>>,
+    body: Box<dyn IRNode>,
+    return_type: TypeNode
+}
+
+#[ir_node]
+struct Break{
+    token: String
+}
+
+#[ir_node]
+struct Continue{
+    token: String
+}

@@ -16,15 +16,15 @@ impl <'ast> Visit <'ast> for FunctionDefinition{
             let mut ty = TypeNode::new(false, String::from(""),None);
 
             match inp{
-                FnArg::Receiver(_r)=>{
-                    name.name = String::from("self");
+                    FnArg::Receiver(_r)=>{
+                        name.name = String::from("self");
+                    }
+                    FnArg::Typed(_t)=>{
+                        name.visit_pat(&_t.pat);
+                        ty.my_visit_type(&_t.ty, &mut dep_type);
+                        ty.dependent_type = Some(Box::new(TypeNode::new(ty.secret, dep_type, None)));
+                    }
                 }
-                FnArg::Typed(_t)=>{
-                    name.visit_pat(&_t.pat);
-                    ty.my_visit_type(&_t.ty, &mut dep_type);
-                    ty.dependent_type = Some(Box::new(TypeNode::new(ty.secret, dep_type, None)));
-                }
-            }
                 self.parameters.push(Box::new(VariableDefinition::new(name, ty, None)));
             }
 

@@ -89,6 +89,15 @@ impl Stack{
             Expr::Reference(_r)=>{
                 self.visit_expr(&_r.expr);
             }
+            Expr::Closure(_cl)=>{
+                self.visit_expr_closure(_cl);
+            }
+            Expr::Break(_br)=>{
+                self.visit_expr_break(_br);
+            }
+            Expr::Continue(_cont)=>{
+                self.visit_expr_continue(_cont);
+            }
             _=>{}
         }
 
@@ -107,6 +116,17 @@ impl Stack{
                 let to = Stack::my_visit_expr(&_r.hi);
                 let range = RangeExpression::new(Some(from), Some(to), None);
                 self.visitor.push(Box::new(range));
+            }
+            Pat::Type(_t)=>{
+                let mut name = NameExpression::new(String::from(""));
+                let mut dep_type = String::from("");
+                let mut ty = TypeNode::new(false, String::from(""),None);
+
+                name.visit_pat(&_t.pat);
+                ty.my_visit_type(&_t.ty, &mut dep_type);
+                ty.dependent_type = Some(Box::new(TypeNode::new(ty.secret, dep_type, None)));
+
+                self.visitor.push(Box::new(VariableDefinition::new(name, ty, None)));
             }
             Pat::Wild(_w)=>{
                 let wild = NameExpression::new(String::from("_"));

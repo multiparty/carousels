@@ -1,11 +1,11 @@
 use syn::visit::{Visit};
 use syn::{Lit, Expr, Member, ExprAssign, ExprMethodCall,
-    ExprBinary, ExprAssignOp, ExprForLoop, ExprLit, ExprCall, ExprUnary, ExprReturn, ExprRange, ExprParen,
-    ExprIf, ExprArray, ExprField, ExprIndex, ExprPath, BinOp, UnOp};
+    ExprBinary, ExprAssignOp, ExprForLoop, ExprLit, ExprCall, ExprClosure, ExprUnary, ExprReturn, ExprRange, ExprParen,
+    ExprIf, ExprArray, ExprField, ExprIndex, ExprPath, BinOp, UnOp, ReturnType, ExprBreak, ExprContinue};
 
 use crate::ir::{ReturnStatement, ForEach, VariableAssignment, If, OblivIf, LiteralExpression, NameExpression,
                 DirectExpression, ParenthesesExpression, ArrayAccess, RangeExpression, SliceExpression,
-                ArrayExpression, FunctionCall, DotExpression};
+                ArrayExpression, FunctionCall, DotExpression, Closure, TypeNode, Break, Continue};
 
 use crate::visitor::stack::{Stack};
 
@@ -107,7 +107,7 @@ impl <'ast> Visit <'ast> for Stack{
             BinOp::BitXorEq(_op) => {direct_expr.operator = "&=".to_string();}
             BinOp::BitAndEq(_op) => {direct_expr.operator = "^=".to_string();}
             BinOp::BitOrEq(_op) => {direct_expr.operator = "|=".to_string();}
-            _=>{} 
+            _=>{}
         }
         self.visitor.push(Box::new(direct_expr));
     }
@@ -305,6 +305,40 @@ impl <'ast> Visit <'ast> for Stack{
              }
          }
 
+     }
+
+     fn visit_expr_closure(&mut self, node: &'ast ExprClosure){
+         println!("{:?}", node);
+        let mut parameters = Vec::new();
+        for p in &node.inputs{
+            let variable = Stack::my_visit_pat(p);
+            parameters.push(variable);
+        }
+
+        let body =  Stack::my_visit_expr(&node.body);
+
+        let mut dep_type = String::from("");
+        let mut ty = TypeNode::new(false, String::from(""),None);
+        match &node.output{
+            ReturnType::Type(_ , _t)=>{
+                let mut dep_type = String::from("");
+                ty.my_visit_type(_t, &mut dep_type);
+                ty.dependent_type = Some(Box::new(TypeNode::new(ty.secret, dep_type, None)));
+            }
+            _=>{}
+        }
+
+        let closure = Closure::new(parameters, body, ty);
+        self.visitor.push(Box::new(closure));
+     }
+     fn visit_expr_break(&mut self, node: &'ast ExprBreak){
+         let break_token = Break::new(String::from("break"));
+         self.visitor.push(Box::new(break_token));
+     }
+
+     fn visit_expr_continue(&mut self, node: &'ast ExprContinue){
+         let continue_token = Continue::new(String::from("continue"));
+         self.visitor.push(Box::new(continue_token));
      }
 
 }

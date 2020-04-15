@@ -35,6 +35,9 @@ impl Stack{
     }
 
     pub fn my_visit_pat<'ast>(node: &'ast Pat) -> Box<dyn IRNode>{
+        println!("hello");
+        println!("{:?}", node);
+        println!("hello");
         let mut stack = Stack{visitor: Vec::new()};
         stack.visit_pat(node);
         match stack.visitor.pop(){
