@@ -1,6 +1,6 @@
 use syn::visit::{Visit};
 use syn::{Lit, Expr, Member, ExprAssign, ExprMethodCall,
-    ExprBinary, ExprForLoop, ExprLit, ExprCall, ExprUnary, ExprReturn, ExprRange, ExprParen,
+    ExprBinary, ExprAssignOp, ExprForLoop, ExprLit, ExprCall, ExprUnary, ExprReturn, ExprRange, ExprParen,
     ExprIf, ExprArray, ExprField, ExprIndex, ExprPath, BinOp, UnOp};
 
 use crate::ir::{ReturnStatement, ForEach, VariableAssignment, If, OblivIf, LiteralExpression, NameExpression,
@@ -63,7 +63,6 @@ impl Stack{
 impl <'ast> Visit <'ast> for Stack{
     fn visit_expr_binary(&mut self, node: &'ast ExprBinary) {
         let mut direct_expr = DirectExpression::new(String::from(""), 2, Vec::new());
-
         let left = Stack::my_visit_expr(&node.left);
         let right = Stack::my_visit_expr(&node.right);
         direct_expr.operands.push(left);
@@ -92,7 +91,27 @@ impl <'ast> Visit <'ast> for Stack{
         }
         self.visitor.push(Box::new(direct_expr));
     }
+    fn visit_expr_assign_op(&mut self, node: &'ast ExprAssignOp){
+        let mut direct_expr = DirectExpression::new(String::from(""), 2, Vec::new());
+        let left = Stack::my_visit_expr(&node.left);
+        let right = Stack::my_visit_expr(&node.right);
+        direct_expr.operands.push(left);
+        direct_expr.operands.push(right);
 
+        match &node.op{
+            BinOp::AddEq(_op) => {direct_expr.operator = "+=".to_string();}
+            BinOp::SubEq(_op) => {direct_expr.operator = "-=".to_string();}
+            BinOp::MulEq(_op) => {direct_expr.operator = "*=".to_string();}
+            BinOp::DivEq(_op) => {direct_expr.operator = "/=".to_string();}
+            BinOp::RemEq(_op) => {direct_expr.operator = "%=".to_string();}
+            BinOp::BitXorEq(_op) => {direct_expr.operator = "&=".to_string();}
+            BinOp::BitAndEq(_op) => {direct_expr.operator = "^=".to_string();}
+            BinOp::BitOrEq(_op) => {direct_expr.operator = "|=".to_string();}
+            _=>{} 
+        }
+        self.visitor.push(Box::new(direct_expr));
+    }
+    //
     fn visit_expr_unary(&mut self, node: &'ast ExprUnary){
         let mut direct_expr = DirectExpression::new(String::from(""), 1, Vec::new());
         match node.op{
@@ -164,7 +183,6 @@ impl <'ast> Visit <'ast> for Stack{
 
          self.visitor.push(Box::new(assignment));
      }
-     //
      fn visit_expr_call(&mut self, node: &'ast ExprCall){
 
          let function = Stack::my_visit_expr(&node.func);

@@ -56,6 +56,9 @@ impl Stack{
             Expr::Assign(_e)=>{
                 self.visit_expr_assign(_e);
             }
+            Expr::AssignOp(_e)=>{
+                self.visit_expr_assign_op(_e);
+            }
             Expr::Field(_e)=>{
                 self.visit_expr_field(_e);
             }
