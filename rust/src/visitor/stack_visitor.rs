@@ -122,12 +122,10 @@ impl Stack{
             }
             Pat::Type(_t)=>{
                 let mut name = NameExpression::new(String::from(""));
-                let mut dep_type = String::from("");
                 let mut ty = TypeNode::new(false, String::from(""),None);
 
                 name.visit_pat(&_t.pat);
-                ty.my_visit_type(&_t.ty, &mut dep_type);
-                ty.dependent_type = Some(Box::new(TypeNode::new(ty.secret, dep_type, None)));
+                ty.my_visit_type(&_t.ty);
 
                 self.visitor.push(Box::new(VariableDefinition::new(name, ty, None)));
             }
@@ -146,9 +144,8 @@ impl Stack{
                 name.visit_ident(&_c.ident);
                 name_def.name = name.name.clone();
 
-                let mut dep_type = String::from("");
                 let mut ty = TypeNode::new(false, String::from(""), None);
-                ty.my_visit_type(&_c.ty, &mut dep_type);
+                ty.my_visit_type(&_c.ty);
 
                 let val = Stack::my_visit_expr(&_c.expr);
 

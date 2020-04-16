@@ -11,8 +11,6 @@ impl <'ast> Visit <'ast> for FunctionDefinition{
 
         for inp in &node.sig.inputs{
             let mut name = NameExpression::new(String::from(""));
-
-            let mut dep_type = String::from("");
             let mut ty = TypeNode::new(false, String::from(""),None);
 
             match inp{
@@ -21,8 +19,7 @@ impl <'ast> Visit <'ast> for FunctionDefinition{
                     }
                     FnArg::Typed(_t)=>{
                         name.visit_pat(&_t.pat);
-                        ty.my_visit_type(&_t.ty, &mut dep_type);
-                        ty.dependent_type = Some(Box::new(TypeNode::new(ty.secret, dep_type, None)));
+                        ty.my_visit_type(&_t.ty);
                     }
                 }
                 self.parameters.push(Box::new(VariableDefinition::new(name, ty, None)));
@@ -30,10 +27,7 @@ impl <'ast> Visit <'ast> for FunctionDefinition{
 
             match &node.sig.output {
                 ReturnType::Type(_ , _t)=>{
-                    let mut dep_type = String::from("");
-                    self.return_type.my_visit_type(_t, &mut dep_type);
-                    self.return_type.dependent_type = Some(Box::new(TypeNode::new(self.return_type.secret, dep_type, None)));
-                }
+                    self.return_type.my_visit_type(_t);                }
                 _=>{}
             }
 

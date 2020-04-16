@@ -6,8 +6,6 @@ use crate::visitor::stack::{Stack};
 impl <'ast> Visit <'ast> for VariableDefinition{
     fn visit_local(&mut self, node: &'ast Local){
         let mut name = NameExpression::new(String::from(""));
-
-        let mut dep_type = String::from("");
         let mut ty = TypeNode::new(false, String::from(""), None);
 
         match &node.pat{
@@ -16,8 +14,7 @@ impl <'ast> Visit <'ast> for VariableDefinition{
             }
             Pat::Type(_t)=>{
                 name.visit_pat(&_t.pat);
-                ty.my_visit_type(&_t.ty, &mut dep_type);
-                ty.dependent_type = Some(Box::new(TypeNode::new(ty.secret, dep_type, None)));
+                ty.my_visit_type(&_t.ty);
             }
             _=>{}
         }

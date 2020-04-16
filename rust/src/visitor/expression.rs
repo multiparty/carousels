@@ -321,9 +321,7 @@ impl <'ast> Visit <'ast> for Stack{
         let mut ty = TypeNode::new(false, String::from(""),None);
         match &node.output{
             ReturnType::Type(_ , _t)=>{
-                let mut dep_type = String::from("");
-                ty.my_visit_type(_t, &mut dep_type);
-                ty.dependent_type = Some(Box::new(TypeNode::new(ty.secret, dep_type, None)));
+                ty.my_visit_type(_t);
             }
             _=>{}
         }
