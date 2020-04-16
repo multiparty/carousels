@@ -53,11 +53,14 @@ impl TypeNode {
             }
 
             if self.type_.is_empty(){
-                if &ident == "Vec" {
+                if &ident == "Vec" || &ident == "Vector"{
                     self.type_ = "array".to_string();
                 }
-                else if &ident == "bool"  || &ident == "str" || &ident == "char"  {
+                else if &ident == "bool"  || &ident == "str" || &ident == "char" || &ident == "Matrix"{
                     self.type_ = ident;
+                }
+                else if &ident == "f64" || &ident == "f32"{
+                    self.type_ = String::from("float");
                 }
                 else{
                     for n in &NUMERICTYPES {
