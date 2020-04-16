@@ -99,17 +99,18 @@ impl <'ast> Visit <'ast> for Stack{
         direct_expr.operands.push(right);
 
         match &node.op{
-            BinOp::AddEq(_op) => {direct_expr.operator = "+=".to_string();}
-            BinOp::SubEq(_op) => {direct_expr.operator = "-=".to_string();}
-            BinOp::MulEq(_op) => {direct_expr.operator = "*=".to_string();}
-            BinOp::DivEq(_op) => {direct_expr.operator = "/=".to_string();}
-            BinOp::RemEq(_op) => {direct_expr.operator = "%=".to_string();}
-            BinOp::BitXorEq(_op) => {direct_expr.operator = "&=".to_string();}
-            BinOp::BitAndEq(_op) => {direct_expr.operator = "^=".to_string();}
-            BinOp::BitOrEq(_op) => {direct_expr.operator = "|=".to_string();}
+            BinOp::AddEq(_op) => {direct_expr.operator = "+".to_string();}
+            BinOp::SubEq(_op) => {direct_expr.operator = "-".to_string();}
+            BinOp::MulEq(_op) => {direct_expr.operator = "*".to_string();}
+            BinOp::DivEq(_op) => {direct_expr.operator = "/".to_string();}
+            BinOp::RemEq(_op) => {direct_expr.operator = "%".to_string();}
+            BinOp::BitXorEq(_op) => {direct_expr.operator = "&".to_string();}
+            BinOp::BitAndEq(_op) => {direct_expr.operator = "^".to_string();}
+            BinOp::BitOrEq(_op) => {direct_expr.operator = "|".to_string();}
             _=>{}
         }
-        self.visitor.push(Box::new(direct_expr));
+
+        self.visitor.push(Box::new(VariableAssignment::new(Stack::my_visit_expr(&node.left), Box::new(direct_expr))));
     }
     //
     fn visit_expr_unary(&mut self, node: &'ast ExprUnary){
@@ -308,7 +309,7 @@ impl <'ast> Visit <'ast> for Stack{
      }
 
      fn visit_expr_closure(&mut self, node: &'ast ExprClosure){
-         println!("{:?}", node);
+
         let mut parameters = Vec::new();
         for p in &node.inputs{
             let variable = Stack::my_visit_pat(p);
@@ -317,7 +318,6 @@ impl <'ast> Visit <'ast> for Stack{
 
         let body =  Stack::my_visit_expr(&node.body);
 
-        let mut dep_type = String::from("");
         let mut ty = TypeNode::new(false, String::from(""),None);
         match &node.output{
             ReturnType::Type(_ , _t)=>{
@@ -331,12 +331,13 @@ impl <'ast> Visit <'ast> for Stack{
         let closure = Closure::new(parameters, body, ty);
         self.visitor.push(Box::new(closure));
      }
-     fn visit_expr_break(&mut self, node: &'ast ExprBreak){
+
+     fn visit_expr_break(&mut self, _node: &'ast ExprBreak){
          let break_token = Break::new(String::from("break"));
          self.visitor.push(Box::new(break_token));
      }
 
-     fn visit_expr_continue(&mut self, node: &'ast ExprContinue){
+     fn visit_expr_continue(&mut self, _node: &'ast ExprContinue){
          let continue_token = Continue::new(String::from("continue"));
          self.visitor.push(Box::new(continue_token));
      }
