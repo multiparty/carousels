@@ -1,4 +1,4 @@
-use syn::{Type, Path, PathArguments, ReturnType, GenericArgument, TypeParamBound};
+use syn::{Type, Path, PathArguments, GenericArgument, TypeParamBound};
 use crate::ir::{TypeNode};
 
 static NUMERICTYPES: [&str; 8] = ["u8","u16","u32","u128","u128","u128","i32","i128"];
