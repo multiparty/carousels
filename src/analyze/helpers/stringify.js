@@ -290,6 +290,10 @@ StringifyVisitor.prototype.visitDirectExpression = function (node) {
   }
   str += operands.join(this.annotateNewLine + ' ' + operator + ' ' + this.annotateNewLine);
   str += this.annotateNewLine + ')';
+
+  //if (operator === '~' || operator === '!') {
+  //str = operator + str;
+  //}
   return str;
 };
 StringifyVisitor.prototype.visitParenthesesExpression = function (node) {

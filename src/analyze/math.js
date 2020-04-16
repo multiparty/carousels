@@ -11,6 +11,9 @@ const ERROR = mathjs.parse('__error()');
 const not = function (argument) {
   return new mathjs.OperatorNode('not', 'not', [argument]);
 };
+const unaryMinus = function (argument) {
+  return new mathjs.OperatorNode('-', 'unaryMinus', [argument]);
+};
 const emptyArgs = function (_arguments) {
   return _arguments.length === 0 || _arguments[0] == null;
 };
@@ -273,6 +276,7 @@ module.exports = {
   eq: operatorNode('==', 'equal', ZERO),
   neq: operatorNode('!=', 'Unequal', ZERO),
   not: not,
+  unaryMinus: unaryMinus,
   max: max,
   iff: iff,
   lib: mathjs
