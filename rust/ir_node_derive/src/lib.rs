@@ -4,6 +4,7 @@ use self::proc_macro::TokenStream;
 use syn;
 use quote;
 
+
 #[proc_macro_attribute]
 pub fn ir_node(_attr: TokenStream, item: TokenStream) -> TokenStream {
     // parse the struct to which this attribute was attached

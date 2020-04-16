@@ -1,4 +1,4 @@
-use syn::{Expr, Stmt, Pat};
+use syn::{Expr, Stmt, Pat, Item};
 use crate::ir::{IRNode, Error};
 
 pub struct Stack{
@@ -35,9 +35,24 @@ impl Stack{
     }
 
     pub fn my_visit_pat<'ast>(node: &'ast Pat) -> Box<dyn IRNode>{
-        
+
         let mut stack = Stack{visitor: Vec::new()};
         stack.visit_pat(node);
+        match stack.visitor.pop(){
+            Some(_s)=>{
+                return _s;
+            }
+            None =>{
+                return Box::new(Error::new(
+                    String::from("Error poping from visit_expr_stack")));
+            }
+        }
+    }
+
+    pub fn my_visit_item<'ast>(node: &'ast Item) -> Box<dyn IRNode>{
+
+        let mut stack = Stack{visitor: Vec::new()};
+        stack.visit_item(node);
         match stack.visitor.pop(){
             Some(_s)=>{
                 return _s;

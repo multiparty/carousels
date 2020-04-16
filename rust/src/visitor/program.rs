@@ -30,6 +30,9 @@ impl <'ast> Visit <'ast> for Program {
 
                 self.body.push(Box::new(func));
             }
+            Item::Const(_c)=>{
+                println!("hello");
+            }
             _=>{}
         }
     }

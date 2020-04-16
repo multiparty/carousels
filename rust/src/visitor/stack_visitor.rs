@@ -1,8 +1,8 @@
 use syn::visit::{Visit};
-use syn::{Expr, Stmt, Pat};
+use syn::{Expr, Stmt, Pat, Item};
 use crate::visitor::stack::{Stack};
 
-use crate::ir::{TypeNode, VariableDefinition, NameExpression, RangeExpression};
+use crate::ir::{TypeNode, VariableDefinition, VariableAssignment, NameExpression, RangeExpression};
 
 impl Stack{
     pub fn visit_stmt<'ast>(&mut self, node: &'ast Stmt){
@@ -23,7 +23,10 @@ impl Stack{
                 let expression = Stack::my_visit_expr(&_e);
                 self.visitor.push(expression);
             }
-            _=>{}
+            Stmt::Item(_i)=>{
+                let item = Stack::my_visit_item(_i);
+                self.visitor.push(item);
+            }
         }
     }
 
@@ -134,6 +137,27 @@ impl Stack{
             }
             _=>{}
         }
+    }
+    pub fn visit_item<'ast>(&mut self, node: &'ast Item){
+        match node{
+            Item::Const(_c)=>{
+                let mut name = NameExpression::new(String::from(""));
+                let mut name_def = NameExpression::new(String::from(""));
+                name.visit_ident(&_c.ident);
+                name_def.name = name.name.clone();
 
+                let mut dep_type = String::from("");
+                let mut ty = TypeNode::new(false, String::from(""), None);
+                ty.my_visit_type(&_c.ty, &mut dep_type);
+
+                let val = Stack::my_visit_expr(&_c.expr);
+
+                let assignment = VariableAssignment::new(Box::new(name), val);
+                let variable_def = VariableDefinition::new(name_def, ty, Some(assignment));
+
+                self.visitor.push(Box::new(variable_def));
+            }
+            _=>{}
+        }
     }
 }
