@@ -1,5 +1,5 @@
-fn main() {
-    let x = 0;
-    const y:u32 = 64;
-    x += 1;
+fn karmarkar_loop<const M: usize, const N: usize>
+(a: Matrix<Matrix<f64, M, N>,M,N>, c: Vector<f64, N>)
+-> f64
+{
 }
