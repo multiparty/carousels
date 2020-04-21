@@ -35,11 +35,11 @@ module.exports = [
       };
     }
   },
-  // to_owned, clone is similar to identity
+  // to_owned, clone, into is similar to identity
   {
     rule: {
       nodeType: 'FunctionCall',
-      match: '(@T\\.to_owned\\(\\))|(@T.clone\\(\\))'
+      match: '(@T\\.to_owned\\(\\))|(@T.clone\\(\\))|(@T\\.into\\(\\))'
     },
     value: function (node, pathStr, children) {
       return {
