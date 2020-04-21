@@ -1,15 +1,17 @@
 const carouselsTypes = require('../../analyze/symbols/types.js');
+const Parameter = require('../../analyze/symbols/parameter.js');
 const math = require('../../analyze/math.js');
 
 module.exports = [
-  // array creation
+  // array creation (for now all such arrays are defined to contain numbers)
   {
     rule: {
       nodeType: 'FunctionCall',
       match: '(Vec::with_capacity\\(@T\\))|(Vec::new\\(\\))'
     },
     value: function (node, pathStr, children) {
-      const elementsType = carouselsTypes.NumberType.fromTypeNode({secret: true}, pathStr + '[elementsType]');
+      const parameter = Parameter.forValue(pathStr + '[elementsType]');
+      const elementsType = new carouselsTypes.NumberType(true, parameter.mathSymbol);
       const arrayType = new carouselsTypes.ArrayType(true, elementsType.type, math.ZERO);
 
       return {

@@ -79,10 +79,6 @@ FunctionDetector.prototype.visit = function (node) {
 
 // Visitors used for typing parameters and return type
 FunctionDetector.prototype.visitTypeNode = function (node, pathStr) {
-  if (node.type == null || node.type === '') {
-    node.type = 'number';
-  }
-
   const typeResult = carouselsTypes.fromTypeNode(node, pathStr);
 
   this.analyzer.addParameters(typeResult.parameters);

@@ -87,12 +87,16 @@ Type.prototype.combine = function (otherType, condition) {
 };
 Type.fromTypeNode = function (typeNode, pathStr) {
   if (typeNode == null) {
-    return {
-      type: null,
-      parameters: []
-    };
+    throw new Error('Type.fromTypeNode called on "null" node!');
   }
 
+  // Type information exists, but for some reason IR parser could not parse the base type
+  // likely a complicated generic rust type, we use number as default
+  if (typeNode.type == null || typeNode.type === '') {
+    typeNode.type = 'number';
+  }
+
+  // Parse type according to cases
   const typeString = typeNode.type.toUpperCase();
   TYPE_ENUM.__assert(typeString);
 
@@ -171,11 +175,7 @@ BooleanType.fromTypeNode = function (typeNode, pathStr) {
 ArrayType.fromTypeNode = function (typeNode, pathStr) {
   const secret = typeNode.secret;
   const lengthParameter = Parameter.forArrayLength(pathStr);
-  delete typeNode['dependentType']; // TODO: this ignores un-parsable types insides array in IR
-  let nested = Type.fromTypeNode(typeNode.dependentType, pathStr + '[elementsType]');
-  if (nested.type == null) { // Default array are of numbers!
-    nested = NumberType.fromTypeNode({secret: typeNode.secret}, pathStr + '[elementsType]');
-  }
+  const nested = Type.fromTypeNode(typeNode.dependentType, pathStr + '[elementsType]');
 
   return {
     type: new ArrayType(secret, nested.type, lengthParameter.mathSymbol),

@@ -6,12 +6,6 @@ const TypeNode = function (node, pathStr) {
     return;
   }
 
-  // Type information exists, but for some reason IR parser could not parse the base type
-  // likely a complicated generic rust type, we use number as default
-  if (node.type == null || node.type === '') {
-    node.type = 'number';
-  }
-
   const typeResult = carouselsTypes.fromTypeNode(node, pathStr);
 
   // Add any newly created symbolic parameters
