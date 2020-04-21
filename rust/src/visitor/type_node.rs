@@ -55,9 +55,9 @@ impl TypeNode {
                 }
             }
 
-            let mut ty = TypeNode::new(false, String::from(""),None);
             match &ps.arguments{
                 PathArguments::AngleBracketed(_a)=>{
+                        let mut ty = TypeNode::new(false, String::from(""),None);
                         let a = &_a.args.first();
                         match a{
                             Some(arg) => {
@@ -76,21 +76,29 @@ impl TypeNode {
                                         if &_c.ident == "Possession" {
                                             self.secret = true;
                                         }
-                                        for b in _c.bounds.iter(){
-                                            match b{
-                                                TypeParamBound::Trait(_tr)=>{
-                                                    ty.my_visit_path(&_tr.path);
+                                        let b = _c.bounds.first();
+                                        match b{
+                                            Some(b_)=>{
+                                                match b_{
+                                                    TypeParamBound::Trait(_tr)=>{
+                                                        ty.my_visit_path(&_tr.path);
+                                                    }
+                                                    _=>{}
                                                 }
-                                                _=>{}
                                             }
+                                            None =>{}
                                         }
                                     }
                                     _=>{}
                                 }
+                                if ps.ident == "Possession" {
+                                    self.type_ = ty.type_;
+                                }else{
+                                    self.dependent_type = Some(Box::new(ty));
+                                }
                             }
                             None =>{}
                         }
-                        self.dependent_type = Some(Box::new(ty));
                     }
                 _=>{}
             }
