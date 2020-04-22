@@ -1,12 +1,11 @@
-const combinatorFunc = require('../../utils/combinator.js');
-const metrics = ['Network Bits', 'Network Rounds', 'Logical Gates', 'Total Memory', 'Memory Access', 'CPU'];
+const combinators = require('../../utils/combinator.js');
 
-module.exports = function (primitives) {
+module.exports = function (metrics, primitives) {
   // arithmetic operations include all primitives except open and if_else
   const arithmetic = Object.assign({}, primitives);
 
   // curry combinator
-  const combinator = combinatorFunc.bind(null, metrics, arithmetic);
+  const combinator = combinators.$Combinator.bind(null, metrics, arithmetic);
 
   // internal -------
   arithmetic['clt_bits'] = combinator('(b+4)*$cmult$ + (b-1)*$smult$ + (b+2)*$sadd$');
@@ -22,11 +21,11 @@ module.exports = function (primitives) {
 
   // secret less than
   arithmetic['slt'] = combinator('3*$half_prime$ + $cadd$ + 5*$sadd$ + $cmult$ + 2*$smult$');
-  arithmetic['slt']['Network Rounds'] = combinator('$half_prime + $smult$', 'Network Rounds');
+  arithmetic['slt']['Network Rounds'] = combinator('$half_prime$ + $smult$', 'Network Rounds');
 
   // constant division
   arithmetic['cdiv'] = combinator('4*$clt$ + $if_else$ + $open$ + $smult$ + 5*$sadd$ + 2*$cadd$ + $cmult$');
-  arithmetic['sdiv']['Network Rounds'] = combinator('$open$ + 2*$clt$ + $if_else$ + $smult$', 'Network Rounds');
+  arithmetic['cdiv']['Network Rounds'] = combinator('$open$ + 2*$clt$ + $if_else$ + $smult$', 'Network Rounds');
 
   // secret division
   arithmetic['sdiv'] = combinator('b*($cmult$ + $clt$ + $slt$ + 2*$smult$ + 2*$sadd$)');

@@ -1,60 +1,65 @@
-module.exports = function () {
-  const primitives = {};
-
+module.exports = {
+  // nothing
+  ZERO: {
+    'Network Bits': '=0',
+    'Network Rounds': '=0',
+    'Logical Gates': '=0',
+    'Total Memory': '=0',
+    'Memory Access': '=0',
+    'CPU': '=0'
+  },
   // constant add
-  primitives['cadd'] = {
+  cadd: {
     'Network Bits': '0',
     'Network Rounds': '0',
     'Logical Gates': '1',
     'Total Memory': 'b',
     'Memory Access': '3',
     'CPU': '1'
-  };
+  },
   // secret add
-  primitives['sadd'] = {
+  sadd: {
     'Network Bits': '0',
     'Network Rounds': '0',
     'Logical Gates': '1',
     'Total Memory': 'b',
     'Memory Access': '3',
     'CPU': '1'
-  };
+  },
   // constant multiplication
-  primitives['cmult'] = {
+  cmult: {
     'Network Bits': '0',
     'Network Rounds': '0',
     'Logical Gates': '1',
     'Total Memory': 'b',
     'Memory Access': '3',
     'CPU': '1'
-  };
+  },
   // secret multiplication
-  primitives['smult'] = {
+  smult: {
     'Network Bits': '2*(p-1)*b',
     'Network Rounds': '1',
     'Logical Gates': '36*b',
     'Total Memory': '2*p*b + 7*b',
     'Memory Access': '2*p + 17',
     'CPU': '1'
-  };
+  },
   // open / leak
-  primitives['open'] = {
+  open: {
     'Network Bits': '2*(p-1)*b',
     'Network Rounds': '1',
     'Logical Gates': '1',
     'Total Memory': '2*p*b',
     'Memory Access': 'p',
     'CPU': '1'
-  };
+  },
   // basic select/mux/if_else
-  primitives['if_else'] = {
+  if_else: {
     'Network Bits': '2*(p-1)*b',
     'Network Rounds': '1',
     'Logical Gates': '180*b',
     'Total Memory': '(p+3)*b',
     'Memory Access': '2*p + 22',
     'CPU': '1'
-  };
-
-  return primitives;
+  }
 };
