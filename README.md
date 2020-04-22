@@ -1,5 +1,5 @@
 # carousels
-Library for concisely defining abstract metrics over JavaScript syntax.
+Library for concisely defining abstract metrics over JavaScript and rust programs specialized for MPC.
 
 ## Examples
 
