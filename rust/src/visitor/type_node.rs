@@ -7,8 +7,11 @@ impl TypeNode {
     pub fn my_visit_type<'ast>(&mut self, node: &'ast Type){
         match node{
             Type::Array(_a)=>{
-                 self.type_ = "array".to_string();
-                 self.my_visit_type(&_a.elem);
+                let mut ty = TypeNode::new(false, String::from(""),None);
+                ty.my_visit_type(&_a.elem);
+
+                self.type_ = String::from("array");
+                self.dependent_type = Some(Box::new(ty));
             }
             Type::Path(_p)=>{
                 self.my_visit_path(&_p.path);
@@ -20,8 +23,11 @@ impl TypeNode {
                 self.my_visit_type(&_r.elem);
             }
             Type::Slice(_s)=>{
+                let mut ty = TypeNode::new(false, String::from(""),None);
+                ty.my_visit_type(&_s.elem);
+
                 self.type_ = String::from("array");
-                self.my_visit_type(&_s.elem);
+                self.dependent_type = Some(Box::new(ty));
             }
             _=>{}
         }
