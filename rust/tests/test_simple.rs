@@ -1,2 +1,2 @@
-fn merge_sort(slice: &[Possession<T, P>]){
+fn merge_sort(slice: &[Vector<T, P>]){
 }

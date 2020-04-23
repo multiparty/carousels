@@ -43,8 +43,11 @@ impl TypeNode {
             }
 
             if self.type_.is_empty(){
-                if &ident == "Vec" || &ident == "Vector"{
+                if &ident == "Vec"{
                     self.type_ = "array".to_string();
+                }
+                else if &ident == "Vector"{
+                    self.type_ = "vector".to_string();
                 }
                 else if &ident == "bool"  || &ident == "str" || &ident == "char" || &ident == "Matrix"{
                     self.type_ = ident;
