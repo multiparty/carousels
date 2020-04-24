@@ -19,7 +19,7 @@ module.exports = function (metrics, primitiveCosts, arithmeticCosts) {
       },
       value: combinators.mapCombinator(metrics,function (node, metric, pathStr, childrenType, childrenMetric) {
         const arrayLength = childrenType.array.dependentType.length;
-        return arrayLength.toString() + '*(' + primitiveCosts['if_else'][this.metricTitle] + ' + '
+        return '(' + arrayLength.toString() + ')*(' + primitiveCosts['if_else'][this.metricTitle] + ' + '
           + arithmeticCosts['clt'][this.metricTitle] + ')'; // length many simple (mux) obliv ifs and ==
       })
     },
@@ -36,6 +36,18 @@ module.exports = function (metrics, primitiveCosts, arithmeticCosts) {
         }
         return undefined;
       })
-    }
+    },
+    // swap is sort of similar to array access at a secret index
+    {
+      rule: {
+        nodeType: 'FunctionCall',
+        match: '<type:array@D,secret:(true|false)>\\.swap\\(<type:[a-zA-Z_]+@D,secret:true>,<type:[a-zA-Z_]+@D,secret:true>\\)'
+      },
+      value: combinators.mapCombinator(metrics,function (node, metric, pathStr, childrenType, childrenMetric) {
+        const arrayLength = childrenType.array.dependentType.length;
+        return '(' + arrayLength.toString() + ')*(4*(' + primitiveCosts['if_else'][this.metricTitle] + ') + 2*('
+          + arithmeticCosts['clt'][this.metricTitle] + '))'; // length many simple (mux) obliv ifs and ==
+      })
+    },
   ];
 };
