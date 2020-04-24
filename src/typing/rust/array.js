@@ -12,11 +12,11 @@ module.exports = [
     value: function (node, pathStr, children) {
       const parameter = Parameter.forValue(pathStr + '[elementsType]');
       const elementsType = new carouselsTypes.NumberType(true, parameter.mathSymbol);
-      const arrayType = new carouselsTypes.ArrayType(true, elementsType.type, math.ZERO);
+      const arrayType = new carouselsTypes.ArrayType(true, elementsType, math.ZERO);
 
       return {
         type: arrayType,
-        parameters: elementsType.parameters
+        parameters: [parameter]
       }
     }
   },

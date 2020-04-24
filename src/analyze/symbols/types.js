@@ -5,7 +5,7 @@ const Parameter = require('./parameter.js');
 let dependentTypes = require('./dependentTypes.js');
 
 // Enum containing supported types
-const TYPE_ENUM = new Enum('TYPE_ENUM', ['NUMBER', 'ARRAY', 'BOOL', 'STR', 'ANY', 'UNIT', 'FUNCTION', 'RANGE', 'SYMBOL']);
+const TYPE_ENUM = new Enum('TYPE_ENUM', ['NUMBER', 'ARRAY', 'BOOL', 'STR', 'ANY', 'UNIT', 'FUNCTION', 'RANGE', 'SYMBOL', 'ABSTYPE']);
 
 // Abstract type class
 function Type(dataType, secret, dependentType) {
@@ -266,6 +266,44 @@ SymbolType.prototype.conflicts = function (otherType) {
 SymbolType.prototype.combine = function () {
   throw new Error('SymbolType does not support .combine()!');
 };
+SymbolType.prototype.copy = function () {
+  const copy = Type.prototype.copy.apply(this, arguments);
+  copy.symbol = this.symbol;
+  return copy;
+};
+SymbolType.prototype.match = function (otherType) {
+  return Type.prototype.match.apply(this, arguments) && this.symbol === otherType.symbol;
+};
+
+// AbsType is essentially a named/keyword type
+function AbsType(typeName) {
+  Type.call(this, TYPE_ENUM.ABSTYPE, false);
+  this.typeName = typeName;
+}
+AbsType.prototype = Object.create(Type.prototype);
+AbsType.prototype.toString = function () {
+  return '<type:' + this.typeName + ',secret:' + this.secret + '>';
+};
+AbsType.prototype.conflicts = function (otherType) {
+  if (!(otherType instanceof AbsType)) {
+    return true;
+  } else if (this.typeName !== otherType.typeName) {
+    return true;
+  }
+
+  throw new Error('AbsType does not support .conflicts()!');
+};
+AbsType.prototype.combine = function () {
+  throw new Error('AbsType does not support .combine()!');
+};
+AbsType.prototype.copy = function () {
+  const copy = Type.prototype.copy.apply(this, arguments);
+  copy.typeName = this.typeName;
+  return copy;
+};
+AbsType.prototype.match = function (otherType) {
+  return Type.prototype.match.apply(this, arguments) && this.typeName === otherType.typeName;
+};
 
 // expose the dependent type symbols
 dependentTypes = dependentTypes(Type, TYPE_ENUM);
@@ -282,5 +320,6 @@ module.exports = {
   AnyType: AnyType,
   StringType: StringType,
   SymbolType: SymbolType,
+  AbsType: AbsType,
   FunctionType: FunctionType
 };

@@ -102,12 +102,11 @@ ModifiedVisitor.prototype.visitFunctionCall = function (node) {
   }
 };
 ModifiedVisitor.prototype.visitDotExpression = function (node) {
-  if (node.right.nodeType !== 'NameExpression') {
+  if (node.right.nodeType !== 'NameExpression' && node.right.nodeType !== 'LiteralExpression') {
     throw new Error('Unsupported expression "' + node.right.nodeType + '" to right of the "."!');
   }
 
   this.visit(node.left);
-  this.visit(node.right);
 
   // <arr>.push() has side effects
   if (node.left.nodeType === 'NameExpression' && node.right.name === 'push') {
