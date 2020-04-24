@@ -1,11 +1,11 @@
 use syn::visit::{Visit};
-use syn::{Lit, Expr, Member, ExprAssign, ExprMethodCall,
+use syn::{Lit, Expr, Member, Path, ExprAssign, ExprMethodCall,
     ExprBinary, ExprAssignOp, ExprForLoop, ExprLit, ExprCall, ExprClosure, ExprUnary, ExprReturn, ExprRange, ExprParen,
-    ExprIf, ExprArray, ExprField, ExprIndex, ExprPath, BinOp, UnOp, ReturnType, ExprBreak, ExprContinue};
+    ExprIf, ExprArray, ExprField, ExprIndex, ExprPath, BinOp, UnOp, ReturnType, ExprBreak, ExprContinue, ExprMacro};
 
 use crate::ir::{ReturnStatement, ForEach, VariableAssignment, If, OblivIf, LiteralExpression, NameExpression,
                 DirectExpression, ParenthesesExpression, ArrayAccess, RangeExpression, SliceExpression,
-                ArrayExpression, FunctionCall, DotExpression, Closure, TypeNode, Break, Continue};
+                ArrayExpression, FunctionCall, DotExpression, Closure, TypeNode, Break, Continue, CarouselsAnnotation};
 
 use crate::visitor::stack::{Stack};
 
@@ -340,4 +340,16 @@ impl <'ast> Visit <'ast> for Stack{
          self.visitor.push(Box::new(continue_token));
      }
 
+     fn visit_expr_macro(&mut self, node: &'ast ExprMacro){
+         let seg = &node.mac.path.segments.first();
+         match seg{
+             Some(_s) =>{
+                 if _s.ident.to_string() == "carousels"{
+                     let token_str = node.mac.tokens.to_string();
+                     self.visitor.push(Box::new(CarouselsAnnotation::new(token_str)));
+                 }
+             }
+             None =>{}
+         }
+     }
 }

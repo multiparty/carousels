@@ -139,6 +139,11 @@ struct Closure{
 }
 
 #[ir_node]
+struct CarouselsAnnotation{
+    rust_string: String
+}
+
+#[ir_node]
 struct Break{
     token: String
 }
