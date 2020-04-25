@@ -43,5 +43,8 @@ Parameter.forLoop = function (loopName) {
   const symbol = 'i' + (PARAMETER_COUNTER++);
   return new Parameter(symbol, description);
 };
+Parameter.restCounter = function () {
+  PARAMETER_COUNTER = 0;
+};
 
 module.exports = Parameter;

@@ -33,6 +33,8 @@ const visitorImplementations = [
 const StringifyVisitor = require('./helpers/stringify.js');
 
 function Analyzer(language, code, costs, extraTyping) {
+  Parameter.restCounter();
+
   this.language = language;
   this.code = code;
   this.intermediateResults = [];
