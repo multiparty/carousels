@@ -105,17 +105,16 @@ let carouselsPlot = {};
       });
 
       // build traces
-      const evaluationPoints = {};
-      evaluationPoints[xaxis] = [];
+      const evaluationPoints = [];
       for (let i = start; i < end; i++) {
-        evaluationPoints[xaxis].push(i);
+        evaluationPoints.push(i);
       }
-      const yTrace = carouselsOutput.evaluate(yaxis, evaluationPoints, initialScope);
+      const yTrace = carouselsOutput.evaluateAtPoints(yaxis, initialScope, xaxis, evaluationPoints);
 
       // create new plot
       plotDiv.style.height = (600 + marginAggregate) + 'px';
       Plotly.newPlot(plotDiv, [{
-        x: evaluationPoints[xaxis],
+        x: evaluationPoints,
         y: yTrace,
         type: 'scatter',
         name: funcName
@@ -143,9 +142,9 @@ let carouselsPlot = {};
           }
         }
 
-        const yTrace = carouselsOutput.evaluate(yaxis, evaluationPoints, initialScope);
+        const yTrace = carouselsOutput.evaluateAtPoints(yaxis, initialScope, xaxis, evaluationPoints);
         Plotly.addTraces(plotDiv, [{
-          x: evaluationPoints[xaxis],
+          x: evaluationPoints,
           y: yTrace,
           name: funcName,
           type: 'scatter'

@@ -246,8 +246,20 @@ SymbolicOutput.prototype.dumpAbstraction = function (abstraction, html) {
 };
 
 // evaluate the given abstraction given values for parameters
-SymbolicOutput.prototype.evaluate = function (callExpression, evaluationPoints, parametersValues) {
-  return math.evaluate(callExpression, evaluationPoints, this.symbolicSystem.concat(parametersValues));
+SymbolicOutput.prototype.evaluateAtPoints = function (callExpression, parametersValues, evaluationParameter, evaluationPoints) {
+  const results = [];
+  const context = parametersValues;
+  const index = context.length;
+  for (let i = 0; i < evaluationPoints.length; i++) {
+    const point = evaluationParameter + '=' + evaluationPoints[i];
+    context[index] = point;
+    results.push(this.evaluate(callExpression, context));
+  }
+  context.pop();
+  return results;
+};
+SymbolicOutput.prototype.evaluate = function (callExpression, context) {
+  return math.evaluate(callExpression, this.symbolicSystem.concat(context));
 };
 
 module.exports = SymbolicOutput;
