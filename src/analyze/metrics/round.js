@@ -43,6 +43,10 @@ roundMetric.aggregateFor = function (node, childrenType, childrenMetric) {
 
 // If: only one of the two branches is executed
 roundMetric.aggregateIf = function (node, childrenType, childrenMetric) {
+  if (childrenMetric.condition.toString() !== '0') {
+    console.log('Warning: Plain if condition has non-zero metric condition in rounds metrics, rounds may be under-estimated...');
+  }
+
   // condition is public and can be ignored
   const bodiesCost = math.iff(childrenType.conditionMath, childrenMetric.ifBody, childrenMetric.elseBody);
   return math.max(childrenMetric.condition, bodiesCost);
