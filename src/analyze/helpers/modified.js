@@ -25,6 +25,7 @@ ModifiedVisitor.prototype.start = function (node) {
 
 // Override visit functions
 ModifiedVisitor.prototype.visitTypeNode = function (node) {};
+ModifiedVisitor.prototype.visitCarouselsAnnotation = function (node) {};
 ModifiedVisitor.prototype.visitFunctionDefinition = function (node) {};
 ModifiedVisitor.prototype.visitLiteralExpression = function (node) {};
 ModifiedVisitor.prototype.visitNameExpression = function (node) {};

@@ -41,6 +41,7 @@ Type.prototype.copy = function (dependentType) {
   if (dependentType == null && this.dependentType) {
     dependentType = this.dependentType.copy();
   }
+  // TODO: bug, prototype corruption, make sure copied object has sub-prototype instead...
   return new Type(this.dataType, this.secret, dependentType);
 };
 Type.prototype.match = function (otherType) {
@@ -84,6 +85,9 @@ Type.prototype.combine = function (otherType, condition) {
 
   // for useless types
   return this.copy();
+};
+Type.prototype.alter = function (alterObj) {
+  throw new Error('Types of kind "' + this.dataType + '" cannot be altered!');
 };
 Type.fromTypeNode = function (typeNode, pathStr) {
   if (typeNode == null) {
@@ -154,6 +158,20 @@ ArrayType.prototype = Object.create(Type.prototype);
 RangeType.prototype = Object.create(Type.prototype);
 AnyType.prototype = Object.create(Type.prototype);
 StringType.prototype = Object.create(Type.prototype);
+
+// override certain functions
+NumberType.prototype.alter = function (alterObj) {
+  const value = alterObj.value;
+  if (value != null) {
+    this.dependentType.value = math.parse(value);
+  }
+  const secret = alterObj.secret;
+  if (secret != null) {
+    this.secret = secret;
+  }
+  return this;
+};
+BooleanType.prototype.alter = NumberType.prototype.alter;
 
 // static initializers
 NumberType.fromTypeNode = function (typeNode, pathStr) {

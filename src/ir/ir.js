@@ -2,6 +2,7 @@
 module.exports = [
   // logical nodes
   'TypeNode',
+  'CarouselsAnnotation',
   // statements
   'FunctionDefinition',
   'ReturnStatement',

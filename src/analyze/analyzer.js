@@ -19,6 +19,7 @@ const IRVisitor = require('../ir/visitor.js');
 const visitorImplementations = [
   require('./analysis/array.js'),
   require('./analysis/callAndReturn.js'),
+  require('./analysis/carouselsAnnotation.js'),
   require('./analysis/expression.js'),
   require('./analysis/for.js'),
   require('./analysis/forEach.js'),

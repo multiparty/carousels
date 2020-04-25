@@ -69,6 +69,10 @@ ListNodesVisitor.prototype.has = function (node, nodeType) {
 };
 
 // Override visit functions
+ListNodesVisitor.prototype.visitCarouselsAnnotation = function (node, args) {
+  // no children to visit
+  const rustString = node.rustString;
+};
 ListNodesVisitor.prototype.visitTypeNode = function (node, args) {
   const type = node.type;
   const secret = node.secret;

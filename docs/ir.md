@@ -19,8 +19,17 @@ These are logical entities that do not correspond to statements/expressions.
 
 For now, it is ok for the type string to be either array or number
 
+#### CarouselsAnnotation
 
+1. rustString: JSON encoded string containing these attributes:
+    * var: the variable name to which the annotation is applied (required)
+    * secret: whether variable is secret or not (optional, boolean value)
+    * value: the value of the variable (optional, applies to number, float, and boolean types)
+    * type: the type of the variable (optional, unsupported)
+    * length: the length of the variable (optional, applies to array types, unsupported)
+    * dependentType: a nested object containing any of the same attributes except var (optional, unsupported)
 
+This is used to pass manual hints from the user to the carousels engine
 
 ## Statement
 

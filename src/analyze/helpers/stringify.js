@@ -167,6 +167,10 @@ StringifyVisitor.prototype.visitTypeNode = function (node) {
     return this.escape(type + dependentString);
   }
 };
+StringifyVisitor.prototype.visitCarouselsAnnotation = function (node) {
+  const rustString = this.escape(node.rustString);
+  return this.format('keyword', 'carousels!') + '(' + rustString + ')\n';
+};
 StringifyVisitor.prototype.visitFunctionDefinition = function (node) {
   const nameResult = this.visit(node.name, false);
   let parametersResults = [];
