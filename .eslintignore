@@ -1,3 +1,5 @@
 node_modules/
 dist/carousels.js
-rust/dist/index*.js
+rust/dist/**
+ui/dependencies/**
+src/cmd/logs/**

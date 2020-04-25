@@ -1,3 +1,5 @@
+/* eslint-disable no-unused-vars */
+// we want the unused vars because this also acts as a skeleton for future visitors
 const IRVisitor = require('../../ir/visitor.js');
 
 function ListNodesVisitor() {

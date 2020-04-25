@@ -22,14 +22,6 @@ const heading = function (text, html) {
   }
   return text;
 };
-const spaceIt = function (count, html) {
-  const space = html ? '&nbsp;' : ' ';
-  let result = '';
-  for (let i = 0; i < count; i++) {
-    result += space;
-  }
-  return result;
-};
 
 // Symbolic Output Class
 function SymbolicOutput(analyzer) {
@@ -236,7 +228,6 @@ SymbolicOutput.prototype.dumpAbstraction = function (abstraction, html) {
 
     dump.push(tab + emph(abstraction.description, html));
     dump.push(tab + escape(absStr + ' = ' + closedFormStr, html));
-    //dump.push(tab + spaceIt(absStr.length, html) + escape(' = ' + simplClosedForm, html));
     this._dumpParameters(abstraction.parameters, html).forEach(function (line) {
       dump.push(tab + line);
     });

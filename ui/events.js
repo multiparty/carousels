@@ -1,6 +1,4 @@
 /* global carousels, carouselsPlot */
-let carouselsOutput;
-
 (function () {
   window.addEventListener('DOMContentLoaded', function () {
     const protocolSelect = document.getElementById('protocol');
@@ -65,7 +63,6 @@ let carouselsOutput;
       yaxisSelect.appendChild(metricOption);
 
       // remove plot
-      carouselsOutput = output;
       carouselsPlot.purge();
     };
     // Showing errors
