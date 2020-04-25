@@ -1,5 +1,5 @@
 // memoization table
-const CACHE = {};
+let CACHE = {};
 
 // used to reduce operands of this operation
 const reducers = {
@@ -114,7 +114,12 @@ const makeMemoizationKey = function (node, args) {
   return fn + '(' + args.join(',') + ')';
 };
 
-module.exports = function (mathjs, callExpression, environment) {
+module.exports = function (mathjs, callExpression, environment, reset) {
+  // reset memoization if flagged
+  if (reset === true) {
+    CACHE = {};
+  }
+
   // Stack for evaluation
   const stack = [{node: callExpression}];
   const operandsStack = [[]];

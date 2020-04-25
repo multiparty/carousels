@@ -250,16 +250,18 @@ SymbolicOutput.prototype.evaluateAtPoints = function (callExpression, parameters
   const results = [];
   const context = parametersValues;
   const index = context.length;
+  let first = true;
   for (let i = 0; i < evaluationPoints.length; i++) {
     const point = evaluationParameter + '=' + evaluationPoints[i];
     context[index] = point;
-    results.push(this.evaluate(callExpression, context));
+    results.push(this.evaluate(callExpression, context, first));
+    first = false;
   }
   context.pop();
   return results;
 };
-SymbolicOutput.prototype.evaluate = function (callExpression, context) {
-  return math.evaluate(callExpression, this.symbolicSystem.concat(context));
+SymbolicOutput.prototype.evaluate = function (callExpression, context, reset) {
+  return math.evaluate(callExpression, this.symbolicSystem.concat(context), reset);
 };
 
 module.exports = SymbolicOutput;

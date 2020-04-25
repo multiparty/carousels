@@ -14,7 +14,7 @@ module.exports = function (mathjs) {
   mathjs.import({iff: iffInterpreter});
 
   /* Evaluate expression in context */
-  const evaluate = function (callExpression, context) {
+  const evaluate = function (callExpression, context, reset) {
     const environment = {};
 
     // parse context into an environment
@@ -35,7 +35,7 @@ module.exports = function (mathjs) {
       }
     });
 
-    return memoizedEvaluator(mathjs, mathjs.parse(callExpression), environment);
+    return memoizedEvaluator(mathjs, mathjs.parse(callExpression), environment, reset);
   };
 
   return evaluate;
