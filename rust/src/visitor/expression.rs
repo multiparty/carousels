@@ -1,5 +1,5 @@
 use syn::visit::{Visit};
-use syn::{Lit, Expr, Member, Path, ExprAssign, ExprMethodCall,
+use syn::{Lit, Expr, Member, ExprAssign, ExprMethodCall,
     ExprBinary, ExprAssignOp, ExprForLoop, ExprLit, ExprCall, ExprClosure, ExprUnary, ExprReturn, ExprRange, ExprParen,
     ExprIf, ExprArray, ExprField, ExprIndex, ExprPath, BinOp, UnOp, ReturnType, ExprBreak, ExprContinue, ExprMacro};
 

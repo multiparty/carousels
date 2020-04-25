@@ -26,13 +26,17 @@ const buffer = fs.readFileSync(wasmBinaryPath);
 const string = buffer.toString('base64');
 
 let generatedBundle = `
+// will use this only if in node.js
+const nodejsRequire = require;
+
 // Generated Code
 // will add wasm_bindgen to this scope
 ${fs.readFileSync(path.join(wasmPath, FILES.WASM_INDEX)).toString()}
 
 // wasm_bindgen is now available as a local variable
 const wasmBinary = (function (base64String) {
-  var raw = window.atob(base64String);
+  const atob = (typeof(window) !== 'undefined' && window.atob) ? window.atob : nodejsRequire('atob');
+  var raw = atob(base64String);
   var rawLength = raw.length;
   var array = new Uint8Array(new ArrayBuffer(rawLength));
 
