@@ -37,11 +37,11 @@ Type.prototype.hasDependentType = function (prop) {
 Type.prototype.is = function (dataType) {
   return this.dataType === dataType;
 };
-Type.prototype.copy = function (dependentType) {
-  if (dependentType == null && this.dependentType) {
+Type.prototype.copy = function () {
+  let dependentType = null;
+  if (this.dependentType) {
     dependentType = this.dependentType.copy();
   }
-  // TODO: bug, prototype corruption, make sure copied object has sub-prototype instead...
   return new Type(this.dataType, this.secret, dependentType);
 };
 Type.prototype.match = function (otherType) {
@@ -87,7 +87,13 @@ Type.prototype.combine = function (otherType, condition) {
   return this.copy();
 };
 Type.prototype.alter = function (alterObj) {
-  throw new Error('Types of kind "' + this.dataType + '" cannot be altered!');
+  if (alterObj.dataType) {
+    throw new Error('cannot alter with "dataType", please use new: true and provide all type details in the hint!');
+  }
+  if (alterObj.secret) {
+    this.secret = alterObj.secret;
+  }
+  return this;
 };
 Type.fromTypeNode = function (typeNode, pathStr) {
   if (typeNode == null) {
@@ -120,12 +126,19 @@ Type.fromTypeNode = function (typeNode, pathStr) {
       return RangeType.fromTypeNode(typeNode, pathStr);
 
     case TYPE_ENUM.STR:
-    case TYPE_ENUM.ANY:
-    case TYPE_ENUM.UNIT:
       return {
-        type: new Type(typeString, secret),
+        type: new StringType(secret),
         parameters: []
       };
+
+    case TYPE_ENUM.ANY:
+      return {
+        type: new AnyType(secret),
+        parameters: []
+      };
+
+    case TYPE_ENUM.UNIT:
+      return UNIT_TYPE;
 
     default:
       throw new Error('TypeNode has illegal type "' + typeString + '"!');
@@ -159,19 +172,63 @@ RangeType.prototype = Object.create(Type.prototype);
 AnyType.prototype = Object.create(Type.prototype);
 StringType.prototype = Object.create(Type.prototype);
 
-// override certain functions
+// override copy function
+NumberType.prototype.copy = function () {
+  return new NumberType(this.secret, this.dependentType.value);
+};
+BooleanType.prototype.copy = function () {
+  return new BooleanType(this.secret, this.dependentType.value);
+};
+ArrayType.prototype.copy = function () {
+  return new ArrayType(this.secret, this.dependentType.elementsType.copy(), this.dependentType.length);
+};
+RangeType.prototype.copy = function () {
+  const copyDep = this.dependentType.copy();
+  return new RangeType(copyDep.startType, copyDep.endType, copyDep.incrementType, copyDep.size);
+};
+AnyType.prototype.copy = function () {
+  return new NumberType(this.secret);
+};
+StringType.prototype.copy = function () {
+  return new StringType(this.secret);
+};
+
+// override alter function
 NumberType.prototype.alter = function (alterObj) {
+  Type.prototype.alter.call(this, alterObj);
   const value = alterObj.value;
   if (value != null) {
     this.dependentType.value = math.parse(value);
   }
-  const secret = alterObj.secret;
-  if (secret != null) {
-    this.secret = secret;
-  }
   return this;
 };
 BooleanType.prototype.alter = NumberType.prototype.alter;
+ArrayType.prototype.alter = function (alterObj) {
+  Type.prototype.alter.call(this, alterObj);
+  if (alterObj.length) {
+    this.dependentType.length = math.parse(alterObj.length);
+  }
+  if (alterObj.elementsType) {
+    this.dependentType.elementsType.alter(alterObj.elementsType);
+  }
+  return this;
+};
+RangeType.prototype.alter = function (alterObj) {
+  Type.prototype.alter.call(this, alterObj);
+  if (alterObj.size) {
+    this.dependentType.size = math.parse(alterObj.size);
+  }
+  if (alterObj.startType) {
+    this.dependentType.startType.alter(alterObj.startType);
+  }
+  if (alterObj.endType) {
+    this.dependentType.endType.alter(alterObj.endType);
+  }
+  if (alterObj.incrementType) {
+    this.dependentType.incrementType.alter(alterObj.incrementType);
+  }
+  return this;
+};
 
 // static initializers
 NumberType.fromTypeNode = function (typeNode, pathStr) {
@@ -262,6 +319,13 @@ function FunctionType(thisType, parametersType, returnType) {
   Type.call(this, TYPE_ENUM.FUNCTION, false, new dependentTypes.FunctionDependentType(thisType, parametersType, returnType));
 }
 FunctionType.prototype = Object.create(Type.prototype);
+FunctionType.prototype.copy = function () {
+  const copyDep = this.dependentType.copy();
+  return new FunctionType(copyDep.thisType, copyDep.parametersType, copyDep.returnType);
+};
+FunctionType.prototype.alter = function (alterObj) {
+  throw new Error('Cannot alter function type using annotation! please use new: true and provide the full type information');
+};
 
 // SymbolType refers to a Syntactic Code Construct
 function SymbolType(symbol) {
@@ -285,12 +349,17 @@ SymbolType.prototype.combine = function () {
   throw new Error('SymbolType does not support .combine()!');
 };
 SymbolType.prototype.copy = function () {
-  const copy = Type.prototype.copy.apply(this, arguments);
-  copy.symbol = this.symbol;
-  return copy;
+  return new SymbolType(this.symbol);
 };
 SymbolType.prototype.match = function (otherType) {
   return Type.prototype.match.apply(this, arguments) && this.symbol === otherType.symbol;
+};
+SymbolType.prototype.alter = function (alterObj) {
+  Type.prototype.alter.call(this, alterObj);
+  if (alterObj.symbol) {
+    this.symbol = alterObj.symbol;
+  }
+  return this;
 };
 
 // AbsType is essentially a named/keyword type
@@ -315,12 +384,17 @@ AbsType.prototype.combine = function () {
   throw new Error('AbsType does not support .combine()!');
 };
 AbsType.prototype.copy = function () {
-  const copy = Type.prototype.copy.apply(this, arguments);
-  copy.typeName = this.typeName;
-  return copy;
+  return new AbsType(this.typeName);
 };
 AbsType.prototype.match = function (otherType) {
   return Type.prototype.match.apply(this, arguments) && this.typeName === otherType.typeName;
+};
+AbsType.prototype.alter = function (alterObj) {
+  Type.prototype.alter.call(this, alterObj);
+  if (alterObj.typeName) {
+    this.typeName = alterObj.typeName;
+  }
+  return this;
 };
 
 // expose the dependent type symbols
