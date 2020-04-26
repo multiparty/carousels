@@ -65,7 +65,7 @@ const combineTypes = function (ifType, elseType, conditionMathEquation, pathStr)
   type.secret = true; // whatever was given to oblivIf does not matter, return is always secret
   return type;
 };
-const combineMetrics = function (node, ifResult, elseResult, conditionResult, sideEffects, pathStr) {
+const combineMetrics = function (node, ifResult, elseResult, conditionResult, sideEffects, pathStr, noReturn) {
   // aggregate children metric
   const childrenType = {
     condition: conditionResult.type,
@@ -79,6 +79,9 @@ const combineMetrics = function (node, ifResult, elseResult, conditionResult, si
     sideEffects: sideEffects
   };
   const aggregateMetric = this.analyzer.metric.aggregateOblivIf(node, childrenType, childrenMetric);
+  if (noReturn === true) { // no final if_else/mux because obliv if has no return
+    return aggregateMetric;
+  }
 
   // find cost in rules and apply it
   const typeString = conditionResult.type.toString() + '?' + ifResult.type.toString() + ':' + elseResult.type.toString();
@@ -123,11 +126,6 @@ const OblivIf = function (node, pathStr) {
   this.analyzer.removeScope();
   const elseTypes = getFromScope.call(this, sideEffects, 'type');
   const elseMetrics = getFromScope.call(this, sideEffects, 'metric');
-
-  // make sure we have an else branch
-  if (elseResult == null) {
-    throw new Error('Expected else for OblivIf "' + pathStr + '"!');
-  }
 
   // turn the condition type into something actionable: a mathjs expression
   // that can be used in a symbolic if statement
@@ -180,8 +178,15 @@ const OblivIf = function (node, pathStr) {
   }
 
   // figure out the type the return type and metric of oblivIf expression
-  const returnType = combineTypes(ifResult.type, elseResult.type, conditionMathEquation, pathStr + '[return]');
-  const returnMetric = combineMetrics.call(this, node, ifResult, elseResult, conditionResult, sideEffectMetrics, pathStr + '[return]');
+  const noReturn = ifResult.type.is(carouselsTypes.ENUM.UNIT) || elseResult == null || elseResult.type == null || elseResult.type.is(carouselsTypes.ENUM.UNIT);
+  let returnType;
+  if (noReturn) {
+    returnType = carouselsTypes.UNIT;
+  } else {
+    returnType = combineTypes(ifResult.type, elseResult.type, conditionMathEquation, pathStr + '[return]');
+  }
+
+  const returnMetric = combineMetrics.call(this, node, ifResult, elseResult, conditionResult, sideEffectMetrics, pathStr + '[return]', noReturn);
   // Note, above we DO NOT use metric.store(conditionResult.metric) since the metric of the condition has to be counted
   // exactly once somewhere in our handling, otherwise it is either ignored or over-counted
 

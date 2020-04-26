@@ -66,6 +66,11 @@ const VariableDefinition = function (node, pathStr) {
   analyzer.variableTypeMap.add(variableName, aggregateType);
   analyzer.variableMetricMap.add(variableName, analyzer.metric.store(aggregateMetric));
 
+  // make sure aggregateType is valid
+  if (aggregateType.is(carouselsTypes.ENUM.UNIT)) {
+    throw new Error('Variable "' + variableName + '" at path "' + pathStr + '" is assigned type "UNIT"!');
+  }
+
   return {
     type: aggregateType,
     metric: aggregateMetric

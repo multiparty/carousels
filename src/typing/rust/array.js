@@ -113,5 +113,18 @@ module.exports = [
         parameters: []
       };
     }
+  },
+  // swap elements in array returns array
+  {
+    rule: {
+      nodeType: 'FunctionCall',
+      match: '<type:array@D,secret:(true|false)>\\.swap\\(@T,@T\\)'
+    },
+    value: function (node, pathStr, children) {
+      return {
+        type: children.leftType,
+        parameters: []
+      };
+    }
   }
 ];
