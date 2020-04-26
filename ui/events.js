@@ -1,8 +1,11 @@
 /* global carousels, carouselsPlot */
+let carouselsOutput;
+
 (function () {
   window.addEventListener('DOMContentLoaded', function () {
     const protocolSelect = document.getElementById('protocol');
     const metricSelect = document.getElementById('metric');
+    const simplifyCheckbox = document.getElementById('simplify')
     const computeButton = document.getElementById('computeButton');
     const textarea = document.getElementById('inputCode');
 
@@ -63,6 +66,7 @@
       yaxisSelect.appendChild(metricOption);
 
       // remove plot
+      carouselsOutput = output;
       carouselsPlot.purge();
     };
     // Showing errors
@@ -98,6 +102,7 @@
     computeButton.onclick = function () {
       const protocolValue = protocolSelect.value;
       const metricValue = metricSelect.value;
+      const simplifyBool = simplifyCheckbox.checked;
       const code = textarea.__codeMirrorInstance.getValue();
       const language = 'rust';
 
@@ -114,6 +119,7 @@
       // analyze code and display outputs
       try {
         analyzer.analyze(carousels.costs[protocolValue], metricValue);
+        if (simplifyBool) { analyzer.simplifyClosedForms(); }
         showOutput(analyzer.symbolicOutput());
       } catch (err) {
         showError(err);

@@ -192,6 +192,14 @@ Analyzer.prototype.analyze = function (costs, metricTitle) {
   this.visitor.start(this.IR, '');
 };
 
+// Simplify closed forms
+Analyzer.prototype.simplifyClosedForms = function () {
+  const cfm = this.abstractionToClosedFormMap;
+  for (var fn in cfm) {
+    cfm[fn] = math.simplify(cfm[fn]);
+  }
+};
+
 // Retrieves the symbolic result: this can be plotted or displayed
 Analyzer.prototype.symbolicOutput = function () {
   return new SymbolicOutput(this);
