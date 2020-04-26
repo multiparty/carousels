@@ -164,6 +164,12 @@ module.exports = function (mathjs, callExpression, environment, reset) {
             // abstractions are memoized and evaluated if uncached!
             const key = makeMemoizationKey(node, operands);
             if (CACHE[key] != null) {
+              // warn about using old cache values
+              let fn = node.fn.name;
+              if (environment[fn] == null) {
+                console.warn('Retreiving cached result ' + key + '=' + CACHE[key]
+                  + ' even though "' + fn + '" is out of scope.');
+              }
               // in cache
               stack.push({node: CACHE[key]});
             } else {

@@ -23,16 +23,24 @@ module.exports = function (mathjs) {
         return;
       }
 
-      // c is either 'var = value' or 'func(params) = expr'
-      // i.e. either 'AssignmentNode' or 'FunctionAssignmentNode'
       const parsed = mathjs.parse(c);
-      if (parsed.isAssignmentNode) {
-        environment[parsed.object.name] = parsed.value;
-      } else if (parsed.isFunctionAssignmentNode) {
-        environment[parsed.name] = parsed;
-      } else {
-        throw new Error('Unexpected statement in scope: "' + c + '" of type "' + parsed.type + '"!');
-      }
+      (function load(parsed) {
+        if (!parsed.isBlockNode) {
+          // c is either 'var = value' or 'func(params) = expr'
+          // i.e. either 'AssignmentNode' or 'FunctionAssignmentNode'
+          if (parsed.isAssignmentNode) {
+            environment[parsed.object.name] = parsed.value;
+          } else if (parsed.isFunctionAssignmentNode) {
+            environment[parsed.name] = parsed;
+          } else {
+            throw new Error('Unexpected statement in scope: "' + c + '" of type "' + parsed.type + '"!');
+          }
+        } else {
+          // c is either 'exp; exp' or 'exp; BlockNodeStr'
+          // i.e. 'BlockNode'
+          parsed.blocks.map(function (b) {return b.node;}).map(load);
+        }
+      }(parsed));
     });
 
     return memoizedEvaluator(mathjs, mathjs.parse(callExpression), environment, reset);
