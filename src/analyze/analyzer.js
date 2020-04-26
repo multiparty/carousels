@@ -168,11 +168,13 @@ Analyzer.prototype.analyze = function (costs, metricTitle) {
 
   // Metric object and title
   this.metric = null;
+  this.metricType = null;
   this.metricTitle = metricTitle;
   for (let i = 0; i < costs.metrics.length; i++) {
     const metricEntry = costs.metrics[i];
     if (metricEntry.title === metricTitle) {
       this.metric = metricObjects[metricEntry.type];
+      this.metricType = metricEntry.type;
     }
   }
 

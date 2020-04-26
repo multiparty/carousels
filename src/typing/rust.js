@@ -5,7 +5,8 @@ const typeFiles = [
   require('./rust/matrix.js'),
   require('./rust/std.js'),
   require('./rust/vector.js'),
-  require('./rust/rng.js')
+  require('./rust/rng.js'),
+  require('./rust/hints.js')
 ];
 
 let allRules= [];

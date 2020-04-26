@@ -248,9 +248,9 @@ BooleanType.fromTypeNode = function (typeNode, pathStr) {
   };
 };
 ArrayType.fromTypeNode = function (typeNode, pathStr) {
-  const secret = typeNode.secret;
   const lengthParameter = Parameter.forArrayLength(pathStr);
   const nested = Type.fromTypeNode(typeNode.dependentType, pathStr + '[elementsType]');
+  const secret = typeNode.secret || nested.type.secret;
 
   return {
     type: new ArrayType(secret, nested.type, lengthParameter.mathSymbol),

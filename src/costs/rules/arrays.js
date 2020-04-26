@@ -44,9 +44,21 @@ module.exports = function (metrics, primitiveCosts, arithmeticCosts) {
         match: '<type:array@D,secret:(true|false)>\\.swap\\(<type:[a-zA-Z_]+@D,secret:true>,<type:[a-zA-Z_]+@D,secret:true>\\)'
       },
       value: combinators.mapCombinator(metrics,function (node, metric, pathStr, childrenType, childrenMetric) {
-        const arrayLength = childrenType.array.dependentType.length;
+        const arrayLength = childrenType.leftType.dependentType.length;
         return '(' + arrayLength.toString() + ')*(4*(' + primitiveCosts['if_else'][this.metricTitle] + ') + 2*('
           + arithmeticCosts['clt'][this.metricTitle] + '))'; // length many simple (mux) obliv ifs and ==
+      })
+    },
+    {
+      rule: {
+        nodeType: 'FunctionCall',
+        match: '((<type:array@D,secret:(true|false)>\\.swap\\(<type:[a-zA-Z_]+@D,secret:false>,<type:[a-zA-Z_]+@D,secret:true>\\))'
+          + '||(<type:array@D,secret:(true|false)>\\.swap\\(<type:[a-zA-Z_]+@D,secret:true>,<type:[a-zA-Z_]+@D,secret:false>\\)))'
+      },
+      value: combinators.mapCombinator(metrics,function (node, metric, pathStr, childrenType, childrenMetric) {
+        const arrayLength = childrenType.leftType.dependentType.length;
+        return '(' + arrayLength.toString() + ')*(2*(' + primitiveCosts['if_else'][this.metricTitle] + ') + '
+          + arithmeticCosts['clt'][this.metricTitle] + ')'; // length many simple (mux) obliv ifs and ==
       })
     },
   ];

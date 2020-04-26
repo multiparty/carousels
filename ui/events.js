@@ -1,4 +1,6 @@
-/* global carousels, carouselsPlot */
+/* global carousels, carouselsPlot, carouselsOutput */
+let carouselsOutput = null;
+
 (function () {
   window.addEventListener('DOMContentLoaded', function () {
     const protocolSelect = document.getElementById('protocol');
@@ -61,6 +63,9 @@
       metricOption.textContent = output.analyzer.metricTitle;
       metricOption.value = output.analyzer.metricTitle;
       yaxisSelect.appendChild(metricOption);
+
+      // store globally for plot.js to use
+      carouselsOutput = output;
 
       // remove plot
       carouselsPlot.purge();
