@@ -224,7 +224,6 @@ SymbolicOutput.prototype.dumpAbstraction = function (abstraction, html) {
   if (abstraction != null) {
     const absStr = abstraction.mathSymbol.toString();
     const closedFormStr = this.analyzer.abstractionToClosedFormMap[absStr].toString();
-    //const simplClosedForm = math.simplify(this.analyzer.abstractionToClosedFormMap[absStr]).toString();
 
     dump.push(tab + emph(abstraction.description, html));
     dump.push(tab + escape(absStr + ' = ' + closedFormStr, html));

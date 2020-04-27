@@ -35,6 +35,11 @@ yargs.option('verbose', {
   default: true,
   description: 'print intermediate symbolic system of equations and status updates'
 });
+yargs.option('simpl', {
+  type: 'boolean',
+  default: false,
+  description: 'whether to simplify symbolic system before printing and evaluating'
+});
 
 // read command line arguments
 const argv = yargs.argv;
@@ -44,6 +49,7 @@ const evaluate = argv.evaluate;
 const at = argv.at;
 const debug = argv.debug;
 const verbose = argv.verbose;
+const simpl = argv.simpl;
 
 // for verbose logging
 const INFO = verbose ? console.log : function () {};
@@ -87,7 +93,13 @@ carousels.promise.then(function () {
     INFO('Analyzing metric "' + metric + '"...');
     analyzer.analyze(carousels.costs[cost], metric);
     if (debug) {
+      // dump code and annotations
       fs.writeFileSync(path.join(debug, 'debug.html'), format.formatHTML(analyzer.prettyPrint()));
+    }
+
+    // simplify equations
+    if (simpl) {
+      analyzer.simplifyClosedForms();
     }
 
     // display / log symbolic outputs

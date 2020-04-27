@@ -38,7 +38,9 @@ module.exports = function (mathjs) {
         } else {
           // c is either 'exp; exp' or 'exp; BlockNodeStr'
           // i.e. 'BlockNode'
-          parsed.blocks.map(function (b) {return b.node;}).map(load);
+          parsed.blocks.map(function (b) {
+            return b.node;
+          }).map(load);
         }
       }(parsed));
     });

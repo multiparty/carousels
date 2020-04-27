@@ -1,10 +1,22 @@
 /* Horizontal controls */
-.horizontalControls label,select,button,input,textarea {
+.horizontalControls {
+    vertical-align: top;
+    text-align: center;
+}
+
+.horizontalControls label,
+.horizontalControls select,
+.horizontalControls button,
+.horizontalControls input,
+.horizontalControls textarea {
     font-weight: bold;
     display: inline-block;
-    vertical-align: top;
 }
-.horizontalControls select,button,input,textarea {
+
+.horizontalControls select,
+.horizontalControls button,
+.horizontalControls input,
+.horizontalControls textarea {
     width: 200px;
 }
 .horizontalControls label {
@@ -18,6 +30,19 @@
     text-align: center;
     margin-bottom: 20px;
 }
+
+/* single control group looks slightly different! */
+.singleControl label,
+.singleControl input {
+    width: inherit !important;
+    font-weight: normal;
+}
+
+.singleControl label,
+.singleControl input {
+    vertical-align: bottom;
+}
+
 /* if resolution is too little, place control group as an accordion */
 @media (max-width: 1800px) {
     .horizontalControls .controlsGroup {

@@ -1,10 +1,12 @@
 /* global carousels, carouselsPlot, carouselsOutput */
-let carouselsOutput = null;
+// eslint-disable-next-line no-unused-vars
+let carouselsOutput;
 
 (function () {
   window.addEventListener('DOMContentLoaded', function () {
     const protocolSelect = document.getElementById('protocol');
     const metricSelect = document.getElementById('metric');
+    const simplifyCheckbox = document.getElementById('simplify')
     const computeButton = document.getElementById('computeButton');
     const textarea = document.getElementById('inputCode');
 
@@ -103,6 +105,7 @@ let carouselsOutput = null;
     computeButton.onclick = function () {
       const protocolValue = protocolSelect.value;
       const metricValue = metricSelect.value;
+      const simplifyBool = simplifyCheckbox.checked;
       const code = textarea.__codeMirrorInstance.getValue();
       const language = 'rust';
 
@@ -119,6 +122,9 @@ let carouselsOutput = null;
       // analyze code and display outputs
       try {
         analyzer.analyze(carousels.costs[protocolValue], metricValue);
+        if (simplifyBool) {
+          analyzer.simplifyClosedForms();
+        }
         showOutput(analyzer.symbolicOutput());
       } catch (err) {
         showError(err);
