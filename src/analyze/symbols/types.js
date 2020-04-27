@@ -187,7 +187,7 @@ RangeType.prototype.copy = function () {
   return new RangeType(copyDep.startType, copyDep.endType, copyDep.incrementType, copyDep.size);
 };
 AnyType.prototype.copy = function () {
-  return new NumberType(this.secret);
+  return new AnyType(this.secret);
 };
 StringType.prototype.copy = function () {
   return new StringType(this.secret);
