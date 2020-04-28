@@ -15,7 +15,8 @@ module.exports = function (metrics) {
   const costs = {
     ZERO: primitives['ZERO'],
     not: primitives['not'],
-    if_else: primitives['if_else']
+    if_else: primitives['if_else'],
+    open: primitives['open']
   };
 
   const operations = ['and', 'or', 'xor', 'add', 'mult', 'div', 'lt', 'eq'];

@@ -4,12 +4,14 @@ const metrics = ['Network Bits', 'Network Rounds', 'Logical Gates', 'Total Memor
 // raw costs
 const primitiveCosts = require('./protocols/bgw/primitives.js');
 const arithmeticCosts = require('./protocols/generic/arithmetic.js')(metrics, primitiveCosts);
+const floatCosts = require('./protocols/generic/float.js')(metrics, primitiveCosts, arithmeticCosts);
 
 // rules applying costs to regular expressions
 const arithmeticRules = require('./rules/arithmetic.js');
 const booleanRules = require('./rules/boolean.js');
 const relationalRules = require('./rules/relational.js');
 const arraysRules = require('./rules/arrays.js');
+const floatRules = require('./rules/float.js');
 
 // costs
 module.exports = {
@@ -53,4 +55,5 @@ module.exports = {
     .concat(booleanRules(metrics, primitiveCosts, arithmeticCosts))
     .concat(relationalRules(metrics, primitiveCosts, arithmeticCosts))
     .concat(arraysRules(metrics, primitiveCosts, arithmeticCosts))
+    .concat(floatRules(metrics, floatCosts))
 };

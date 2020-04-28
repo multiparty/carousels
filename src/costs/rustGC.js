@@ -1,14 +1,16 @@
 // helpers to simplify expressing costs
-const metrics = ['Network Bits', 'Network Rounds', 'Logical Gates', 'Total Memory', 'Memory Access', 'CPU'];
+const metrics = ['Network Bits', 'Garbled Gates', 'Total Memory', 'Memory Access', 'CPU Garbler', 'CPU Evaluator'];
 
 // All the primitive costs
-const allCosts = require('./protocols/gc/gc.js');
+const allCosts = require('./protocols/gc/gc.js')(metrics);
+const floatCosts = require('./protocols/generic/float.js')(metrics, allCosts, allCosts);
 
 // rules applying costs to regular expressions
 const arithmeticRules = require('./rules/arithmetic.js');
 const booleanRules = require('./rules/boolean.js');
 const relationalRules = require('./rules/relational.js');
 const arraysRules = require('./rules/arrays.js');
+const floatRules = require('./rules/float.js');
 
 // costs
 module.exports = {
@@ -20,7 +22,7 @@ module.exports = {
   ],
   metrics: [
     {
-      title: 'Network',
+      title: 'Network Bits',
       description: 'Total number of bits sent by both parties',
       type: 'TotalMetric'
     },
@@ -54,4 +56,5 @@ module.exports = {
     .concat(booleanRules(metrics, allCosts, allCosts))
     .concat(relationalRules(metrics, allCosts, allCosts))
     .concat(arraysRules(metrics, allCosts, allCosts))
+    .concat(floatRules(metrics, floatCosts))
 };

@@ -1,3 +1,5 @@
+const math = require('../../analyze/math.js');
+
 // takes a high level description string referring to other primitives (using $..$ syntax)
 // and expands it to apply to every metric
 const plugIntoExpression = function (metric, primitives, exprParts) {

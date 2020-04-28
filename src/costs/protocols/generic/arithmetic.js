@@ -31,6 +31,14 @@ module.exports = function (metrics, primitives) {
   arithmetic['sdiv'] = combinator('b*($cmult$ + $clt$ + $slt$ + 2*$smult$ + 2*$sadd$)');
   arithmetic['sdiv']['Network Rounds'] = combinator('b*$slt$ + 2*b*$smult$', 'Network Rounds');
 
+  // GC has its own sor and sxor, other protocols rely on smult
+  if (arithmetic['sor'] == null) {
+    arithmetic['sor'] = arithmetic['or'] ? arithmetic['or'] : arithmetic['smult'];
+  }
+  if (arithmetic['sxor'] == null) {
+    arithmetic['sxor'] = arithmetic['xor'] ? arithmetic['xor'] : arithmetic['smult'];
+  }
+
   // delete un-needed/internal abstractions
   delete arithmetic['open'];
   delete arithmetic['if_else'];
