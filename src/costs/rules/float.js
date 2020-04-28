@@ -6,7 +6,7 @@ module.exports = function (metrics, floatCost) {
     {
       rule: {
         nodeType: 'DirectExpression',
-        match: regex.EITHER_SECRET_REGEX('\\+|-', 'float')
+        match: regex.EITHER_SECRET_REGEX('\\+|-', 'float@D')
       },
       value: floatCost['addf']
     },
@@ -14,7 +14,7 @@ module.exports = function (metrics, floatCost) {
     {
       rule: {
         nodeType: 'DirectExpression',
-        match: regex.EITHER_SECRET_REGEX('\\*', 'float')
+        match: regex.EITHER_SECRET_REGEX('\\*', 'float@D')
       },
       value: floatCost['multf']
     },
@@ -22,7 +22,7 @@ module.exports = function (metrics, floatCost) {
     {
       rule: {
         nodeType: 'DirectExpression',
-        match: regex.EITHER_SECRET_REGEX('/|%', 'float')
+        match: regex.EITHER_SECRET_REGEX('/|%', 'float@D')
       },
       value: floatCost['divf']
     },
@@ -30,7 +30,7 @@ module.exports = function (metrics, floatCost) {
     {
       rule: {
         nodeType: 'DirectExpression',
-        match: regex.EITHER_SECRET_REGEX('<|>|(<=)|(>=)|(==)|(!=)', 'float')
+        match: regex.EITHER_SECRET_REGEX('<|>|(<=)|(>=)|(==)|(!=)', 'float@D')
       },
       value: floatCost['ltf']
     },
@@ -38,7 +38,7 @@ module.exports = function (metrics, floatCost) {
     {
       rule: {
         nodeType: 'FunctionCall',
-        match: '<type:float,secret:true>\\.sqrt\\(\\)'
+        match: '<type:float@D,secret:true>\\.sqrt\\(\\)'
       },
       value: floatCost['sqrtf']
     }

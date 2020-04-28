@@ -29,7 +29,7 @@ module.exports = function (Type, TYPE_ENUM) {
 
   // Value dependent type: for bools and numbers
   function ValueDependentType(value) {
-    DependentType.call(this, 'ValueDependentType', [TYPE_ENUM.NUMBER, TYPE_ENUM.BOOL]);
+    DependentType.call(this, 'ValueDependentType', [TYPE_ENUM.NUMBER, TYPE_ENUM.BOOL, TYPE_ENUM.FLOAT]);
 
     if (value == null) {
       throw new Error('ValueDependentType given null parameters!');
@@ -92,6 +92,43 @@ module.exports = function (Type, TYPE_ENUM) {
     const combinedLength = math.iff(condition, this.length, otherLength);
     const dependentDataType = this.elementsType.combine(otherDependentType ? otherDependentType.elementsType : null, condition);
     return new ArrayDependentType(dependentDataType, combinedLength);
+  };
+
+  // (rowsXcols) matrix
+  function MatrixDependentType(elementsType, rows, cols) {
+    DependentType.call(this, 'MatrixDependentType', [TYPE_ENUM.MATRIX]);
+
+    if (elementsType == null || length == null) {
+      throw new Error('ArrayDependentType given null parameters!');
+    }
+
+    this.elementsType = elementsType;
+    this.rows = rows;
+    this.cols = cols;
+  }
+  MatrixDependentType.prototype = Object.create(DependentType.prototype);
+  MatrixDependentType.prototype.toString = function () {
+    return '<elementsType:' + this.elementsType.toString() + ',rows:' + this.rows + ',cols:' + this.cols + '>';
+  };
+  MatrixDependentType.prototype.copy = function () {
+    return new MatrixDependentType(this.elementsType.copy(), this.rows, this.cols);
+  };
+  MatrixDependentType.prototype.conflicts = function (otherDependentType) {
+    return !(otherDependentType instanceof  MatrixDependentType) ||
+      this.elementsType.conflicts(otherDependentType.elementsType);
+  };
+  MatrixDependentType.prototype.combine = function (otherDependentType, condition) {
+    if (otherDependentType != null && !(otherDependentType instanceof MatrixDependentType)) {
+      throw new Error('Cannot combined MatrixDependentType "' + this + '" with un-matching dependent type "' +
+        otherDependentType + '"!');
+    }
+
+    const otherRows = otherDependentType ? otherDependentType.rows : math.ERROR;
+    const otherCols = otherDependentType ? otherDependentType.cols : math.ERROR;
+    const combinedRows = math.iff(condition, this.rows, otherRows);
+    const combinedCols = math.iff(condition, this.cols, otherCols);
+    const dependentDataType = this.elementsType.combine(otherDependentType ? otherDependentType.elementsType : null, condition);
+    return new MatrixDependentType(dependentDataType, combinedRows, combinedCols);
   };
 
   // start, end, and increment
@@ -205,8 +242,9 @@ module.exports = function (Type, TYPE_ENUM) {
 
   return {
     ArrayDependentType: ArrayDependentType,
+    MatrixDependentType: MatrixDependentType,
     ValueDependentType: ValueDependentType,
     RangeDependentType: RangeDependentType,
-    FunctionDependentType: FunctionDependentType,
+    FunctionDependentType: FunctionDependentType
   };
 };

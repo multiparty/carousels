@@ -3,6 +3,7 @@ const typeFiles = [
   require('./rust/array.js'),
   require('./rust/bool.js'),
   require('./rust/matrix.js'),
+  require('./rust/float.js'),
   require('./rust/std.js'),
   require('./rust/vector.js'),
   require('./rust/rng.js'),

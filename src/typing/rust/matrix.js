@@ -1,6 +1,20 @@
 const carouselsTypes = require('../../analyze/symbols/types.js');
 
 module.exports = [
+  // .len() of a matrix returns row count
+  {
+    rule: {
+      nodeType: 'FunctionCall',
+      match: '<type:matrix@D,secret:(true|false)>\\.len\\(\\)'
+    },
+    value: function (node, pathStr, children) {
+      const lenType = new carouselsTypes.NumberType(false, children.leftType.dependentType.rows)
+      return {
+        type: lenType,
+        parameters: []
+      };
+    }
+  },
   // diagonal matrix
   {
     rule: {

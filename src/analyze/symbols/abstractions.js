@@ -94,7 +94,9 @@ FunctionAbstraction.prototype.concretize = function (parameters) {
 const getParameterDependentParameter = function (parameterType) {
   if (parameterType.is(carouselsTypes.ENUM.ARRAY)) {
     return parameterType.dependentType.length;
-  } else if (parameterType.is(carouselsTypes.ENUM.NUMBER) || parameterType.is(carouselsTypes.ENUM.BOOL)) {
+  } if (parameterType.is(carouselsTypes.ENUM.MATRIX)) {
+    return parameterType.dependentType.rows; // only rows for now
+  } else if (parameterType.is(carouselsTypes.ENUM.NUMBER) || parameterType.is(carouselsTypes.ENUM.BOOL) || parameterType.is(carouselsTypes.ENUM.FLOAT)) {
     return parameterType.dependentType.value;
   } else {
     return null;

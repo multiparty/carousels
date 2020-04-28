@@ -1,4 +1,5 @@
 const carouselsTypes = require('../../analyze/symbols/types.js');
+const Parameter = require('../../analyze/symbols/parameter.js');
 const math = require('../../analyze/math.js');
 
 const OPERATOR_MAP = {
@@ -14,7 +15,7 @@ module.exports = [
   {
     rule: {
       nodeType: 'DirectExpression',
-      match: '@NB(\\+|-|\\*|/|%)@NB'
+      match: '@F(\\+|-|\\*|/|%)@F'
     },
     value: function (node, pathStr, children) {
       const secret = children.operands[0].secret || children.operands[1].secret;
@@ -22,7 +23,7 @@ module.exports = [
       const val = mathOperator(children.operands[0].dependentType.value, children.operands[1].dependentType.value);
 
       return {
-        type: new carouselsTypes.NumberType(secret, val),
+        type: new carouselsTypes.FloatType(secret, val),
         parameters: []
       }
     }
@@ -31,14 +32,28 @@ module.exports = [
   {
     rule: {
       nodeType: 'DirectExpression',
-      match: '~@NB'
+      match: '~@F'
     },
     value: function (node, pathStr, children) {
       const secret = children.operands[0].secret;
       let val = math.unaryMinus(children.operands[0].dependentType.value);
       return {
-        type: new carouselsTypes.NumberType(secret, val),
+        type: new carouselsTypes.FloatType(secret, val),
         parameters: []
+      };
+    }
+  },
+  // sqrt
+  {
+    rule: {
+      nodeType: 'FunctionCall',
+      match: '@F\\.sqrt\\(\\)'
+    },
+    value: function (node, pathStr, children) {
+      const parameter = Parameter.forValue(pathStr);
+      return {
+        type: new carouselsTypes.FloatType(children.leftType.secret, parameter.mathSymbol),
+        parameters: [parameter]
       };
     }
   }

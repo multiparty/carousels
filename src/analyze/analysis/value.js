@@ -99,6 +99,11 @@ const LiteralExpression = function (node) {
       type = new carouselsTypes.StringType(false);
       break;
 
+    case 'float':
+      val = math.parse(node.value);
+      type = new carouselsTypes.FloatType(false, val);
+      break;
+
     default:
       throw new Error('Unsupported Literal Type "' + node.type + '"');
   }

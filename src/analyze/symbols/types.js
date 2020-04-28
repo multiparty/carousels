@@ -5,7 +5,14 @@ const Parameter = require('./parameter.js');
 let dependentTypes = require('./dependentTypes.js');
 
 // Enum containing supported types
-const TYPE_ENUM = new Enum('TYPE_ENUM', ['NUMBER', 'ARRAY', 'BOOL', 'STR', 'ANY', 'UNIT', 'FUNCTION', 'RANGE', 'SYMBOL', 'ABSTYPE']);
+const TYPE_ENUM = new Enum('TYPE_ENUM', [
+  'NUMBER', 'FLOAT', 'ARRAY', 'BOOL', 'STR', 'MATRIX',
+  'ANY', 'UNIT', 'FUNCTION', 'RANGE', 'SYMBOL', 'ABSTYPE'
+]);
+const TYPE_ALIASES = {
+  // special case Matrix
+  VECTOR: 'MATRIX'
+};
 
 // Abstract type class
 function Type(dataType, secret, dependentType) {
@@ -107,35 +114,42 @@ Type.fromTypeNode = function (typeNode, pathStr) {
   }
 
   // Parse type according to cases
-  const typeString = typeNode.type.toUpperCase();
+  let typeString = typeNode.type.toUpperCase();
+  let alias = undefined;
+  if (TYPE_ALIASES[typeString] != null) {
+    alias = typeString;
+    typeString = TYPE_ALIASES[typeString];
+  }
+
+  // assert type is supported!
   TYPE_ENUM.__assert(typeString);
 
   const secret = typeNode.secret;
   // compute dependentType
   switch (typeString) {
     case TYPE_ENUM.NUMBER:
-      return NumberType.fromTypeNode(typeNode, pathStr);
+      return NumberType.fromTypeNode(typeNode, pathStr, alias);
 
     case TYPE_ENUM.BOOL:
-      return BooleanType.fromTypeNode(typeNode, pathStr);
+      return BooleanType.fromTypeNode(typeNode, pathStr, alias);
+
+    case TYPE_ENUM.FLOAT:
+      return FloatType.fromTypeNode(typeNode, pathStr, alias);
 
     case TYPE_ENUM.ARRAY:
-      return ArrayType.fromTypeNode(typeNode, pathStr);
+      return ArrayType.fromTypeNode(typeNode, pathStr, alias);
+
+    case TYPE_ENUM.MATRIX:
+      return MatrixType.fromTypeNode(typeNode, pathStr, alias);
 
     case TYPE_ENUM.RANGE:
-      return RangeType.fromTypeNode(typeNode, pathStr);
+      return RangeType.fromTypeNode(typeNode, pathStr, alias);
 
     case TYPE_ENUM.STR:
-      return {
-        type: new StringType(secret),
-        parameters: []
-      };
+      return StringType.fromTypeNode(typeNode, pathStr, alias);
 
     case TYPE_ENUM.ANY:
-      return {
-        type: new AnyType(secret),
-        parameters: []
-      };
+      return AnyType.fromTypeNode(typeNode, pathStr, alias);
 
     case TYPE_ENUM.UNIT:
       return UNIT_TYPE;
@@ -164,6 +178,12 @@ function AnyType(secret) {
 function StringType(secret) {
   Type.call(this, TYPE_ENUM.STR, secret);
 }
+function FloatType(secret, value) {
+  Type.call(this, TYPE_ENUM.FLOAT, secret, new dependentTypes.ValueDependentType(value));
+}
+function MatrixType(secret, elementsType, rows, cols) {
+  Type.call(this, TYPE_ENUM.MATRIX, secret, new dependentTypes.MatrixDependentType(elementsType, rows, cols));
+}
 
 NumberType.prototype = Object.create(Type.prototype);
 BooleanType.prototype = Object.create(Type.prototype);
@@ -171,6 +191,8 @@ ArrayType.prototype = Object.create(Type.prototype);
 RangeType.prototype = Object.create(Type.prototype);
 AnyType.prototype = Object.create(Type.prototype);
 StringType.prototype = Object.create(Type.prototype);
+FloatType.prototype = Object.create(Type.prototype);
+MatrixType.prototype = Object.create(Type.prototype);
 
 // override copy function
 NumberType.prototype.copy = function () {
@@ -191,6 +213,12 @@ AnyType.prototype.copy = function () {
 };
 StringType.prototype.copy = function () {
   return new StringType(this.secret);
+};
+FloatType.prototype.copy = function () {
+  return new FloatType(this.secret, this.dependentType.value);
+};
+MatrixType.prototype.copy = function () {
+  return new MatrixType(this.secret, this.dependentType.elementsType.copy(), this.dependentType.rows, this.dependentType.cols);
 };
 
 // override alter function
@@ -226,6 +254,20 @@ RangeType.prototype.alter = function (alterObj) {
   }
   if (alterObj.incrementType) {
     this.dependentType.incrementType.alter(alterObj.incrementType);
+  }
+  return this;
+};
+FloatType.prototype.alter = NumberType.prototype.alter;
+MatrixType.prototype.alter = function (alterObj) {
+  Type.prototype.alter.call(this, alterObj);
+  if (alterObj.rows) {
+    this.dependentType.length = math.parse(alterObj.rows);
+  }
+  if (alterObj.cols) {
+    this.dependentType.length = math.parse(alterObj.cols);
+  }
+  if (alterObj.elementsType) {
+    this.dependentType.elementsType.alter(alterObj.elementsType);
   }
   return this;
 };
@@ -308,6 +350,44 @@ RangeType.fromComponents = function (startType, endType, incrementType, pathStr)
   return {
     type: new RangeType(startType, endType, incrementType, size),
     parameters: parameters
+  };
+};
+FloatType.fromTypeNode = function (typeNode, pathStr) {
+  const secret = typeNode.secret;
+  const parameter = Parameter.forValue(pathStr);
+  return {
+    type: new FloatType(secret, parameter.mathSymbol),
+    parameters: [parameter]
+  };
+};
+MatrixType.fromTypeNode = function (typeNode, pathStr, alias) {
+  const rowsParameter = Parameter.forMatrixRows(pathStr);
+  const nested = Type.fromTypeNode(typeNode.dependentType, pathStr + '[elementsType]');
+  const secret = typeNode.secret || nested.type.secret;
+  const parameters = nested.parameters.concat([rowsParameter]);
+
+  let colsSymbol = '1';
+  if (alias !== 'VECTOR') {
+    colsSymbol = Parameter.forMatrixCols(pathStr);
+    parameters.push(colsSymbol);
+    colsSymbol = colsSymbol.mathSymbol;
+  }
+
+  return {
+    type: new MatrixType(secret, nested.type, rowsParameter.mathSymbol, colsSymbol),
+    parameters: parameters
+  };
+};
+StringType.fromTypeNode = function (typeNode, pathStr) {
+  return {
+    type: new StringType(typeNode.secret),
+    parameters: []
+  };
+};
+AnyType.fromTypeNode = function (typeNode, pathStr) {
+  return {
+    type: new AnyType(typeNode.secret),
+    parameters: []
   };
 };
 
@@ -411,6 +491,8 @@ module.exports = {
   RangeType: RangeType,
   AnyType: AnyType,
   StringType: StringType,
+  FloatType: FloatType,
+  MatrixType: MatrixType,
   SymbolType: SymbolType,
   AbsType: AbsType,
   FunctionType: FunctionType

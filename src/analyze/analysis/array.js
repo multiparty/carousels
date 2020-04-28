@@ -13,9 +13,9 @@ const ArrayAccess = function (node, pathStr) {
     index: indexResult.metric
   };
 
-  // expect that array is of type array
-  if (!arrayResult.type.is(carouselsTypes.ENUM.ARRAY)) {
-    throw new Error('Expected Expression in ArrayAccess to be of type array, found "' + arrayResult.type + '" instead!');
+  // expect that array is of type array or matrix
+  if (!arrayResult.type.is(carouselsTypes.ENUM.ARRAY) && !arrayResult.type.is(carouselsTypes.ENUM.MATRIX)) {
+    throw new Error('Expected Expression in ArrayAccess to be of type array or matrix, found "' + arrayResult.type + '" instead!');
   }
 
   // find typing rule if it exists
@@ -24,7 +24,17 @@ const ArrayAccess = function (node, pathStr) {
   if (this.analyzer.typings.findMatch(node, typeString) !== undefined) {
     type = this.analyzer.typings.applyMatch(node, typeString, pathStr, childrenType);
   } else {
-    type = arrayResult.type.dependentType.elementsType.copy();
+    if (arrayResult.type.is(carouselsTypes.ENUM.ARRAY)) {
+      type = arrayResult.type.dependentType.elementsType.copy();
+    } else if (arrayResult.type.is(carouselsTypes.ENUM.MATRIX)) {
+      // Access into (NxM) Matrix gives a (Mx1) Vector
+      // Special Case: (Nx1) Matrix (essentially vector) gives a (1x1) Vector, i.e. an element directly..
+      if (arrayResult.type.dependentType.cols.toString() === '1') {
+        type = arrayResult.type.dependentType.elementsType.copy();
+      } else {
+        type = new carouselsTypes.MatrixType(arrayResult.type.dependentType.elementsType.copy(), arrayResult.type.dependentType.cols, '1');
+      }
+    }
   }
 
   // aggregate metric

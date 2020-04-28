@@ -12,29 +12,39 @@ const OPERATOR_MAP = {
   '||': math.or
 };
 
+const func = function (node, pathStr, children) {
+  const secret = children.operands[0].secret || children.operands[1].secret;
+  const mathOperator = OPERATOR_MAP[node.operator];
+  const val = mathOperator(children.operands[0].dependentType.value, children.operands[1].dependentType.value);
+
+  return {
+    type: new carouselsTypes.BooleanType(secret, val),
+    parameters: []
+  }
+};
+
 module.exports = [
   // bool and relational direct expression
   {
     rule: {
       nodeType: 'DirectExpression',
-      match: '@NB(<|>|(<=)|(>=)|(==)|(!=)|(&&)|(\\|\\|))@NB'
+      match: '@NFB(<|>|(<=)|(>=)|(==)|(!=))@NFB'
     },
-    value: function (node, pathStr, children) {
-      const secret = children.operands[0].secret || children.operands[1].secret;
-      const mathOperator = OPERATOR_MAP[node.operator];
-      const val = mathOperator(children.operands[0].dependentType.value, children.operands[1].dependentType.value);
-
-      return {
-        type: new carouselsTypes.BooleanType(secret, val),
-        parameters: []
-      }
-    }
+    value: func
+  },
+  // bool operations
+  {
+    rule: {
+      nodeType: 'DirectExpression',
+      match: '@B((&&)|(\\|\\|))@B'
+    },
+    value: func
   },
   // not
   {
     rule: {
       nodeType: 'DirectExpression',
-      match: '!@NB'
+      match: '!@B'
     },
     value: function (node, pathStr, children) {
       const secret = children.operands[0].secret;

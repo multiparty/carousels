@@ -23,6 +23,16 @@ Parameter.forArrayLength = function (arrayName) {
   const symbol = 'n' + (PARAMETER_COUNTER++);
   return new Parameter(symbol, description);
 };
+Parameter.forMatrixRows = function (matrixName) {
+  const description = 'The number of rows in Matrix "' + matrixName + '"';
+  const symbol = 'n' + (PARAMETER_COUNTER++);
+  return new Parameter(symbol, description);
+};
+Parameter.forMatrixCols = function (matrixName) {
+  const description = 'The number of cols in Matrix "' + matrixName + '"';
+  const symbol = 'n' + (PARAMETER_COUNTER++);
+  return new Parameter(symbol, description);
+};
 Parameter.forValue = function (variableName) {
   const description = 'The value of variable "' + variableName + '"';
   const symbol = 'v' + (PARAMETER_COUNTER++);
