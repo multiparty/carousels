@@ -9,6 +9,9 @@ const makeType = function (alterObject) {
   if (topType === 'boolean') {
     return new carouselsTypes.BooleanType(alterObject.secret, math.parse(alterObject.value));
   }
+  if (topType === 'float') {
+    return new carouselsTypes.FloatType(alterObject.secret, math.parse(alterObject.value));
+  }
   if (topType === 'string') {
     return new carouselsTypes.StringType(alterObject.secret);
   }
@@ -33,6 +36,10 @@ const makeType = function (alterObject) {
   if (topType === 'array') {
     const elementsType = makeType(alterObject.elementsType);
     return new carouselsTypes.ArrayType(alterObject.secret, elementsType, math.parse(alterObject.length));
+  }
+  if (topType === 'matrix') {
+    const elementsType = makeType(alterObject.elementsType);
+    return new carouselsTypes.MatrixType(alterObject.secret, elementsType, math.parse(alterObject.rows), math.parse(alterObject.cols));
   }
   if (topType === 'function') {
     const thisType = alterObject.thisType ? makeType(alterObject.thisType) : null;

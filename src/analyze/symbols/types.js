@@ -261,10 +261,10 @@ FloatType.prototype.alter = NumberType.prototype.alter;
 MatrixType.prototype.alter = function (alterObj) {
   Type.prototype.alter.call(this, alterObj);
   if (alterObj.rows) {
-    this.dependentType.length = math.parse(alterObj.rows);
+    this.dependentType.rows = math.parse(alterObj.rows);
   }
   if (alterObj.cols) {
-    this.dependentType.length = math.parse(alterObj.cols);
+    this.dependentType.cols = math.parse(alterObj.cols);
   }
   if (alterObj.elementsType) {
     this.dependentType.elementsType.alter(alterObj.elementsType);
