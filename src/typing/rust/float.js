@@ -15,7 +15,7 @@ module.exports = [
   {
     rule: {
       nodeType: 'DirectExpression',
-      match: '@F(\\+|-|\\*|/|%)@F'
+      match: '(@F(\\+|-|\\*|/|%)@NFB)|(@NFB(\\+|-|\\*|/|%)@F)'
     },
     value: function (node, pathStr, children) {
       const secret = children.operands[0].secret || children.operands[1].secret;
@@ -53,6 +53,21 @@ module.exports = [
       const parameter = Parameter.forValue(pathStr);
       return {
         type: new carouselsTypes.FloatType(children.leftType.secret, parameter.mathSymbol),
+        parameters: [parameter]
+      };
+    }
+  },
+  // power
+  {
+    rule: {
+      nodeType: 'FunctionCall',
+      match: '@F\\.powf\\(@F\\)'
+    },
+    value: function (node, pathStr, children) {
+      const secret = children.leftType.secret || children.parameters[0].secret;
+      const parameter = Parameter.forValue(pathStr);
+      return {
+        type: new carouselsTypes.FloatType(secret, parameter.mathSymbol),
         parameters: [parameter]
       };
     }

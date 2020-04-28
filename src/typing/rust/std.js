@@ -27,7 +27,7 @@ module.exports = [
       };
     }
   },
-  // Posession<T, P>.0 is <T>: this is just a hack because obliv-rust is un-implemented yet...
+  // Possession<T, P>.0 is <T>: this is just a hack because obliv-rust is un-implemented yet...
   {
     rule: {
       nodeType: 'DotExpression',
