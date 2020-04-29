@@ -36,7 +36,7 @@ module.exports = [
   {
     rule: {
       nodeType: 'DirectExpression',
-      match: '@B((&&)|(\\|\\|))@B'
+      match: '@NB((&&)|(\\|\\|))@NB'
     },
     value: func
   },
@@ -44,7 +44,7 @@ module.exports = [
   {
     rule: {
       nodeType: 'DirectExpression',
-      match: '!@B'
+      match: '!@NB'
     },
     value: function (node, pathStr, children) {
       const secret = children.operands[0].secret;

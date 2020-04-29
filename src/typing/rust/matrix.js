@@ -163,7 +163,7 @@ module.exports = [
       };
     }
   },
-  // matrix plus/times matrix (element wise)
+  // matrix plus/minus matrix (element wise)
   {
     rule: {
       nodeType: 'DirectExpression',
