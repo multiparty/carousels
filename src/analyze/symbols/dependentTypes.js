@@ -98,8 +98,8 @@ module.exports = function (Type, TYPE_ENUM) {
   function MatrixDependentType(elementsType, rows, cols) {
     DependentType.call(this, 'MatrixDependentType', [TYPE_ENUM.MATRIX]);
 
-    if (elementsType == null || length == null) {
-      throw new Error('ArrayDependentType given null parameters!');
+    if (elementsType == null || rows == null || cols == null) {
+      throw new Error('MatrixDependentType given null parameters!');
     }
 
     this.elementsType = elementsType;

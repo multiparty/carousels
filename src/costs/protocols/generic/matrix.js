@@ -14,7 +14,6 @@ module.exports = function (metrics, float) {
   // adding two matrices element wise
   matrix['elementWise'] = function (base, n, m) {
     // base \in addf, multf, divf
-    console.log(base);
     const comb = combinator('(' + n + ')*(' + m + ')*$' + base + '$');
     if (hasRounds) {
       comb['Network Rounds'] = float[base]['Network Rounds'];
