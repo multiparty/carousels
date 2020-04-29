@@ -204,7 +204,7 @@ module.exports = function (mathjs, callExpression, environment, reset) {
         } else {
           operandsStack.push([]);
           stack.push({tag: '2ndpass', node: node});
-          for (let i = node.args.length-1; i >= 0; i--) {
+          for (let i = node.args.length - 1; i >= 0; i--) {
             stack.push({node: node.args[i]});
           }
         }

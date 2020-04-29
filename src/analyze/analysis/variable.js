@@ -35,7 +35,9 @@ const VariableDefinition = function (node, pathStr) {
     if (variableTypeResult != null) {
       typeType = variableTypeResult.type;
       typeMetric = variableTypeResult.metric;
-      if (assignmentType.conflicts(typeType)) {
+      if (assignmentType.is(carouselsTypes.ENUM.ANY) && assignmentType.secret === typeType.secret) {
+        assignmentType = typeType;
+      } else if (assignmentType.conflicts(typeType)) {
         throw new Error('Types for variable "' + pathStr + variableName + '" from assignment and definition have a conflict:\n' +
           'Assignment Type: ' + assignmentType.toString() + '\n' +
           'Definition Type: ' + typeType.toString());

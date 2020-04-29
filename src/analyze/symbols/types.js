@@ -94,10 +94,10 @@ Type.prototype.combine = function (otherType, condition) {
   return this.copy();
 };
 Type.prototype.alter = function (alterObj) {
-  if (alterObj.dataType) {
+  if (alterObj.dataType != null) {
     throw new Error('cannot alter with "dataType", please use new: true and provide all type details in the hint!');
   }
-  if (alterObj.secret) {
+  if (alterObj.secret != null) {
     this.secret = alterObj.secret;
   }
   return this;
@@ -233,26 +233,26 @@ NumberType.prototype.alter = function (alterObj) {
 BooleanType.prototype.alter = NumberType.prototype.alter;
 ArrayType.prototype.alter = function (alterObj) {
   Type.prototype.alter.call(this, alterObj);
-  if (alterObj.length) {
+  if (alterObj.length != null) {
     this.dependentType.length = math.parse(alterObj.length);
   }
-  if (alterObj.elementsType) {
+  if (alterObj.elementsType != null) {
     this.dependentType.elementsType.alter(alterObj.elementsType);
   }
   return this;
 };
 RangeType.prototype.alter = function (alterObj) {
   Type.prototype.alter.call(this, alterObj);
-  if (alterObj.size) {
+  if (alterObj.size != null) {
     this.dependentType.size = math.parse(alterObj.size);
   }
-  if (alterObj.startType) {
+  if (alterObj.startType != null) {
     this.dependentType.startType.alter(alterObj.startType);
   }
-  if (alterObj.endType) {
+  if (alterObj.endType != null) {
     this.dependentType.endType.alter(alterObj.endType);
   }
-  if (alterObj.incrementType) {
+  if (alterObj.incrementType != null) {
     this.dependentType.incrementType.alter(alterObj.incrementType);
   }
   return this;
@@ -260,13 +260,13 @@ RangeType.prototype.alter = function (alterObj) {
 FloatType.prototype.alter = NumberType.prototype.alter;
 MatrixType.prototype.alter = function (alterObj) {
   Type.prototype.alter.call(this, alterObj);
-  if (alterObj.rows) {
+  if (alterObj.rows != null) {
     this.dependentType.rows = math.parse(alterObj.rows);
   }
-  if (alterObj.cols) {
+  if (alterObj.cols != null) {
     this.dependentType.cols = math.parse(alterObj.cols);
   }
-  if (alterObj.elementsType) {
+  if (alterObj.elementsType != null) {
     this.dependentType.elementsType.alter(alterObj.elementsType);
   }
   return this;
@@ -436,7 +436,7 @@ SymbolType.prototype.match = function (otherType) {
 };
 SymbolType.prototype.alter = function (alterObj) {
   Type.prototype.alter.call(this, alterObj);
-  if (alterObj.symbol) {
+  if (alterObj.symbol != null) {
     this.symbol = alterObj.symbol;
   }
   return this;
@@ -471,7 +471,7 @@ AbsType.prototype.match = function (otherType) {
 };
 AbsType.prototype.alter = function (alterObj) {
   Type.prototype.alter.call(this, alterObj);
-  if (alterObj.typeName) {
+  if (alterObj.typeName != null) {
     this.typeName = alterObj.typeName;
   }
   return this;
