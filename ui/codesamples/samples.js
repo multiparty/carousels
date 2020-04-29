@@ -37,24 +37,6 @@ window.carouselsCodeSamples = {
     '    }\n' +
     '    out\n' +
     '}',
-  merge_sort_dedup: 'fn merge_sort_dedup<T, P: Obliv>(a: &[Possession<T, P>])\n' +
-    '-> Vec<Possession<T, P>>\n' +
-    'where T: Ord + Clone\n' +
-    '{\n' +
-    '    let n = a.len();\n' +
-    '    if n > 1 {\n' +
-    '        let m = n/2;\n' +
-    '        merge_dedup(&merge_sort_dedup(&a[0..m]),\n' +
-    '                    &merge_sort_dedup(&a[m..n]))\n' +
-    '    } else {\n' +
-    '        a.to_owned()\n' +
-    '    }\n' +
-    '}\n' +
-    '\n' +
-    'fn merge_dedup<T, P: Obliv>(a: &[Possession<T, P>], b: &[Possession<T, P>])\n' +
-    '-> Vec<Possession<T, P>>\n' +
-    'where T: Ord + Clone\n' +
-    '{ }',
   max: 'fn max<T: Debug, P: Obliv>(arr: &[Possession<T, P>]) -> Possession<T, P> where T: Ord + Clone {\n' +
     '    let max = arr[0];\n' +
     '    for x in arr {\n' +
