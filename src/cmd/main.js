@@ -119,7 +119,7 @@ carousels.promise.then(function () {
     if (evaluate) {
       const abstractionToEvaluate = analyzer.functionMetricAbstractionMap.scopes[0][evaluate].mathSymbol.toString();
       const scope = at.split(';');
-      console.log(metric, '=', symbolicOutput.evaluate(abstractionToEvaluate, scope));
+      console.log(metric, '=', symbolicOutput.evaluate(abstractionToEvaluate, scope, true));
     }
 
     // done with one metric
