@@ -4,6 +4,7 @@ const parsers = require('../ir/parsers.js');
 const typings = require('../typing/index.js');
 
 const Parameter = require('./symbols/parameter.js');
+const abstractions = require('./symbols/abstractions.js');
 
 const TypingRuleBook = require('./rules/typingRuleBook.js');
 const CostRuleBook = require('./rules/costRuleBook.js');
@@ -34,7 +35,8 @@ const visitorImplementations = [
 const StringifyVisitor = require('./helpers/stringify.js');
 
 function Analyzer(language, code, costs, extraTyping) {
-  Parameter.restCounter();
+  Parameter.resetCounter();
+  abstractions.resetCounter();
 
   this.language = language;
   this.code = code;

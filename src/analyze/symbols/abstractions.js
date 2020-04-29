@@ -144,7 +144,13 @@ LoopAbstraction.makeAbstractions = function (pathStr, metricTitle, scopeParamete
   };
 };
 
+// resetting the counter
+const resetCounter = function () {
+  ABSTRACTION_COUNTER = 0;
+};
+
 module.exports = {
   FunctionAbstraction: FunctionAbstraction,
-  LoopAbstraction: LoopAbstraction
+  LoopAbstraction: LoopAbstraction,
+  resetCounter: resetCounter
 };

@@ -53,7 +53,7 @@ Parameter.forLoop = function (loopName) {
   const symbol = 'i' + (PARAMETER_COUNTER++);
   return new Parameter(symbol, description);
 };
-Parameter.restCounter = function () {
+Parameter.resetCounter = function () {
   PARAMETER_COUNTER = 0;
 };
 
