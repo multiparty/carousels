@@ -4,6 +4,7 @@ const metrics = ['Network Bits', 'Garbled Gates', 'Total Memory', 'Memory Access
 // All the primitive costs
 const allCosts = require('./protocols/gc/gc.js')(metrics);
 const floatCosts = require('./protocols/generic/float.js')(metrics, allCosts, allCosts);
+const matrixCosts = require('./protocols/generic/matrix.js')(metrics, floatCosts);
 
 // rules applying costs to regular expressions
 const arithmeticRules = require('./rules/arithmetic.js');
@@ -11,6 +12,7 @@ const booleanRules = require('./rules/boolean.js');
 const relationalRules = require('./rules/relational.js');
 const arraysRules = require('./rules/arrays.js');
 const floatRules = require('./rules/float.js');
+const matrixRules = require('./rules/matrix.js');
 
 // costs
 module.exports = {
@@ -57,4 +59,5 @@ module.exports = {
     .concat(relationalRules(metrics, allCosts, allCosts))
     .concat(arraysRules(metrics, allCosts, allCosts))
     .concat(floatRules(metrics, floatCosts))
+    .concat(matrixRules(metrics, matrixCosts))
 };
