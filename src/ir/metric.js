@@ -42,7 +42,7 @@ AbstractMetric.prototype.initial = math.ZERO;
 AbstractMetric.prototype.defaults = {};
 
 AbstractMetric.prototype.addCost = function (metric, cost) {
-  return math.add(metric, cost);
+  return math.add(metric, math.parse(cost));
 };
 
 AbstractMetric.prototype.store = function (metric) {
@@ -51,6 +51,10 @@ AbstractMetric.prototype.store = function (metric) {
 
 AbstractMetric.prototype.load = function (metric) {
   throw new Error('Metric "' + this.name + '" does not implement load()!');
+};
+
+AbstractMetric.prototype.finalizeLoopAbstraction = function (abstractionCall) {
+  return abstractionCall;
 };
 
 // Default visitor used for node types for which a user visitor was not set

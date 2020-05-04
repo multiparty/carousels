@@ -22,11 +22,18 @@ CostRuleBook.prototype.applyMatch = function (node, expressionTypeString, args, 
     return metric;
   }
 
-  if (matchedValue.startsWith('=')) {
+  if (matchedValue.startsWith && matchedValue.startsWith('=')) {
     return math.parse(matchedValue.substring(1));
   }
 
-  return this.analyzer.metric.addCost(metric, math.parse(matchedValue));
+  if (matchedValue.__absolute) {
+    matchedValue = matchedValue.metric.map(function (v) {
+      return math.parse(v);
+    });
+    return matchedValue;
+  }
+
+  return this.analyzer.metric.addCost(metric, matchedValue);
 };
 
 module.exports = CostRuleBook;

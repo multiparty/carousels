@@ -109,7 +109,16 @@ let carouselsPlot = {};
       for (let i = start; i < end; i++) {
         evaluationPoints.push(i);
       }
-      const yTrace = carouselsOutput.evaluateAtPoints(yaxis, initialScope, xaxis, evaluationPoints);
+      let yTrace = carouselsOutput.evaluateAtPoints(yaxis, initialScope, xaxis, evaluationPoints);
+
+      // if metric is mixed (consists of pairs, plot the second entry)
+      if (yTrace.length > 0) {
+        if (Array.isArray(yTrace[0])) {
+          yTrace = yTrace.map(function (v) {
+            return v[1];
+          });
+        }
+      }
 
       // create new plot
       plotDiv.style.height = (600 + marginAggregate) + 'px';

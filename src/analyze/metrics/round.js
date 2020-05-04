@@ -38,7 +38,7 @@ roundMetric.aggregateVariableDefinition = function (node, childrenType, children
 
 // For Each: body * iterations
 roundMetric.aggregateForEach = function (node, childrenType, childrenMetric) {
-  return math.max(childrenMetric.body, childrenMetric.previousIterationMetric);
+  return math.ZERO;
 };
 
 roundMetric.aggregateFor = function (node, childrenType, childrenMetric) {

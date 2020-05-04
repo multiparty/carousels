@@ -134,7 +134,7 @@ const ForEach = function (node, pathStr) {
     }
   }
 
-  // call aggregate For Each on conretize loop metric abstraction with iteration parameter = end
+  // call aggregate For Each on concretize loop metric abstraction with iteration parameter = end
   childrenMetric.previousIterationMetric = previousIterationMetric;
   const aggregateMetric = this.analyzer.metric.aggregateForEach(node, childrenType, childrenMetric);
 
@@ -142,7 +142,7 @@ const ForEach = function (node, pathStr) {
   const loopClosedForm = math.iff(math.lte(iterationMath, start), this.analyzer.metric.initial, aggregateMetric, true);
   abstractionsArray.unshift(loopAbstractions.loop);
   this.analyzer.abstractionToClosedFormMap[loopAbstractions.loop.mathSymbol.toString()] = loopClosedForm;
-  const finalMetric = loopAbstractions.loop.concretize([end]);
+  const finalMetric = this.analyzer.metric.finalizeLoopAbstraction(loopAbstractions.loop.concretize([end]));
 
   // for pretty printing
   this.analyzer.functionLoopAbstractionMap[this.analyzer.currentFunctionName].toParent();

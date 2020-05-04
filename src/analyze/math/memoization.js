@@ -167,7 +167,7 @@ module.exports = function (mathjs, callExpression, environment, reset) {
               // warn about using old cache values
               let fn = node.fn.name;
               if (environment[fn] == null) {
-                console.warn('Retreiving cached result ' + key + '=' + CACHE[key]
+                console.warn('Retrieving cached result ' + key + '=' + CACHE[key]
                   + ' even though "' + fn + '" is out of scope.');
               }
               // in cache
@@ -224,11 +224,57 @@ module.exports = function (mathjs, callExpression, environment, reset) {
         stack.push({node: val});
         break;
 
+      // Arrays: Two passes: first schedules all elements for evaluation, second combines them as arrays
+      case 'ArrayNode':
+        if (tag === '2ndpass' || node.__ready) {
+          operandsStack.pop();
+          if (node.__ready) {
+            val = node;
+          } else {
+            val = new mathjs.ArrayNode(operands);
+            val.__ready = true;
+          }
+          operandsStack[operandsStack.length - 1].push(val);
+        } else {
+          operandsStack.push([]);
+          stack.push({tag: '2ndpass', node: node});
+          for (let i = node.items.length - 1; i >= 0; i--) {
+            stack.push({node: node.items[i]});
+          }
+        }
+        break;
+
+      // Arrays Access: single pass is enough, we only support literal indices, so they do not need evaluation
+      // we do not need to evaluate the array, if it is already in array form, only the element accessed directly (lazy)
+      // otherwise (if it is a function call essentially), we will have to evaluate all of it (not so lazy), which requires 2 passes
+      case 'AccessorNode':
+        // math js indices start at 1 for some reason
+        if (node.object.type === 'ArrayNode') {
+          stack.push({node: node.object.items[node.index.dimensions[0].value - 1]});
+        } else {
+          if (tag === '2ndpass') {
+            operandsStack.pop();
+            stack.push({node: operands[0].items[node.index.dimensions[0].value - 1]});
+          } else {
+            operandsStack.push([]);
+            stack.push({tag: '2ndpass', node: node});
+            stack.push({node: node.object});
+          }
+        }
+        break;
+
       // Error: unsupported!
       default:
         throw new Error('Unsupported node "' + node.type + '" in evaluation!');
     }
   }
 
-  return operandsStack.pop().pop().value;
+  const finalVal = operandsStack.pop().pop();
+  if (finalVal.type === 'ConstantNode') {
+    return finalVal.value;
+  } else if (finalVal.type === 'ArrayNode') {
+    return finalVal.items.map(function (node) {
+      return node.value;
+    });
+  }
 };

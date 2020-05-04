@@ -55,7 +55,7 @@ const simpl = argv.simpl;
 const INFO = verbose ? console.log : function () {};
 
 // ensure consistency
-if ((evaluate && !at) || (at && !evaluate)) {
+if ((evaluate && at == null) || (at != null && !evaluate)) {
   console.log('You must provide both --evaluate and --at or neither!');
   process.exit(1);
 }

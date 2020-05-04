@@ -1,45 +1,26 @@
 module.exports = {
   ZERO: {
     CPU: {
-      round: '0',
-      total: '0',
+      metric: ['0', '0'],
       __absolute: true
     }
   },
   cadd: {
-    CPU: {
-      round: '0',
-      total: '1'
-    }
+    CPU: ['0', '1']
   },
   sadd: {
-    CPU: {
-      round: '0',
-      total: '1'
-    }
+    CPU: ['0', '1']
   },
   cmult: {
-    CPU: {
-      round: '0',
-      total: '1'
-    }
+    CPU: ['0', '1']
   },
   smult: {
-    CPU: {
-      round: '1',
-      total: '1'
-    }
+    CPU: ['1', '1']
   },
   open: {
-    CPU: {
-      round: '0',
-      total: '0'
-    }
+    CPU: ['0', '0']
   },
   if_else: {
-    CPU: {
-      round: 1,
-      total: 5
-    }
+    CPU: ['1', '5']
   }
 };

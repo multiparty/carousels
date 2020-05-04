@@ -96,7 +96,7 @@ mixedMetric.aggregateSequence = function (node, childrenTypes, childrenMetric) {
 
   return [
     roundMetric.aggregateSequence(node, childrenTypes, rounds),
-    roundMetric.aggregateSequence(node, childrenTypes, totals)
+    totalMetric.aggregateSequence(node, childrenTypes, totals)
   ];
 };
 
@@ -115,6 +115,12 @@ mixedMetric.addCost = function (metric, cost) {
   return [
     roundMetric.addCost(metric[mixedMetric.ROUND], cost[mixedMetric.ROUND]),
     totalMetric.addCost(metric[mixedMetric.TOTAL], cost[mixedMetric.TOTAL])
+  ];
+};
+mixedMetric.finalizeLoopAbstraction = function (abstractionCall) {
+  return [
+    math.arrayAccess(abstractionCall, 0),
+    math.arrayAccess(abstractionCall, 1)
   ];
 };
 
