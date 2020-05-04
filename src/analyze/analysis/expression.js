@@ -88,7 +88,7 @@ const NameExpression = function (node, pathStr) {
 
   // read type and metric from scope (if exists)
   type = this.analyzer.variableTypeMap.get(node.name, null);
-  metric = this.analyzer.variableMetricMap.get(node.name, null);
+  metric = this.analyzer.metric.load(this.analyzer.variableMetricMap.get(node.name, null));
 
   // Find type in case of special (global) variables
   let symbol = false;

@@ -31,19 +31,28 @@ const getModifiedVariables = function (node) {
 
 // interaction with metric and types in scope
 const getFromScope = function (variables, which) {
-  const scopedMap = which === 'metric' ? this.analyzer.variableMetricMap : this.analyzer.variableTypeMap;
+  const forMetric = which === 'metric';
+  const scopedMap = forMetric ? this.analyzer.variableMetricMap : this.analyzer.variableTypeMap;
   const values = {};
   for (let i = 0; i < variables.length; i++) {
     const varName = variables[i];
     values[varName] = scopedMap.get(varName);
+    if (forMetric) {
+      values[varName] = this.analyzer.metric.load(values[varName]);
+    }
   }
   return values;
 };
 const setInScope = function (map, which) {
-  const scopedMap = which === 'metric' ? this.analyzer.variableMetricMap : this.analyzer.variableTypeMap;
+  const forMetric = which === 'metric';
+  const scopedMap = forMetric ? this.analyzer.variableMetricMap : this.analyzer.variableTypeMap;
   for (let key in map) {
     if (Object.prototype.hasOwnProperty.call(map, key)) {
-      scopedMap.set(key, map[key]);
+      if (forMetric) {
+        scopedMap.set(key, this.analyzer.metric.store(map[key]));
+      } else {
+        scopedMap.set(key, map[key]);
+      }
     }
   }
 };

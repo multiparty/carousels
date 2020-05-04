@@ -49,6 +49,10 @@ AbstractMetric.prototype.store = function (metric) {
   throw new Error('Metric "' + this.name + '" does not implement store()!');
 };
 
+AbstractMetric.prototype.load = function (metric) {
+  throw new Error('Metric "' + this.name + '" does not implement load()!');
+};
+
 // Default visitor used for node types for which a user visitor was not set
 const defaultAggregate =  function (node, childrenTypes, childrenMetric) {
   const nodeType = node.nodeType;
