@@ -1,5 +1,5 @@
 const AbstractMetric = require('../../ir/metric.js');
-const IR_NODES = require('../../ir/ir.js')
+const IR_NODES = require('../../ir/ir.js');
 const math = require('../math.js');
 
 const roundMetric = require('./round.js');
@@ -7,16 +7,20 @@ const totalMetric = require('./total.js');
 
 // Round metric: aggregates cost along paths in the code dependency graph (through the depth of the circuit)
 // Singleton object instantiated from AbstractMetric
-const mixedMetric = new AbstractMetric('RoundMetric');
+function MixedMetric(roundCount, totalCount) {
+  AbstractMetric.call(this, 'MixedMetric');
+  this.roundCount = roundCount;
+  this.totalCount = totalCount;
 
-// metrics produced by mixedMetric are on the form of an array
-// the first element represents the round metric
-// the second is the total metric
-mixedMetric.ROUND = 0;
-mixedMetric.TOTAL = 1;
-
-// initial
-mixedMetric.initial = [roundMetric.initial, totalMetric.initial];
+  this.initial = [];
+  for (let i = 0; i < this.roundCount; i++) {
+    this.initial.push(roundMetric.initial);
+  }
+  for (let i = 0; i < this.totalCount; i++) {
+    this.initial.push(totalMetric.initial);
+  }
+}
+MixedMetric.prototype = Object.create(AbstractMetric.prototype);
 
 // extracts round/total metric from all pairs
 const extract = function (nodeType, object, index) {
@@ -76,52 +80,86 @@ const extract = function (nodeType, object, index) {
 };
 
 // apply roundMetric to round portion and totalMetric to total portion
-const defaultAggregate =  function (node, childrenTypes, childrenMetric) {
-  const rounds = extract(node.nodeType, childrenMetric, mixedMetric.ROUND);
-  const totals = extract(node.nodeType, childrenMetric, mixedMetric.TOTAL);
+MixedMetric.prototype.defaultAggregate =  function (node, childrenTypes, childrenMetric) {
+  const result = [];
 
-  return [
-    roundMetric['aggregate' + node.nodeType](node, childrenTypes, rounds),
-    totalMetric['aggregate' + node.nodeType](node, childrenTypes, totals)
-  ];
+  for (let i = 0; i < this.roundCount; i++) {
+    const rounds = extract(node.nodeType, childrenMetric, i);
+    result.push(roundMetric['aggregate' + node.nodeType](node, childrenTypes, rounds));
+  }
+
+  for (let i = this.roundCount; i < this.roundCount + this.totalCount; i++) {
+    const totals = extract(node.nodeType, childrenMetric, i);
+    result.push(totalMetric['aggregate' + node.nodeType](node, childrenTypes, totals));
+  }
+
+  return result;
 };
 for (let i = 0; i < IR_NODES.length; i++) {
   const nodeType = IR_NODES[i];
-  mixedMetric['aggregate'+nodeType] = defaultAggregate;
+  MixedMetric.prototype['aggregate'+nodeType] = MixedMetric.prototype.defaultAggregate;
 }
 
-mixedMetric.aggregateSequence = function (node, childrenTypes, childrenMetric) {
-  const rounds = extract('Sequence', childrenMetric, mixedMetric.ROUND);
-  const totals = extract('Sequence', childrenMetric, mixedMetric.TOTAL);
+// apply the same for sequences
+MixedMetric.prototype.aggregateSequence = function (node, childrenTypes, childrenMetric) {
+  const result = [];
 
-  return [
-    roundMetric.aggregateSequence(node, childrenTypes, rounds),
-    totalMetric.aggregateSequence(node, childrenTypes, totals)
-  ];
+  for (let i = 0; i < this.roundCount; i++) {
+    const rounds = extract('Sequence', childrenMetric, i);
+    result.push(roundMetric.aggregateSequence(node, childrenTypes, rounds));
+  }
+
+  for (let i = this.roundCount; i < this.roundCount + this.totalCount; i++) {
+    const totals = extract('Sequence', childrenMetric, i);
+    result.push(totalMetric.aggregateSequence(node, childrenTypes, totals));
+  }
+
+  return result;
 };
 
 // Override generic combinators
-mixedMetric.store = function (metric) {
-  if (Array.isArray(metric)) {
-    return roundMetric.store(metric[mixedMetric.ROUND]);
+MixedMetric.prototype.store = function (metric) {
+  if (this.roundCount === 0) {
+    return totalMetric.initial;
   }
 
-  return roundMetric.store(metric);
+  if (this.roundCount === 1) {
+    return roundMetric.store(Array.isArray(metric) ? metric[0] : metric);
+  }
+
+  throw new Error('Mixed Metric can only support at most a single round metric!');
 };
-mixedMetric.load = function (metric) {
-  return [roundMetric.load(metric), totalMetric.load(metric)];
+MixedMetric.prototype.load = function (metric) {
+  if (this.roundCount > 1) {
+    throw new Error('Mixed Metric can only support at most a single round metric!');
+  }
+
+  const result = [];
+  for (let i = 0; i < this.roundCount; i++) {
+    result.push(roundMetric.load(metric));
+  }
+  for (let i = 0; i < this.totalCount; i++) {
+    result.push(totalMetric.load(metric));
+  }
+
+  return result;
 };
-mixedMetric.addCost = function (metric, cost) {
-  return [
-    roundMetric.addCost(metric[mixedMetric.ROUND], cost[mixedMetric.ROUND]),
-    totalMetric.addCost(metric[mixedMetric.TOTAL], cost[mixedMetric.TOTAL])
-  ];
+MixedMetric.prototype.addCost = function (metric, cost) {
+  const result = [];
+  for (let i = 0; i < this.roundCount; i++) {
+    result.push(roundMetric.addCost(metric[i], cost[i]));
+  }
+  for (let i = this.roundCount; i < this.roundCount + this.totalCount; i++) {
+    result.push(totalMetric.addCost(metric[i], cost[i]));
+  }
+  return result;
 };
-mixedMetric.finalizeLoopAbstraction = function (abstractionCall) {
-  return [
-    math.arrayAccess(abstractionCall, 0),
-    math.arrayAccess(abstractionCall, 1)
-  ];
+MixedMetric.prototype.finalizeLoopAbstraction = function (abstractionCall) {
+  const result = [];
+  for (let i = 0; i < this.roundCount + this.totalCount; i++) {
+    result.push(math.arrayAccess(abstractionCall, i));
+  }
+  return result;
 };
 
-module.exports = mixedMetric;
+module.exports = MixedMetric;

@@ -175,8 +175,17 @@ Analyzer.prototype.analyze = function (costs, metricTitle) {
   for (let i = 0; i < costs.metrics.length; i++) {
     const metricEntry = costs.metrics[i];
     if (metricEntry.title === metricTitle) {
-      this.metric = metricObjects[metricEntry.type];
-      this.metricType = metricEntry.type;
+      const type = metricEntry.type;
+      if (type.name && type.params != null) {
+        const cls = metricObjects[type.name];
+        // new (cls.bind(null, params...))() with the this being cls
+        // new cls(params...), the null context is reset by "new"
+        this.metric = new (cls.bind.apply(cls, [null].concat(type.params)))();
+        this.metricType = type.name;
+      } else {
+        this.metric = metricObjects[type];
+        this.metricType = type;
+      }
     }
   }
 

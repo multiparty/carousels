@@ -227,7 +227,10 @@ module.exports = function (mathjs, callExpression, environment, reset) {
       // Arrays: Two passes: first schedules all elements for evaluation, second combines them as arrays
       case 'ArrayNode':
         if (tag === '2ndpass' || node.__ready) {
-          operandsStack.pop();
+          if (tag === '2ndpass') {
+            operandsStack.pop();
+          }
+
           if (node.__ready) {
             val = node;
           } else {

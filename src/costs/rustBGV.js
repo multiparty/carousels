@@ -22,12 +22,17 @@ module.exports = {
   parameters: [
     {symbol: 'b', description: 'the size of the field, also the security parameter'},
     {symbol: 'p', description: 'the number of parties'},
+    {symbol:' D', description: 'number of multiplications before bootstrapping'}
   ],
   metrics: [
     {
       title: 'CPU',
       description: 'Estimated RISK-V instructions per party',
-      type: 'MixedMetric'
+      type: {
+        name: 'MixedMetric',
+        // current multiplication depth, total number of CPU instructions (without bootstraps), total number of bootstraps
+        params: [1, 2]
+      }
     }
   ],
   operations: arithmeticRules(metrics, primitiveCosts, arithmeticCosts)
