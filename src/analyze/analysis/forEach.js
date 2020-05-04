@@ -139,7 +139,7 @@ const ForEach = function (node, pathStr) {
   const aggregateMetric = this.analyzer.metric.aggregateForEach(node, childrenType, childrenMetric);
 
   // concretize the loop metric abstraction and its closed form and return
-  const loopClosedForm = math.iff(math.lte(iterationMath, start), this.analyzer.metric.initial, aggregateMetric);
+  const loopClosedForm = math.iff(math.lte(iterationMath, start), this.analyzer.metric.initial, aggregateMetric, true);
   abstractionsArray.unshift(loopAbstractions.loop);
   this.analyzer.abstractionToClosedFormMap[loopAbstractions.loop.mathSymbol.toString()] = loopClosedForm;
   const finalMetric = loopAbstractions.loop.concretize([end]);

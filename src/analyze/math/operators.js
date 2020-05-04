@@ -57,8 +57,20 @@ module.exports = function (mathjs) {
     return new mathjs.FunctionNode('max', Array.from(arguments));
   };
 
-  const iff = function (condition, ifVal, elseVal) {
+  const iff = function (condition, ifVal, elseVal, parse) {
+    if (parse) {
+      if (Array.isArray(ifVal)) {
+        ifVal = new mathjs.ArrayNode(ifVal);
+      }
+      if (Array.isArray(elseVal)) {
+        elseVal = new mathjs.ArrayNode(elseVal);
+      }
+    }
     return new mathjs.FunctionNode('iff', [condition, ifVal, elseVal]);
+  };
+
+  const arrayAccess = function (array, index) {
+    return mathjs.parse(array + '[' + (index + 1) + ']');
   };
 
   // expose functions
@@ -79,6 +91,7 @@ module.exports = function (mathjs) {
       unaryMinus: unaryMinus,
       div: div,
       ceilDiv: ceilDiv
-    }
+    },
+    arrayAccess: arrayAccess
   };
 };

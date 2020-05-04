@@ -32,6 +32,9 @@ Object.assign(API, {
   eq: operators.genericOperator('==', 'equal', operators.constants.ZERO),
   neq: operators.genericOperator('!=', 'Unequal', operators.constants.ZERO)
 });
+Object.assign(API, {
+  arrayAccess: operators.arrayAccess
+});
 
 // expose API
 module.exports = API;

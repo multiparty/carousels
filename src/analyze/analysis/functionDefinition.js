@@ -41,7 +41,7 @@ const storeClosedFormMetricAbstraction = function (analyzer, functionName, bodyM
   let finalMetric = bodyMetric;
   for (let i = earlyReturnConditions.length - 1; i >= 0; i--) {
     const earlyReturn = earlyReturnConditions[i];
-    finalMetric = math.iff(earlyReturn.condition, earlyReturn.metric, finalMetric);
+    finalMetric = math.iff(earlyReturn.condition, earlyReturn.metric, finalMetric, true);
   }
 
   // store resulting closed form
