@@ -69,7 +69,7 @@ const evalOp = function (op, fn, operands) {
 
 // evaluate a function call
 const isBuiltinFunction = function (fn) {
-  return ['max', 'iff', 'ceil', 'floor'].indexOf(fn) > -1;
+  return ['max', 'iff', 'ceil', 'floor', 'log'].indexOf(fn) > -1;
 };
 const evalBuiltin = function (mathjs, node, args) {
   args = args.map(function (node) {
@@ -92,6 +92,9 @@ const evalBuiltin = function (mathjs, node, args) {
   }
   if (fn === 'floor') {
     return new mathjs.ConstantNode(Math.floor(args[0]));
+  }
+  if (fn === 'log') {
+    return new mathjs.ConstantNode(Math.floor(Math.log(args[0])/Math.log(2)));
   }
 };
 const evalFunc = function (fn, args, environment) {
