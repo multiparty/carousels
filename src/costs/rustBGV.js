@@ -17,6 +17,9 @@ const arithmeticRules = require('./rules/arithmetic.js');
 // const floatRules = require('./rules/float.js');
 // const matrixRules = require('./rules/matrix.js');
 
+// useful for tracking number of bootstraps
+const bootstrapTracker = require('./protocols/bgv/bootstrapper.js');
+
 // costs
 module.exports = {
   parameters: [
@@ -31,7 +34,7 @@ module.exports = {
       type: {
         name: 'MixedMetric',
         // current multiplication depth, total number of CPU instructions (without bootstraps), total number of bootstraps
-        params: [1, 2]
+        params: [1, 2, bootstrapTracker]
       }
     }
   ],
