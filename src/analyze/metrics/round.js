@@ -21,6 +21,10 @@ roundMetric.store = function (metric) {
   return metric;
 };
 
+roundMetric.load = function (metric) {
+  return metric;
+};
+
 // Variable definition: prioritize assignment over declaration
 roundMetric.aggregateVariableDefinition = function (node, childrenType, childrenMetric) {
   if (childrenMetric.assignment) {

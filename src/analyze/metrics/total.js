@@ -21,6 +21,10 @@ totalMetric.store = function () {
   return math.ZERO;
 };
 
+totalMetric.load = function (metric) {
+  return math.ZERO;
+};
+
 // Variable definition: prioritize assignment over declaration
 totalMetric.aggregateVariableDefinition = function (node, childrenType, childrenMetric) {
   if (childrenMetric.assignment) {

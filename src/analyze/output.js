@@ -60,7 +60,15 @@ SymbolicOutput.prototype._extractSymbolicSystem = function (abstractionScope, ad
 SymbolicOutput.prototype._extractSymbolicSystemArray = function (abstractions, addParametersToScope) {
   for (let i = 0; i < abstractions.length; i++) {
     const absStr = abstractions[i].mathSymbol.toString();
-    const closedFormStr = this.analyzer.abstractionToClosedFormMap[absStr].toString();
+    let closedFormStr = this.analyzer.abstractionToClosedFormMap[absStr];
+
+    // either an array of math expressions, or a math expression
+    if (Array.isArray(closedFormStr)) {
+      closedFormStr = '[' + closedFormStr.toString() + ']';
+    } else {
+      closedFormStr = closedFormStr.toString();
+    }
+
     this.symbolicSystem.push(absStr + ' = ' + closedFormStr);
     this.symbolicSystemMath.push(math.parse(this.symbolicSystem[this.symbolicSystem.length - 1]));
 
@@ -223,7 +231,14 @@ SymbolicOutput.prototype.dumpAbstraction = function (abstraction, html) {
   const dump = [];
   if (abstraction != null) {
     const absStr = abstraction.mathSymbol.toString();
-    const closedFormStr = this.analyzer.abstractionToClosedFormMap[absStr].toString();
+    let closedFormStr = this.analyzer.abstractionToClosedFormMap[absStr];
+
+    // either an array of math expressions, or a math expression
+    if (Array.isArray(closedFormStr)) {
+      closedFormStr = '[' + closedFormStr.toString() + ']';
+    } else {
+      closedFormStr = closedFormStr.toString();
+    }
 
     dump.push(tab + emph(abstraction.description, html));
     dump.push(tab + escape(absStr + ' = ' + closedFormStr, html));
