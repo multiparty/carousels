@@ -121,8 +121,17 @@ carousels.promise.then(function () {
       const scope = at.split(';');
 
       let result = symbolicOutput.evaluate(abstractionToEvaluate, scope, true);
-      if (result.toString().length > 6) {
-        result = result.toExponential(3);
+      if (Array.isArray(result)) {
+        result = result.map(function (v) {
+          if (v.toString().length > 6) {
+            return v.toExponential(3);
+          }
+          return v;
+        });
+      } else {
+        if (result.toString().length > 6) {
+          result = result.toExponential(3);
+        }
       }
 
       console.log(metric, '=', result);

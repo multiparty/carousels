@@ -34,7 +34,7 @@ module.exports = function (metrics, float) {
     // determinant evaluation
     const det = function (n) {
       return [
-        '(' + n + ' - 1)*$divf$ + (' + n + ')*$multf$ + (' + n + ')*(' + n + ')*$addf$ + (' + n + ' - 1)*$multf',
+        '(' + n + ' - 1)*$divf$ + (' + n + ')*$multf$ + (' + n + ')*(' + n + ')*$addf$ + (' + n + ' - 1)*$multf$',
         '(' + n + ' - 1)*$divf$ + ((' + n + ' + 2)*(' + n + ' - 1)/2)*$multf$ + (' + n + ')*(' + n + ')*(' + n + ')*$addf$ + (' + n + ' - 1)*$multf$',
         '0'
       ];

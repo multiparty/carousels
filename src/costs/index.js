@@ -8,6 +8,6 @@ module.exports = {
   rustTest: rustTest,
   rustGC: rustGC,
   rustSPDZ: rustSPDZ,
-  rustBGW: rustBGW,
-  rustBGV: rustBGV
+  rustBGV: rustBGV,
+  rustBGW: rustBGW
 };
