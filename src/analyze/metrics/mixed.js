@@ -68,6 +68,15 @@ const extract = function (nodeType, object, index) {
       extracted.range = object.range[index];
       return extracted;
 
+    case 'OblivIf':
+      extracted.condition = object.condition[index];
+      extracted.ifBody = object.ifBody[index];
+      extracted.elseBody = object.elseBody[index];
+      extracted.sideEffects = object.sideEffects.map(function (effect) {
+        return effect[index];
+      });
+      return extracted;
+
     default:
       for (let key in object) {
         if (Object.prototype.hasOwnProperty.call(object, key)) {

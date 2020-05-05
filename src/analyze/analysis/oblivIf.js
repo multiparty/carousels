@@ -170,7 +170,8 @@ const OblivIf = function (node, pathStr) {
     };
     const conditionCase = {
       type: conditionResult.type,
-      metric: this.analyzer.metric.store(conditionResult.metric) // it is as if the condition is stored in a variable and then used many times
+      // it is as if the condition is stored in a variable and then used many times
+      metric: this.analyzer.metric.load(this.analyzer.metric.store(conditionResult.metric))
     };
 
     // combine types T1, T2 into combine iff(condition, T1, T2)
