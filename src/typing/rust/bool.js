@@ -7,7 +7,7 @@ const OPERATOR_MAP = {
   '>': math.gt,
   '>=': math.gte,
   '==': math.eq,
-  '!-': math.neq,
+  '!=': math.neq,
   '&&': math.and,
   '||': math.or
 };

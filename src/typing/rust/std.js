@@ -1,3 +1,6 @@
+const carouselsTypes = require('../../analyze/symbols/types.js');
+
+
 module.exports = [
   // to_owned, clone, into, copy are similar to identity
   {
@@ -8,6 +11,18 @@ module.exports = [
     value: function (node, pathStr, children) {
       return {
         type: children.leftType,
+        parameters: []
+      };
+    }
+  },
+  {
+    rule: {
+      nodeType: 'FunctionCall',
+      match: '@T\\.into_secret\\(\\)'
+    },
+    value: function (node, pathStr, children) {
+      return {
+        type: new carouselsTypes.AnyType(true),
         parameters: []
       };
     }
