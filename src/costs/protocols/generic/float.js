@@ -7,7 +7,7 @@ const m = 5; // floor(log2(l))
 const sqrtLog = 3; // floor(log2(l / 5.4))
 
 module.exports = function (metrics, primitives, arithmetic) {
-  // float operations include all primitives except open and if_else
+  // all primitives, but only float ones are returned
   const float = Object.assign({}, primitives, arithmetic);
 
   // curry combinator

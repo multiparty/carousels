@@ -19,8 +19,21 @@ module.exports = function (metrics, primitiveCosts, arithmeticCosts) {
       },
       value: combinators.mapCombinator(metrics,function (node, metric, pathStr, childrenType, childrenMetric) {
         const arrayLength = childrenType.array.dependentType.length;
-        return '(' + arrayLength.toString() + ')*(' + primitiveCosts['if_else'][this.metricTitle] + ' + '
-          + arithmeticCosts['clt'][this.metricTitle] + ')'; // length many simple (mux) obliv ifs and ==
+
+        let ifElse = primitiveCosts['if_else'][this.metricTitle];
+        if (typeof(ifElse) === 'function') {
+          ifElse = ifElse.apply(this, arguments);
+        }
+
+        let clt = arithmeticCosts['clt'][this.metricTitle];
+        if (typeof(clt) === 'function') {
+          clt = clt.apply(this, arguments);
+        }
+
+        // length many simple (mux) obliv ifs and ==
+        return combinators.mapOrSingle(function (ifElse, clt) {
+          return '(' + arrayLength.toString() + ')*(' + ifElse + ' + ' + clt + ')';
+        }, [ifElse, clt]);
       })
     },
     // .push modifies the cost of the array as a side effect
@@ -45,8 +58,21 @@ module.exports = function (metrics, primitiveCosts, arithmeticCosts) {
       },
       value: combinators.mapCombinator(metrics,function (node, metric, pathStr, childrenType, childrenMetric) {
         const arrayLength = childrenType.leftType.dependentType.length;
-        return '(' + arrayLength.toString() + ')*(4*(' + primitiveCosts['if_else'][this.metricTitle] + ') + 2*('
-          + arithmeticCosts['clt'][this.metricTitle] + '))'; // length many simple (mux) obliv ifs and ==
+
+        let ifElse = primitiveCosts['if_else'][this.metricTitle];
+        if (typeof(ifElse) === 'function') {
+          ifElse = ifElse.apply(this, arguments);
+        }
+
+        let clt = arithmeticCosts['clt'][this.metricTitle];
+        if (typeof(clt) === 'function') {
+          clt = clt.apply(this, arguments);
+        }
+
+        // length many simple (mux) obliv ifs and ==
+        return combinators.mapOrSingle(function (ifElse, clt) {
+          return '(' + arrayLength.toString() + ')*(4*(' + ifElse + ') + 2*(' + clt + '))';
+        }, [ifElse, clt]);
       })
     },
     {
@@ -57,8 +83,21 @@ module.exports = function (metrics, primitiveCosts, arithmeticCosts) {
       },
       value: combinators.mapCombinator(metrics,function (node, metric, pathStr, childrenType, childrenMetric) {
         const arrayLength = childrenType.leftType.dependentType.length;
-        return '(' + arrayLength.toString() + ')*(2*(' + primitiveCosts['if_else'][this.metricTitle] + ') + '
-          + arithmeticCosts['clt'][this.metricTitle] + ')'; // length many simple (mux) obliv ifs and ==
+
+        let ifElse = primitiveCosts['if_else'][this.metricTitle];
+        if (typeof(ifElse) === 'function') {
+          ifElse = ifElse.apply(this, arguments);
+        }
+
+        let clt = arithmeticCosts['clt'][this.metricTitle];
+        if (typeof(clt) === 'function') {
+          clt = clt.apply(this, arguments);
+        }
+
+        // length many simple (mux) obliv ifs and ==
+        return combinators.mapOrSingle(function (ifElse, clt) {
+          return '(' + arrayLength.toString() + ')*(2*(' + ifElse + ') + ' + clt + ')';
+        }, [ifElse, clt]);
       })
     },
   ];

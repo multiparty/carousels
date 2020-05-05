@@ -1,6 +1,11 @@
 const math = require('../../../analyze/math.js');
 
-const bootstrapCost = math.parse('100');
+// cost of a single bootstrap
+const NTTCost = '(b + 10)*(b + 10)';
+const RMCost = 'log(b + 10)*(b + 10)*(b + 10)*(b + 10)/2';
+const bootstrapCost = math.parse('NTT * ' + NTTCost + ' + RM * ' + RMCost);
+
+// max number of multiplication levels before bootstrapping
 const D = math.parse('D');
 
 module.exports = function (currentMetric) {

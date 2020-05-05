@@ -5,7 +5,7 @@ module.exports = function (metrics, float) {
 
   const hasRounds = metrics.indexOf('Network Rounds') > -1;
 
-  // float operations include all primitives except open and if_else
+  // matrix operations include only matrix primitives
   const matrix = {};
 
   // curry combinator

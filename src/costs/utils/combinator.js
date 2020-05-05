@@ -45,7 +45,24 @@ const mapCombinator = function (metrics, func) {
   return result;
 };
 
+// takes an array of arguments, and either applies the function to it if it was simple arguments,
+// or applies the function repeatedly to entries at position i in all arguments, if each argument was an array
+const mapOrSingle = function (func, args) {
+  const e = args[0];
+  if (Array.isArray(e)) {
+    return e.map(function (_, i) {
+      const _args = args.map(function (arr) {
+        return arr[i];
+      });
+      return func.apply(null, _args);
+    });
+  }
+
+  return func.apply(null, args);
+};
+
 module.exports = {
   $Combinator: $Combinator,
-  mapCombinator: mapCombinator
+  mapCombinator: mapCombinator,
+  mapOrSingle: mapOrSingle
 };

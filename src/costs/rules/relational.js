@@ -42,12 +42,19 @@ module.exports = function (metrics, primitiveCosts, arithmeticCosts) {
         match: '@T\\?<type:array@D,secret:(true|false)>:<type:array@D,secret:(true|false)>'
       },
       value: combinators.mapCombinator(metrics,function (node, metric, pathStr, childrenType, childrenMetric) {
+        let singleCost = primitiveCosts['if_else'][this.metricTitle];
+        if (typeof(singleCost) === 'function') {
+          singleCost = singleCost.apply(this, arguments);
+        }
+
         if (this.metricType === 'RoundMetric') {
-          return primitiveCosts['if_else'][this.metricTitle];
+          return singleCost;
         }
 
         const arrayLength = childrenType.ifBody.dependentType.length;
-        return '(' + arrayLength.toString() + ')*(' + primitiveCosts['if_else'][this.metricTitle] + ')';
+        return combinators.mapOrSingle(function (singleCost) {
+          return '(' + arrayLength.toString() + ')*(' + singleCost + ')';
+        }, [singleCost]);
       })
     },
     // oblivIf on b-bits numbers

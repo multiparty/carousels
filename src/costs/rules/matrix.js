@@ -1,5 +1,4 @@
 const combinators = require('../utils/combinator.js');
-const regex = require('../utils/regex.js');
 
 const ops = {
   '+': 'addf',
@@ -19,7 +18,12 @@ module.exports = function (metrics, matrixCost) {
       },
       value: combinators.mapCombinator(metrics,function (node, metric, pathStr, childrenType, childrenMetric) {
         const n = childrenType.operands[0].dependentType.rows;
-        return matrixCost['prod'](n)[this.metricTitle];
+        const result = matrixCost['prod'](n)[this.metricTitle];
+
+        if (typeof(result) === 'function') {
+          return result.apply(this, arguments);
+        }
+        return result;
       })
     },
     // matrix matrix multiplication
@@ -32,7 +36,12 @@ module.exports = function (metrics, matrixCost) {
         const n = childrenType.operands[0].dependentType.rows;
         const m = childrenType.operands[0].dependentType.cols;
         const k = childrenType.operands[1].dependentType.cols;
-        return matrixCost['mult'](n, m, k)[this.metricTitle];
+        const result = matrixCost['mult'](n, m, k)[this.metricTitle];
+
+        if (typeof(result) === 'function') {
+          return result.apply(this, arguments);
+        }
+        return result;
       })
     },
     // scalar matrix
@@ -45,7 +54,12 @@ module.exports = function (metrics, matrixCost) {
         const n = childrenType.operands[0].dependentType.rows;
         const m = childrenType.operands[0].dependentType.cols;
         const op = ops[node.operator];
-        return matrixCost['elementWise'](op, n, m)[this.metricTitle];
+        const result = matrixCost['elementWise'](op, n, m)[this.metricTitle];
+
+        if (typeof(result) === 'function') {
+          return result.apply(this, arguments);
+        }
+        return result;
       })
     },
     // matrix scalar
@@ -58,7 +72,12 @@ module.exports = function (metrics, matrixCost) {
         const n = childrenType.operands[1].dependentType.rows;
         const m = childrenType.operands[1].dependentType.cols;
         const op = ops[node.operator];
-        return matrixCost['elementWise'](op, n, m)[this.metricTitle]
+        const result = matrixCost['elementWise'](op, n, m)[this.metricTitle]
+
+        if (typeof(result) === 'function') {
+          return result.apply(this, arguments);
+        }
+        return result;
       })
     },
     // matrix matrix element wise
@@ -71,8 +90,12 @@ module.exports = function (metrics, matrixCost) {
         const n = childrenType.operands[0].dependentType.rows;
         const m = childrenType.operands[0].dependentType.cols;
         const op = ops[node.operator];
+        const result = matrixCost['elementWise'](op, n, m)[this.metricTitle];
 
-        return matrixCost['elementWise'](op, n, m)[this.metricTitle];
+        if (typeof(result) === 'function') {
+          return result.apply(this, arguments);
+        }
+        return result;
       })
     },
     // matrix matrix mult element wise
@@ -85,8 +108,12 @@ module.exports = function (metrics, matrixCost) {
       value: combinators.mapCombinator(metrics,function (node, metric, pathStr, childrenType, childrenMetric) {
         const n = childrenType.parameters[0].dependentType.rows;
         const m = childrenType.parameters[0].dependentType.cols;
+        const result = matrixCost['elementWise']('multf', n, m)[this.metricTitle];
 
-        return matrixCost['elementWise']('multf', n, m)[this.metricTitle];
+        if (typeof(result) === 'function') {
+          return result.apply(this, arguments);
+        }
+        return result;
       })
     },
     // matrix inverse
@@ -97,7 +124,12 @@ module.exports = function (metrics, matrixCost) {
       },
       value: combinators.mapCombinator(metrics,function (node, metric, pathStr, childrenType, childrenMetric) {
         const n = childrenType.leftType.dependentType.rows;
-        return matrixCost['inv'](n)[this.metricTitle];
+        const result = matrixCost['inv'](n)[this.metricTitle];
+
+        if (typeof(result) === 'function') {
+          return result.apply(this, arguments);
+        }
+        return result;
       })
     }
   ];
