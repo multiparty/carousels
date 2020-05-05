@@ -180,7 +180,7 @@ Analyzer.prototype.analyze = function (costs, metricTitle) {
         const cls = metricObjects[type.name];
         // new (cls.bind(null, params...))() with the this being cls
         // new cls(params...), the null context is reset by "new"
-        this.metric = new (cls.bind.apply(cls, [null].concat(type.params)))();
+        this.metric = new (cls.bind.apply(cls, [null, this.metricTitle].concat(type.params)))();
         this.metricType = type.name;
       } else {
         this.metric = metricObjects[type];

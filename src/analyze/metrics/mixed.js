@@ -7,11 +7,12 @@ const totalMetric = require('./total.js');
 
 // Round metric: aggregates cost along paths in the code dependency graph (through the depth of the circuit)
 // Singleton object instantiated from AbstractMetric
-function MixedMetric(roundCount, totalCount, addCostHook) {
+function MixedMetric(metricTitle, roundCount, totalCount, addCostHook) {
   AbstractMetric.call(this, 'MixedMetric');
   this.roundCount = roundCount;
   this.totalCount = totalCount;
   this.addCostHook = addCostHook;
+  this.metricTitle = metricTitle;
 
   this.initial = [];
   for (let i = 0; i < this.roundCount; i++) {
@@ -164,7 +165,7 @@ MixedMetric.prototype.addCost = function (metric, cost) {
   }
 
   if (this.addCostHook) {
-    return this.addCostHook(result);
+    return this.addCostHook(this.metricTitle, result);
   }
   return result;
 };

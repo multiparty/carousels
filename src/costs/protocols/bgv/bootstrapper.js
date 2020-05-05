@@ -8,7 +8,7 @@ const bootstrapCost = math.parse('NTT * ' + NTTCost + ' + RM * ' + RMCost);
 // max number of multiplication levels before bootstrapping
 const D = math.parse('D');
 
-module.exports = function (currentMetric) {
+module.exports = function (metricTitle, currentMetric) {
   const multiplicationDepth = currentMetric[0];
   const totalMetric = currentMetric[1];
   const bootstrapCount = currentMetric[2];
@@ -17,5 +17,6 @@ module.exports = function (currentMetric) {
   const addedBootstraps = math.div(multiplicationDepth, D);
   const newBootstrapCount = math.add(bootstrapCount, addedBootstraps);
   const newTotal = math.add(totalMetric, math.multiply(addedBootstraps, bootstrapCost));
-  return [newDepth, newTotal, newBootstrapCount];
+
+  return [newDepth, metricTitle === 'RISK-V Instructions' ? newTotal : totalMetric, newBootstrapCount];
 };

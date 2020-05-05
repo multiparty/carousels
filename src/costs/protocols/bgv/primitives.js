@@ -118,7 +118,7 @@ module.exports = {
     },
     'Total Memory': function (node, metric, args, childrenType, childrenMetric) {
       const metricPlusOne = metric[0] + ' + 1';
-      return ['1', cipherSize([metricPlusOne]) + ' + 2*' + _(cipherSize([metric])), '0'];
+      return ['1', cipherSize([metricPlusOne]) + ' + 2*' + _(cipherSize(metric)), '0'];
     },
     'Memory Access': function (node, metric, args, childrenType, childrenMetric) {
       const metricPlusOne = metric[0] + ' + 1';
