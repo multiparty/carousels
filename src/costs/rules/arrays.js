@@ -100,5 +100,32 @@ module.exports = function (metrics, primitiveCosts, arithmeticCosts) {
         }, [ifElse, clt]);
       })
     },
+    {
+      rule: {
+          nodeType: 'FunctionCall',
+          match: '.*db_((get)|(insert))\\(@P\\)'
+      },
+      value: combinators.mapCombinator(metrics, function (node, metric, pathStr, childrenType, childrenMetric) {
+        // functions to use the OblivMultimap type until carousels can handle it without specialcasing
+        //assume first argument is a matrix
+        const n = childrenType.parameters[0].dependentType.rows;
+
+        let ifElse = primitiveCosts['if_else'][this.metricTitle];
+        if (typeof(ifElse) === 'function') {
+          ifElse = ifElse.apply(this, arguments);
+        }
+
+        let clt = arithmeticCosts['clt'][this.metricTitle];
+        if (typeof(clt) === 'function') {
+          clt = clt.apply(this, arguments);
+        }
+
+        // length*length many simple (mux) obliv ifs and ==
+        return combinators.mapOrSingle(function (ifElse, clt) {
+          return '(' + n.toString() + '*' + n.toString() +')*(2*(' + ifElse + ') + ' + clt + ')';
+        }, [ifElse, clt]);
+
+      })
+    },
   ];
 };

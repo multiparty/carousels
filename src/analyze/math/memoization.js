@@ -25,7 +25,7 @@ const reducers = {
     return x || y;
   },
   '^': function (x, y) {
-    return x ^ y;
+    return Math.pow(x, y);
   },
   '<': function (x, y) {
     return x < y;
