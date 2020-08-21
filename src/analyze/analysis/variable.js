@@ -35,8 +35,9 @@ const VariableDefinition = function (node, pathStr) {
     if (variableTypeResult != null) {
       typeType = variableTypeResult.type;
       typeMetric = variableTypeResult.metric;
-      if (assignmentType.is(carouselsTypes.ENUM.ANY) && assignmentType.secret === typeType.secret) {
+      if (assignmentType.is(carouselsTypes.ENUM.ANY)) {
         assignmentType = typeType;
+        assignmentMetric = typeMetric;
       } else if (assignmentType.conflicts(typeType)) {
         throw new Error('Types for variable "' + pathStr + variableName + '" from assignment and definition have a conflict:\n' +
           'Assignment Type: ' + assignmentType.toString() + '\n' +
@@ -80,7 +81,13 @@ const VariableDefinition = function (node, pathStr) {
 };
 
 const VariableAssignment = function (node, pathStr, inDefinition) {
+  
+  if (node.name.serializationTag === "ArrayAccess") {
+    throw new Error('Variable assignment on array access not currently supported. Error at: "' + pathStr + '"'); 
+  };
+
   const variableName = node.name.name;
+  
   const analyzer = this.analyzer;
 
   const childResult = this.visit(node.expression, pathStr + '=');
@@ -90,9 +97,12 @@ const VariableAssignment = function (node, pathStr, inDefinition) {
   // ensure variable assignments does not change the type of the variable if already defined
   // do not allow assigning to global undefined variables
   if (inDefinition !== true) {
+    if (variableName === undefined) {
+        throw new Error('Variable name undefined for node: ' + JSON.stringify(node));
+    }
     const oldType = analyzer.variableTypeMap.get(variableName);
     if (!oldType.match(variableType)) {
-      throw new Error('Type of variable "' + variableName + '" is changed at "' + pathStr + '" after definition!');
+      throw new Error('Type of variable "' + variableName + '" is changed at "' + pathStr + '" after definition! expected: ' + oldType + ' found: ' + variableType);
     }
   }
 

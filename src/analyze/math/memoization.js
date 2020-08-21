@@ -24,6 +24,9 @@ const reducers = {
   'or': function (x, y) {
     return x || y;
   },
+  '^': function (x, y) {
+    return Math.pow(x, y);
+  },
   '<': function (x, y) {
     return x < y;
   },

@@ -2,7 +2,7 @@ use syn::visit::{Visit};
 use syn::{Expr, Stmt, Pat, Item};
 use crate::visitor::stack::{Stack};
 
-use crate::ir::{TypeNode, VariableDefinition, VariableAssignment, NameExpression, RangeExpression};
+use crate::ir::{TypeNode, VariableDefinition, VariableAssignment, NameExpression, RangeExpression, Error};
 
 impl Stack{
     pub fn visit_stmt<'ast>(&mut self, node: &'ast Stmt){
@@ -101,7 +101,9 @@ impl Stack{
             Expr::Continue(_cont)=>{
                 self.visit_expr_continue(_cont);
             }
-            _=>{}
+            _ => {
+                self.visitor.push(Box::new(Error::new(format!("Unsupported expr type {:?}", node))));
+            }
         }
 
     }
@@ -133,7 +135,9 @@ impl Stack{
                 let wild = NameExpression::new(String::from("_"));
                 self.visitor.push(Box::new(wild));
             }
-            _=>{}
+            _=>{
+                self.visitor.push(Box::new(Error::new(format!("Unsupported pat type {:?}", node))));
+            }
         }
     }
     pub fn visit_item<'ast>(&mut self, node: &'ast Item){
@@ -154,7 +158,9 @@ impl Stack{
 
                 self.visitor.push(Box::new(variable_def));
             }
-            _=>{}
+            _=>{
+                self.visitor.push(Box::new(Error::new(format!("Unsupported item type {:?}", node))));
+            }
         }
     }
 }

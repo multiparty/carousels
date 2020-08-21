@@ -146,7 +146,7 @@ const ForEach = function (node, pathStr) {
 
   // for pretty printing
   this.analyzer.functionLoopAbstractionMap[this.analyzer.currentFunctionName].toParent();
-  this.analyzer.functionLoopAbstractionMap[this.analyzer.currentFunctionName].setElement({loopName: pathStr, abstractions: abstractionsArray});
+  this.analyzer.functionLoopAbstractionMap[this.analyzer.currentFunctionName].addChild({loopName: pathStr, abstractions: abstractionsArray});
 
   // For Each is not supported by cost or typing rules: skip!
   // done

@@ -15,7 +15,7 @@ impl Stack{
             }
             None =>{
                 return Box::new(Error::new(
-                    String::from("Error poping from visit_expr_stack")));
+                    format!("Error popping from visit_expr_stack: {:?}", node)));
             }
         }
     }
@@ -29,7 +29,7 @@ impl Stack{
             }
             None =>{
                 return Box::new(Error::new(
-                    String::from("Error poping from visit_expr_stack")));
+                    format!("Error popping from visit_stmt_stack: {:?}", node)));
             }
         }
     }
@@ -44,7 +44,7 @@ impl Stack{
             }
             None =>{
                 return Box::new(Error::new(
-                    String::from("Error poping from visit_expr_stack")));
+                    format!("Error popping from visit_pat_stack: {:?}", node)));
             }
         }
     }
@@ -59,7 +59,7 @@ impl Stack{
             }
             None =>{
                 return Box::new(Error::new(
-                    String::from("Error poping from visit_expr_stack")));
+                    format!("Error popping from visit_item_stack: {:?}", node)));
             }
         }
     }
