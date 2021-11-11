@@ -22,6 +22,10 @@ module.exports = function (metrics, primitives) {
   }
   // ------- end of internal
 
+  // constant equality test.
+  arithmetic['ceq'] = combinator('$cadd$ + (b-1)*$smult$');
+  arithmetic['seq'] = combinator('$sadd$ + (b-1)*$smult$');
+
   // constant less than
   arithmetic['clt'] = combinator('2*$half_prime$ + 3*$cadd$ + 3*$sadd$ + 2*$cmult$ + $smult$');
   if (networkRounds) {
