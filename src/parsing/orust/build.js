@@ -20,7 +20,7 @@ if (!fs.existsSync(wasmPath)) {
 }
 
 const wasmBinaryPath = path.join(wasmPath, FILES.WASM_BG);
-const bundleOutputPath = path.join(wasmPath, FILES.BUNDLE_OUT);
+const bundleOutputPath = path.join(__dirname, FILES.BUNDLE_OUT);
 
 const buffer = fs.readFileSync(wasmBinaryPath);
 const string = buffer.toString('base64');

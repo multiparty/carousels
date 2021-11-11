@@ -2,13 +2,14 @@
   "name": "carousels",
   "version": "0.2.0",
   "description": "Babel parser to analyze performance of JavaScript code",
-  "main": "src/carousels.js",
+  "main": "src/main.js",
   "scripts": {
     "test": "mocha --reporter spec",
     "lint": "eslint .",
-    "build:rust": "cd rust && ./build.sh",
-    "build:browserify": "browserify src/index.js --debug --s carousels -o dist/carousels.js",
-    "build": "npm run build:rust && npm run build:browserify"
+    "build:orust": "cd src/parsing/orust && make build && cd -",
+    "build:browserify": "browserify src/carousels.js --debug --s carousels -o dist/carousels.js",
+    "build:ui": "browserify ui/ui.js --debug -o dist/ui.js",
+    "build": "npm run build:orust && npm run build:browserify && npm run build:ui"
   },
   "repository": {
     "type": "git",
