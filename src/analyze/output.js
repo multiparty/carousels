@@ -255,12 +255,12 @@ SymbolicOutput.prototype.evaluateAtPoints = function (callExpression, parameters
   const results = [];
   const context = parametersValues;
   const index = context.length;
-  let first = true;
+  let reset = true;
   for (let i = 0; i < evaluationPoints.length; i++) {
     const point = evaluationParameter + '=' + evaluationPoints[i];
     context[index] = point;
-    results.push(this.evaluate(callExpression, context, first));
-    first = false;
+    results.push(this.evaluate(callExpression, context, reset));
+    reset = evaluationParameter == "b";
   }
   context.pop();
   return results;
