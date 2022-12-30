@@ -39,7 +39,7 @@
     "browserify": "^16.5.0",
     "eslint": "^6.8.0",
     "eslint-plugin-requirejs": "^4.0.0",
-    "mocha": "^7.1.0",
+    "mocha": "^10.2.0",
     "wasm-pack": "^0.9.1"
   },
   "directories": {
