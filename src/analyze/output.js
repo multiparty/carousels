@@ -260,7 +260,6 @@ SymbolicOutput.prototype.evaluateAtPoints = function (callExpression, parameters
     const point = evaluationParameter + '=' + evaluationPoints[i];
     context[index] = point;
     results.push(this.evaluate(callExpression, context, reset));
-    reset = evaluationParameter == "b";
   }
   context.pop();
   return results;
